@@ -7,7 +7,9 @@ const Login = () => {
     const { user } = useContext(AuthContext);
 
     if (user) {
-        return <Navigate to="/dashboard" replace />;
+        if (user.role === 'ADMIN') return <Navigate to="/admin" replace />;
+        if (user.role === 'TECHNICIAN') return <Navigate to="/technician" replace />;
+        return <Navigate to="/home" replace />;
     }
 
     const handleGoogleLogin = () => {
