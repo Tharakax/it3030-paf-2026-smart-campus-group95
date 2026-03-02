@@ -1,0 +1,81 @@
+.home-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.hero-section {
+    text-align: center;
+    margin-bottom: 4rem;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.hero-section h1 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.highlight {
+    color: #3498db;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.service-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.service-card h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.service-card p {
+    color: #7f8c8d;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.action-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    width: 100%;
+}
+
+.action-btn:hover {
+    background-color: #2980b9;
+}

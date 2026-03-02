@@ -12,8 +12,19 @@ const OAuth2RedirectHandler = () => {
         const token = params.get('token');
 
         if (token) {
-            login(token);
-            navigate('/dashboard');
+            const decodedToken = login(token);
+            if (decodedToken) {
+                const role = decodedToken.role;
+                if (role === 'ADMIN') {
+                    navigate('/admin');
+                } else if (role === 'TECHNICIAN') {
+                    navigate('/technician');
+                } else {
+                    navigate('/home');
+                }
+            } else {
+                navigate('/login');
+            }
         } else {
             navigate('/login');
         }

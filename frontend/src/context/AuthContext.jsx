@@ -37,6 +37,13 @@ export const AuthProvider = ({ children }) => {
 
     const login = (newToken) => {
         setToken(newToken);
+        try {
+            const decoded = jwtDecode(newToken);
+            return decoded;
+        } catch (error) {
+            console.error("Failed to decode token on login", error);
+            return null;
+        }
     };
 
     const logout = () => {
