@@ -4,9 +4,9 @@ import { AuthContext } from '../../context/AuthContext';
 import incidentService from '../../api/maintenance/incidentService';
 import { StatusBadge, PriorityBadge } from '../../components/maintenance/IncidentBadges';
 import IncidentComments from '../../components/maintenance/IncidentComments';
-import { 
-    ArrowLeft, Calendar, User, MapPin, Phone, 
-    CheckCircle2, Play, XCircle, AlertTriangle, 
+import {
+    ArrowLeft, Calendar, User, MapPin, Phone,
+    CheckCircle2, Play, XCircle, AlertTriangle,
     Clock, Tag, Building2, UserPlus, FileText
 } from 'lucide-react';
 
@@ -39,9 +39,9 @@ const TicketDetails = () => {
     const handleStatusUpdate = async () => {
         setActionLoading(true);
         try {
-            await incidentService.updateTicketStatus(id, { 
-                status: targetStatus, 
-                notes: notes 
+            await incidentService.updateTicketStatus(id, {
+                status: targetStatus,
+                notes: notes
             });
             await fetchTicket();
             setShowStatusModal(false);
@@ -72,13 +72,13 @@ const TicketDetails = () => {
     const currentStatusIdx = statuses.indexOf(ticket.status);
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-20">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 pb-20">
             {/* Header */}
             <div className="bg-white border-b border-slate-200 sticky top-16 z-40">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <button 
+                    <button
                         onClick={() => navigate('/tickets')}
-                        className="flex items-center text-slate-500 hover:text-blue-600 transition-colors text-sm font-bold"
+                        className="flex items-center text-slate-500 hover:text-blue-600 transition-colors text-sm font-bold bg-transparent border-none p-0"
                     >
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to maintenance hub
@@ -88,7 +88,7 @@ const TicketDetails = () => {
 
             <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
+
                     {/* Left Column: Details */}
                     <div className="lg:col-span-2 space-y-8">
                         {/* Main Info Card */}
@@ -116,11 +116,10 @@ const TicketDetails = () => {
                                 <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-slate-100 -translate-y-1/2 z-0"></div>
                                 {statuses.map((s, idx) => (
                                     <div key={s} className="relative z-10 flex flex-col items-center">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border-4 transition-all ${
-                                            idx <= currentStatusIdx 
-                                            ? 'bg-blue-600 border-white text-white shadow-lg shadow-blue-500/30' 
-                                            : 'bg-white border-slate-100 text-slate-300'
-                                        }`}>
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border-4 transition-all ${idx <= currentStatusIdx
+                                                ? 'bg-gradient-to-br from-blue-600 to-indigo-600 border-white text-white shadow-lg shadow-blue-500/30'
+                                                : 'bg-white border-slate-100 text-slate-300'
+                                            }`}>
                                             {idx < currentStatusIdx ? <CheckCircle2 className="w-5 h-5" /> : <span className="text-xs font-bold">{idx + 1}</span>}
                                         </div>
                                         <span className={`text-[10px] font-bold mt-2 uppercase tracking-tight ${idx <= currentStatusIdx ? 'text-blue-600' : 'text-slate-400'}`}>
@@ -192,10 +191,10 @@ const TicketDetails = () => {
                                 <div className="text-center py-4">
                                     <p className="text-xs text-slate-400 italic mb-3">Unassigned</p>
                                     {(user.role === 'ADMIN' || user.role === 'TECHNICIAN') && (
-                                        <button 
+                                        <button
                                             onClick={handleAssignSelf}
                                             disabled={actionLoading}
-                                            className="w-full flex items-center justify-center px-4 py-2 bg-blue-50 text-blue-600 text-xs font-bold rounded-xl hover:bg-blue-100 transition-colors"
+                                            className="w-full flex items-center justify-center px-4 py-2 bg-blue-50 text-blue-600 text-xs font-bold rounded-xl hover:bg-blue-100 transition-colors border-none"
                                         >
                                             <UserPlus className="w-4 h-4 mr-2" /> {user.role === 'TECHNICIAN' ? 'Assign to Me' : 'Manage Assignment'}
                                         </button>
@@ -207,36 +206,36 @@ const TicketDetails = () => {
                         {/* Action Buttons */}
                         <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-3">
                             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Available Actions</h4>
-                            
+
                             {ticket.status === 'OPEN' && (user.role === 'ADMIN' || user.role === 'TECHNICIAN') && (
-                                <button 
+                                <button
                                     onClick={() => { setTargetStatus('IN_PROGRESS'); setShowStatusModal(true); }}
-                                    className="w-full flex items-center px-4 py-3 bg-blue-600 text-white text-sm font-bold rounded-2xl hover:bg-blue-700 shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
+                                    className="w-full flex items-center px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-bold rounded-2xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 active:scale-95 transition-all"
                                 >
                                     <Play className="w-4 h-4 mr-3" /> Start Resolution
                                 </button>
                             )}
 
                             {ticket.status === 'IN_PROGRESS' && (user.role === 'ADMIN' || user.role === 'TECHNICIAN') && (
-                                <button 
+                                <button
                                     onClick={() => { setTargetStatus('RESOLVED'); setShowStatusModal(true); }}
-                                    className="w-full flex items-center px-4 py-3 bg-green-600 text-white text-sm font-bold rounded-2xl hover:bg-green-700 shadow-lg shadow-green-500/20 active:scale-95 transition-all"
+                                    className="w-full flex items-center px-4 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-bold rounded-2xl shadow-lg shadow-green-500/20 hover:shadow-green-500/40 active:scale-95 transition-all"
                                 >
                                     <CheckCircle2 className="w-4 h-4 mr-3" /> Resolve Incident
                                 </button>
                             )}
 
                             {ticket.status === 'RESOLVED' && (user.id === ticket.createdBy || user.role === 'ADMIN') && (
-                                <button 
+                                <button
                                     onClick={() => { setTargetStatus('CLOSED'); handleStatusUpdate(); }}
-                                    className="w-full flex items-center px-4 py-3 bg-slate-800 text-white text-sm font-bold rounded-2xl hover:bg-slate-900 shadow-lg shadow-slate-200 active:scale-95 transition-all"
+                                    className="w-full flex items-center px-4 py-3 bg-gradient-to-r from-slate-700 to-slate-800 text-white text-sm font-bold rounded-2xl shadow-lg shadow-slate-200 hover:shadow-slate-300 active:scale-95 transition-all"
                                 >
                                     <XCircle className="w-4 h-4 mr-3" /> Close Ticket
                                 </button>
                             )}
 
                             {user.role === 'ADMIN' && (ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS') && (
-                                <button 
+                                <button
                                     onClick={() => { setTargetStatus('REJECTED'); setShowStatusModal(true); }}
                                     className="w-full flex items-center px-4 py-3 border border-red-100 text-red-600 text-sm font-bold rounded-2xl hover:bg-red-50 transition-all"
                                 >
@@ -260,10 +259,10 @@ const TicketDetails = () => {
                                 {targetStatus === 'REJECTED' ? 'Rejection Reason' : 'Resolution Notes'}
                             </h2>
                         </div>
-                        
+
                         <div className="mb-6">
                             <label className="text-xs font-bold text-slate-500 uppercase block mb-2">Internal Notes</label>
-                            <textarea 
+                            <textarea
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
                                 placeholder="Provide necessary details for this status change..."
@@ -272,18 +271,17 @@ const TicketDetails = () => {
                         </div>
 
                         <div className="flex justify-end space-x-3">
-                            <button 
+                            <button
                                 onClick={() => setShowStatusModal(false)}
                                 className="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50 transition-colors"
                             >
                                 Cancel
                             </button>
-                            <button 
+                            <button
                                 onClick={handleStatusUpdate}
                                 disabled={actionLoading || !notes.trim()}
-                                className={`px-8 py-2.5 rounded-xl text-sm font-bold text-white shadow-xl transition-all active:scale-95 disabled:opacity-50 ${
-                                    targetStatus === 'REJECTED' ? 'bg-red-600 hover:bg-red-700 shadow-red-500/20' : 'bg-green-600 hover:bg-green-700 shadow-green-500/20'
-                                }`}
+                                className={`px-8 py-2.5 rounded-xl text-sm font-bold text-white shadow-xl transition-all active:scale-95 disabled:opacity-50 ${targetStatus === 'REJECTED' ? 'bg-red-600 hover:bg-red-700 shadow-red-500/20' : 'bg-green-600 hover:bg-green-700 shadow-green-500/20'
+                                    }`}
                             >
                                 {actionLoading ? 'Updating...' : 'Confirm Update'}
                             </button>

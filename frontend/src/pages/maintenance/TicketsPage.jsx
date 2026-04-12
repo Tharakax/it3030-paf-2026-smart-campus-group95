@@ -3,7 +3,7 @@ import { AuthContext } from '../../context/AuthContext';
 import incidentService from '../../api/maintenance/incidentService';
 import IncidentCard from '../../components/maintenance/IncidentCard';
 import IncidentForm from '../../components/maintenance/IncidentForm';
-import { Plus, Filter, Search, Loader2, LayoutGrid, List as ListIcon, AlertCircle } from 'lucide-react';
+import { Plus, Filter, Search, Loader2, LayoutGrid, List as ListIcon, AlertCircle, ChevronDown } from 'lucide-react';
 
 const TicketsPage = () => {
     const { user } = useContext(AuthContext);
@@ -14,6 +14,7 @@ const TicketsPage = () => {
     const [filter, setFilter] = useState('ALL');
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState('grid');
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     useEffect(() => {
         fetchTickets();
@@ -43,7 +44,7 @@ const TicketsPage = () => {
         }
 
         if (searchTerm) {
-            result = result.filter(t => 
+            result = result.filter(t =>
                 t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 t.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 t.id.toLowerCase().includes(searchTerm.toLowerCase())
@@ -54,21 +55,23 @@ const TicketsPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-20">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 pb-20">
             {/* Hero Section */}
             <div className="bg-white border-b border-slate-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div>
-                            <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Maintenance <span className="text-blue-600">Hub</span></h1>
+                            <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">
+                                Maintenance <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent underline decoration-blue-200 decoration-4">Hub</span>
+                            </h1>
                             <p className="text-slate-500 mt-2 font-medium">Manage and track campus infrastructure incidents.</p>
                         </div>
-                        
-                        <button 
+
+                        <button
                             onClick={() => setIsFormOpen(true)}
-                            className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold shadow-xl shadow-blue-500/20 hover:bg-blue-700 hover:-translate-y-0.5 transition-all active:scale-95"
+                            className="flex items-center justify-center px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-bold shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all active:scale-95 group"
                         >
-                            <Plus className="w-5 h-5 mr-2" />
+                            <Plus className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" />
                             Report Incident
                         </button>
                     </div>
@@ -80,7 +83,7 @@ const TicketsPage = () => {
                 <div className="flex flex-col lg:flex-row gap-4 mb-8">
                     <div className="relative flex-1">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                        <input 
+                        <input
                             type="text"
                             placeholder="Search by ID, category or description..."
                             value={searchTerm}
@@ -89,32 +92,51 @@ const TicketsPage = () => {
                         />
                     </div>
 
-                    <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 no-scrollbar">
-                        {['ALL', 'OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED', 'REJECTED'].map((f) => (
-                            <button
-                                key={f}
-                                onClick={() => setFilter(f)}
-                                className={`px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
-                                    filter === f 
-                                    ? 'bg-slate-800 text-white border-slate-800 shadow-lg shadow-slate-200' 
-                                    : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
-                                }`}
-                            >
-                                {f.replace('_', ' ')}
-                            </button>
-                        ))}
+                    <div className="relative">
+                        <div className="flex items-center bg-white border border-slate-200 rounded-2xl px-4 py-3.5 shadow-sm hover:border-blue-300 transition-all cursor-pointer group"
+                             onClick={() => setIsFilterOpen(!isFilterOpen)}>
+                            <Filter className="w-4 h-4 mr-3 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                            <span className="text-sm font-bold text-slate-700 min-w-[100px]">
+                                {filter.replace('_', ' ')}
+                            </span>
+                            <ChevronDown className={`w-4 h-4 ml-8 text-slate-400 transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`} />
+                        </div>
+
+                        {isFilterOpen && (
+                            <>
+                                <div className="fixed inset-0 z-10" onClick={() => setIsFilterOpen(false)}></div>
+                                <div className="absolute top-full mt-3 left-0 w-64 bg-white/90 backdrop-blur-xl border border-slate-100 rounded-3xl shadow-2xl shadow-blue-500/15 z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <div className="p-2 space-y-1">
+                                        {['ALL', 'OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED', 'REJECTED'].map((f) => (
+                                            <button
+                                                key={f}
+                                                onClick={() => { setFilter(f); setIsFilterOpen(false); }}
+                                                className={`w-full text-left px-4 py-2.5 text-[11px] font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-between ${
+                                                    filter === f 
+                                                    ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600 pl-3' 
+                                                    : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-l-4 border-transparent'
+                                                }`}
+                                            >
+                                                {f.replace('_', ' ')}
+                                                {filter === f && <div className="w-1 h-1 bg-blue-600 rounded-full animate-pulse"></div>}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     <div className="flex items-center bg-white border border-slate-200 rounded-2xl p-1 shadow-sm">
-                        <button 
+                        <button
                             onClick={() => setViewMode('grid')}
-                            className={`p-2 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : 'text-slate-400'}`}
+                            className={`p-2 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : 'bg-transparent text-slate-400 hover:bg-slate-50'}`}
                         >
                             <LayoutGrid className="w-5 h-5" />
                         </button>
-                        <button 
+                        <button
                             onClick={() => setViewMode('list')}
-                            className={`p-2 rounded-xl transition-all ${viewMode === 'list' ? 'bg-blue-50 text-blue-600' : 'text-slate-400'}`}
+                            className={`p-2 rounded-xl transition-all ${viewMode === 'list' ? 'bg-blue-50 text-blue-600' : 'bg-transparent text-slate-400 hover:bg-slate-50'}`}
                         >
                             <ListIcon className="w-5 h-5" />
                         </button>
@@ -130,10 +152,10 @@ const TicketsPage = () => {
                 ) : filteredTickets.length > 0 ? (
                     <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
                         {filteredTickets.map(ticket => (
-                            <IncidentCard 
-                                key={ticket.id} 
-                                incident={ticket} 
-                                onClick={(id) => window.location.href = `/tickets/${id}`} 
+                            <IncidentCard
+                                key={ticket.id}
+                                incident={ticket}
+                                onClick={(id) => window.location.href = `/tickets/${id}`}
                             />
                         ))}
                     </div>
@@ -149,10 +171,10 @@ const TicketsPage = () => {
             </div>
 
             {/* Modals */}
-            <IncidentForm 
-                isOpen={isFormOpen} 
-                onClose={() => setIsFormOpen(false)} 
-                onSuccess={fetchTickets} 
+            <IncidentForm
+                isOpen={isFormOpen}
+                onClose={() => setIsFormOpen(false)}
+                onSuccess={fetchTickets}
             />
         </div>
     );

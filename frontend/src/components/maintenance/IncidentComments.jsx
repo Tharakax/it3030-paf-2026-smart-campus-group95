@@ -82,7 +82,7 @@ const IncidentComments = ({ ticketId, currentUser }) => {
                 <button
                     type="submit"
                     disabled={loading || !newComment.trim()}
-                    className="absolute bottom-4 right-4 p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                    className="absolute bottom-4 right-4 p-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all active:scale-95 disabled:opacity-50"
                 >
                     <Send className="w-4 h-4" />
                 </button>
@@ -116,13 +116,13 @@ const IncidentComments = ({ ticketId, currentUser }) => {
                                 <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button 
                                         onClick={() => startEdit(comment)}
-                                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 bg-transparent rounded border-none transition-all"
                                     >
                                         <Edit2 className="w-3.5 h-3.5" />
                                     </button>
                                     <button 
                                         onClick={() => handleDelete(comment.id)}
-                                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
+                                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 bg-transparent rounded border-none transition-all"
                                     >
                                         <Trash2 className="w-3.5 h-3.5" />
                                     </button>
@@ -138,8 +138,8 @@ const IncidentComments = ({ ticketId, currentUser }) => {
                                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                                 />
                                 <div className="flex justify-end space-x-2">
-                                    <button onClick={() => setEditingId(null)} className="px-3 py-1 text-xs text-slate-500 hover:bg-slate-100 rounded-md">Cancel</button>
-                                    <button onClick={() => handleUpdate(comment.id)} className="px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700">Update</button>
+                                    <button onClick={() => setEditingId(null)} className="px-3 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
+                                    <button onClick={() => handleUpdate(comment.id)} className="px-4 py-1.5 text-xs font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg shadow-md hover:shadow-blue-500/20 active:scale-95 transition-all">Update</button>
                                 </div>
                             </div>
                         ) : (

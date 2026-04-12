@@ -2,11 +2,11 @@ import React from 'react';
 
 export const StatusBadge = ({ status }) => {
     const config = {
-        OPEN: 'bg-blue-100 text-blue-700 border-blue-200',
-        IN_PROGRESS: 'bg-orange-100 text-orange-700 border-orange-200',
-        RESOLVED: 'bg-green-100 text-green-700 border-green-200',
-        CLOSED: 'bg-slate-100 text-slate-700 border-slate-200',
-        REJECTED: 'bg-red-100 text-red-700 border-red-200',
+        OPEN: 'bg-blue-50 text-blue-600 border-blue-100',
+        IN_PROGRESS: 'bg-amber-50 text-amber-600 border-amber-100',
+        RESOLVED: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+        CLOSED: 'bg-slate-50 text-slate-600 border-slate-100',
+        REJECTED: 'bg-red-50 text-red-600 border-red-100',
     };
 
     return (

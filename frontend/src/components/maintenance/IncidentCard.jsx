@@ -15,7 +15,7 @@ const IncidentCard = ({ incident, onClick }) => {
     return (
         <div 
             onClick={() => onClick(incident.id)}
-            className="group bg-white rounded-2xl border border-slate-100 p-5 hover:shadow-xl hover:shadow-blue-500/5 hover:border-blue-100 transition-all cursor-pointer relative overflow-hidden"
+            className="group bg-white rounded-3xl border border-slate-100 p-6 hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-100 transition-all duration-300 cursor-pointer relative overflow-hidden hover:-translate-y-1"
         >
             <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
                 <ArrowRight className="w-5 h-5 text-blue-500" />

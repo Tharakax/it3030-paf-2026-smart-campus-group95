@@ -55,7 +55,7 @@ const IncidentForm = ({ isOpen, onClose, onSuccess }) => {
                         <h2 className="text-xl font-bold">Report New Incident</h2>
                         <p className="text-blue-100 text-xs mt-1">Our support team will look into this immediately.</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                    <button onClick={onClose} className="p-2 bg-transparent hover:bg-white/10 border-none rounded-full transition-colors text-white">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -124,7 +124,7 @@ const IncidentForm = ({ isOpen, onClose, onSuccess }) => {
                                         onClick={() => setFormData({ ...formData, priority: p })}
                                         className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${
                                             formData.priority === p 
-                                            ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/30' 
+                                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-transparent shadow-lg shadow-blue-500/30' 
                                             : 'bg-white text-slate-400 border-slate-200 hover:border-blue-300'
                                         }`}
                                     >
@@ -155,14 +155,14 @@ const IncidentForm = ({ isOpen, onClose, onSuccess }) => {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50 transition-colors"
+                            className="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-500 bg-transparent hover:bg-slate-50 transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex items-center px-8 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 shadow-xl shadow-blue-600/20 active:scale-95 transition-all disabled:opacity-50"
+                            className="flex items-center px-8 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-bold shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 active:scale-95 transition-all disabled:opacity-50"
                         >
                             {loading ? 'Submitting...' : (
                                 <>
