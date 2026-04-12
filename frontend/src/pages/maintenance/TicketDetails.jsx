@@ -117,8 +117,8 @@ const TicketDetails = () => {
                                 {statuses.map((s, idx) => (
                                     <div key={s} className="relative z-10 flex flex-col items-center">
                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center border-4 transition-all ${idx <= currentStatusIdx
-                                                ? 'bg-gradient-to-br from-blue-600 to-indigo-600 border-white text-white shadow-lg shadow-blue-500/30'
-                                                : 'bg-white border-slate-100 text-slate-300'
+                                            ? 'bg-gradient-to-br from-blue-600 to-indigo-600 border-white text-white shadow-lg shadow-blue-500/30'
+                                            : 'bg-white border-slate-100 text-slate-300'
                                             }`}>
                                             {idx < currentStatusIdx ? <CheckCircle2 className="w-5 h-5" /> : <span className="text-xs font-bold">{idx + 1}</span>}
                                         </div>

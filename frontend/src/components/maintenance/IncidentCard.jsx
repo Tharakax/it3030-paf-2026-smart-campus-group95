@@ -13,7 +13,7 @@ const IncidentCard = ({ incident, onClick }) => {
     };
 
     return (
-        <div 
+        <div
             onClick={() => onClick(incident.id)}
             className="group bg-white rounded-3xl border border-slate-100 p-6 hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-100 transition-all duration-300 cursor-pointer relative overflow-hidden hover:-translate-y-1"
         >
@@ -29,7 +29,7 @@ const IncidentCard = ({ incident, onClick }) => {
             <h3 className="text-lg font-bold text-slate-800 mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
                 {incident.category.replace('_', ' ')}
             </h3>
-            
+
             <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed">
                 {incident.description}
             </p>
@@ -39,13 +39,13 @@ const IncidentCard = ({ incident, onClick }) => {
                     <MapPin className="w-3.5 h-3.5 mr-2" />
                     <span className="truncate">Resource: {incident.resourceId || 'N/A'}</span>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                     <div className="flex items-center text-xs text-slate-400">
                         <User className="w-3.5 h-3.5 mr-2" />
                         <span>{incident.createdByName || 'Unknown User'}</span>
                     </div>
-                    
+
                     <div className="flex items-center text-[10px] font-medium text-slate-400">
                         <Calendar className="w-3 h-3 mr-1" />
                         {formatDate(incident.createdAt)}

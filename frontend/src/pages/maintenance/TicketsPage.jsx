@@ -88,13 +88,13 @@ const TicketsPage = () => {
                             placeholder="Search by ID, category or description..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium shadow-sm"
+                            className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium shadow-sm"
                         />
                     </div>
 
                     <div className="relative">
                         <div className="flex items-center bg-white border border-slate-200 rounded-2xl px-4 py-3.5 shadow-sm hover:border-blue-300 transition-all cursor-pointer group"
-                             onClick={() => setIsFilterOpen(!isFilterOpen)}>
+                            onClick={() => setIsFilterOpen(!isFilterOpen)}>
                             <Filter className="w-4 h-4 mr-3 text-slate-400 group-hover:text-blue-500 transition-colors" />
                             <span className="text-sm font-bold text-slate-700 min-w-[100px]">
                                 {filter.replace('_', ' ')}
@@ -111,11 +111,10 @@ const TicketsPage = () => {
                                             <button
                                                 key={f}
                                                 onClick={() => { setFilter(f); setIsFilterOpen(false); }}
-                                                className={`w-full text-left px-4 py-2.5 text-[11px] font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-between ${
-                                                    filter === f 
-                                                    ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600 pl-3' 
-                                                    : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-l-4 border-transparent'
-                                                }`}
+                                                className={`w-full text-left px-4 py-2.5 text-[11px] font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-between ${filter === f
+                                                        ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600 pl-3'
+                                                        : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-l-4 border-transparent'
+                                                    }`}
                                             >
                                                 {f.replace('_', ' ')}
                                                 {filter === f && <div className="w-1 h-1 bg-blue-600 rounded-full animate-pulse"></div>}

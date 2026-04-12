@@ -14,8 +14,8 @@ const IncidentForm = ({ isOpen, onClose, onSuccess }) => {
     const [error, setError] = useState(null);
 
     const categories = [
-        'ELECTRICAL', 'IT_NETWORK', 'PROJECTOR_AV', 'FURNITURE', 
-        'PLUMBING', 'AC_VENTILATION', 'CLEANING', 'SAFETY_SECURITY', 
+        'ELECTRICAL', 'IT_NETWORK', 'PROJECTOR_AV', 'FURNITURE',
+        'PLUMBING', 'AC_VENTILATION', 'CLEANING', 'SAFETY_SECURITY',
         'LAB_EQUIPMENT', 'OTHER'
     ];
 
@@ -122,11 +122,10 @@ const IncidentForm = ({ isOpen, onClose, onSuccess }) => {
                                         key={p}
                                         type="button"
                                         onClick={() => setFormData({ ...formData, priority: p })}
-                                        className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${
-                                            formData.priority === p 
-                                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-transparent shadow-lg shadow-blue-500/30' 
-                                            : 'bg-white text-slate-400 border-slate-200 hover:border-blue-300'
-                                        }`}
+                                        className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${formData.priority === p
+                                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-transparent shadow-lg shadow-blue-500/30'
+                                                : 'bg-white text-slate-400 border-slate-200 hover:border-blue-300'
+                                            }`}
                                     >
                                         {p}
                                     </button>
