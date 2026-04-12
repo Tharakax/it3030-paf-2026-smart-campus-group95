@@ -11,8 +11,6 @@ import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import TechnicianDashboard from './pages/TechnicianDashboard';
 import Unauthorized from './pages/Unauthorized';
-import TicketsPage from './pages/maintenance/TicketsPage';
-import TicketDetails from './pages/maintenance/TicketDetails';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
@@ -51,18 +49,6 @@ function App() {
                 <RoleProtectedRoute requiredRole="TECHNICIAN">
                   <TechnicianDashboard />
                 </RoleProtectedRoute>
-              } />
-
-              <Route path="/tickets" element={
-                <PrivateRoute>
-                  <TicketsPage />
-                </PrivateRoute>
-              } />
-
-              <Route path="/tickets/:id" element={
-                <PrivateRoute>
-                  <TicketDetails />
-                </PrivateRoute>
               } />
 
               <Route path="/unauthorized" element={<Unauthorized />} />

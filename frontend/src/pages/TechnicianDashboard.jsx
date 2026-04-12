@@ -24,7 +24,7 @@ const TechnicianDashboard = () => {
             <div style={{ background: '#fff', padding: '2rem', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                 <h2>{message}</h2>
                 <p style={{ color: '#7f8c8d', marginTop: '1rem' }}>
-                    Welcome to the specialized Technician interface. Here you can manage maintenance tasks and resolve IT tickets assigned to you.
+                    Welcome to the specialized Technician interface. Here you can manage maintenance tasks assigned to you.
                 </p>
             </div>
         </div>
