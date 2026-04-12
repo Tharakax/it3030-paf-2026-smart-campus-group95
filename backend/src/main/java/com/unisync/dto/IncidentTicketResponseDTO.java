@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -28,6 +29,7 @@ public class IncidentTicketResponseDTO {
     private String assignedToName;
     private String rejectionReason;
     private String resolutionNotes;
+    private List<String> imageUrls;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
