@@ -5,9 +5,9 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #213547;
+  background-color: #f8fafc;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -31,6 +31,7 @@ body {
   width: 100vw;
   height: 100vh;
   overflow-x: hidden;
+  background-color: #f8fafc;
 }
 
 #root {
@@ -44,6 +45,13 @@ body {
 *::before,
 *::after {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a:focus,
+button:focus {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 
