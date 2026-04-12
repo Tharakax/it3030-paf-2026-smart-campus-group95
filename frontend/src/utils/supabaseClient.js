@@ -21,12 +21,14 @@ export default function MediaUpload(file) {
             const timeStamp = new Date().getTime();
             const newFileName = `${timeStamp}-${file.name}`;
 
-            supabase.storage.from('cropcartimages').upload(`public/${newFileName}`, file, {
+            const bucketName = import.meta.env.VITE_SUPABASE_BUCKET;
+
+            supabase.storage.from(bucketName).upload(`public/${newFileName}`, file, {
                 cacheControl: '3600',
                 upsert: false
             }).then(
                 () => {
-                    const url = supabase.storage.from('cropcartimages').getPublicUrl(`public/${newFileName}`).data.publicUrl;
+                    const url = supabase.storage.from(bucketName).getPublicUrl(`public/${newFileName}`).data.publicUrl;
                     resolve(url);
                 }
             ).catch((error) => {
