@@ -267,7 +267,7 @@ const TicketDetails = () => {
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
                                 placeholder="Provide necessary details for this status change..."
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 min-h-[120px] resize-none"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 min-h-[120px] resize-none"
                             />
                         </div>
 

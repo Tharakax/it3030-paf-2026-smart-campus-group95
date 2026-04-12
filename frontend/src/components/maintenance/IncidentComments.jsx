@@ -76,7 +76,7 @@ const IncidentComments = ({ ticketId, currentUser }) => {
                     placeholder="Add a comment or update..."
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all min-h-[100px] resize-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 pr-12 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all min-h-[100px] resize-none"
                     disabled={loading}
                 />
                 <button
@@ -135,7 +135,7 @@ const IncidentComments = ({ ticketId, currentUser }) => {
                                 <textarea
                                     value={editContent}
                                     onChange={(e) => setEditContent(e.target.value)}
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                                 />
                                 <div className="flex justify-end space-x-2">
                                     <button onClick={() => setEditingId(null)} className="px-3 py-1 text-xs text-slate-500 hover:bg-slate-100 rounded-md">Cancel</button>

@@ -81,7 +81,7 @@ const IncidentForm = ({ isOpen, onClose, onSuccess }) => {
                                 placeholder="e.g. LAB-01, Room 204"
                                 value={formData.resourceId}
                                 onChange={(e) => setFormData({ ...formData, resourceId: e.target.value })}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
                             />
                         </div>
 
@@ -93,7 +93,7 @@ const IncidentForm = ({ isOpen, onClose, onSuccess }) => {
                             <select
                                 value={formData.category}
                                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
                             >
                                 {categories.map(c => <option key={c} value={c}>{c.replace('_', ' ')}</option>)}
                             </select>
@@ -108,7 +108,7 @@ const IncidentForm = ({ isOpen, onClose, onSuccess }) => {
                             placeholder="Please provide details about the issue..."
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all min-h-[120px] resize-none"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all min-h-[120px] resize-none"
                         />
                     </div>
 
@@ -145,7 +145,7 @@ const IncidentForm = ({ isOpen, onClose, onSuccess }) => {
                                 placeholder="Phone or email for updates"
                                 value={formData.contactDetails}
                                 onChange={(e) => setFormData({ ...formData, contactDetails: e.target.value })}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
                             />
                         </div>
                     </div>
