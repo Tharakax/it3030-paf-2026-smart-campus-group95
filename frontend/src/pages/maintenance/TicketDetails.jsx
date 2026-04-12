@@ -7,7 +7,7 @@ import IncidentComments from '../../components/maintenance/IncidentComments';
 import {
     ArrowLeft, Calendar, User, MapPin, Phone,
     CheckCircle2, Play, XCircle, AlertTriangle,
-    Clock, Tag, Building2, UserPlus, FileText
+    Clock, Tag, Building2, UserPlus, FileText, Camera, ExternalLink
 } from 'lucide-react';
 
 const TicketDetails = () => {
@@ -134,6 +134,39 @@ const TicketDetails = () => {
                                     {ticket.description}
                                 </p>
                             </div>
+
+                            {/* Evidence Gallery */}
+                            {ticket.imageUrls && ticket.imageUrls.length > 0 && (
+                                <div className="mb-10">
+                                    <div className="flex items-center space-x-2 mb-4">
+                                        <Camera className="w-4 h-4 text-slate-400" />
+                                        <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">
+                                            Visual Evidence
+                                        </h3>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        {ticket.imageUrls.map((url, index) => (
+                                            <div key={index} className="group relative aspect-video rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
+                                                <img 
+                                                    src={url} 
+                                                    alt={`Evidence ${index + 1}`} 
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                                                />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <a 
+                                                        href={url} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer" 
+                                                        className="p-2 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-colors"
+                                                    >
+                                                        <ExternalLink className="w-5 h-5" />
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="flex items-start space-x-3">
