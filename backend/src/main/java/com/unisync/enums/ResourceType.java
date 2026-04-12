@@ -8,5 +8,8 @@ public enum ResourceType {
     LAB,
     MEETING_ROOM,
     PROJECTOR,
-    CAMERA
+    CAMERA,
+    AUDITORIUM,
+    BUS,
+    GROUND
 }
