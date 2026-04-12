@@ -5,6 +5,9 @@ import com.unisync.enums.TicketPriority;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -15,4 +18,6 @@ public class IncidentTicketRequestDTO {
     private String description;
     private TicketPriority priority;
     private String contactDetails;
+    @JsonProperty("imageUrls")
+    private List<String> imageUrls;
 }

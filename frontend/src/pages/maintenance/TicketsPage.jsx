@@ -112,8 +112,8 @@ const TicketsPage = () => {
                                                 key={f}
                                                 onClick={() => { setFilter(f); setIsFilterOpen(false); }}
                                                 className={`w-full text-left px-4 py-2.5 text-[11px] font-black uppercase tracking-wider rounded-xl transition-all flex items-center justify-between ${filter === f
-                                                        ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600 pl-3'
-                                                        : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-l-4 border-transparent'
+                                                    ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600 pl-3'
+                                                    : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 border-l-4 border-transparent'
                                                     }`}
                                             >
                                                 {f.replace('_', ' ')}

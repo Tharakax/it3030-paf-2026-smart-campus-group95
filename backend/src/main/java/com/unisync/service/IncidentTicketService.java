@@ -32,11 +32,14 @@ public class IncidentTicketService {
                 .description(request.getDescription())
                 .priority(request.getPriority())
                 .contactDetails(request.getContactDetails())
+                .imageUrls(request.getImageUrls())
                 .status(TicketStatus.OPEN)
                 .createdBy(currentUser.getId())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
+
+        System.out.println("Creating ticket with images: " + ticket.getImageUrls());
 
         IncidentTicket savedTicket = ticketRepository.save(ticket);
         return convertToResponseDTO(savedTicket);
@@ -146,6 +149,7 @@ public class IncidentTicketService {
                 .assignedToName(assignedToName)
                 .rejectionReason(ticket.getRejectionReason())
                 .resolutionNotes(ticket.getResolutionNotes())
+                .imageUrls(ticket.getImageUrls())
                 .createdAt(ticket.getCreatedAt())
                 .updatedAt(ticket.getUpdatedAt())
                 .build();
