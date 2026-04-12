@@ -173,8 +173,8 @@ const IncidentForm = ({ isOpen, onClose, onSuccess }) => {
                                         type="button"
                                         onClick={() => setFormData({ ...formData, priority: p })}
                                         className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${formData.priority === p
-                                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-transparent shadow-lg shadow-blue-500/30'
-                                                : 'bg-white text-slate-400 border-slate-200 hover:border-blue-300'
+                                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-transparent shadow-lg shadow-blue-500/30'
+                                            : 'bg-white text-slate-400 border-slate-200 hover:border-blue-300'
                                             }`}
                                     >
                                         {p}
@@ -204,7 +204,7 @@ const IncidentForm = ({ isOpen, onClose, onSuccess }) => {
                         <label className="text-xs font-bold text-slate-500 uppercase flex items-center">
                             <Camera className="w-3 h-3 mr-1" /> Visual Evidence (Max 3)
                         </label>
-                        
+
                         <div className="grid grid-cols-3 gap-4">
                             {previews.map((preview, index) => (
                                 <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 group">
@@ -218,7 +218,7 @@ const IncidentForm = ({ isOpen, onClose, onSuccess }) => {
                                     </button>
                                 </div>
                             ))}
-                            
+
                             {selectedFiles.length < 3 && (
                                 <label className="aspect-square flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group">
                                     <Camera className="w-6 h-6 text-slate-400 group-hover:text-blue-500 mb-1" />

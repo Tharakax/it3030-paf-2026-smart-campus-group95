@@ -147,16 +147,16 @@ const TicketDetails = () => {
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         {ticket.imageUrls.map((url, index) => (
                                             <div key={index} className="group relative aspect-video rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
-                                                <img 
-                                                    src={url} 
-                                                    alt={`Evidence ${index + 1}`} 
-                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                                                <img
+                                                    src={url}
+                                                    alt={`Evidence ${index + 1}`}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                 />
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                    <a 
-                                                        href={url} 
-                                                        target="_blank" 
-                                                        rel="noopener noreferrer" 
+                                                    <a
+                                                        href={url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
                                                         className="p-2 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-colors"
                                                     >
                                                         <ExternalLink className="w-5 h-5" />
