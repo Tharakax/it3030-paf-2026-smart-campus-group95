@@ -1,19 +1,28 @@
 package com.unisync.service.impl;
 
 import com.unisync.entity.Resource;
+import com.unisync.enums.Department;
+import com.unisync.enums.ResourceStatus;
+import com.unisync.enums.ResourceType;
 import com.unisync.repository.ResourceRepository;
 import com.unisync.service.ResourceService;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class ResourceServiceImpl implements ResourceService {
 
     private final ResourceRepository resourceRepository;
+    private final MongoTemplate mongoTemplate;
 
-    public ResourceServiceImpl(ResourceRepository resourceRepository) {
+    public ResourceServiceImpl(ResourceRepository resourceRepository, MongoTemplate mongoTemplate) {
         this.resourceRepository = resourceRepository;
+        this.mongoTemplate = mongoTemplate;
     }
 
     @Override
@@ -27,6 +36,35 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public List<Resource> getAllResources() {
         return resourceRepository.findAll();
+    }
+
+    @Override
+    public List<Resource> getResources(ResourceType type, Department department, ResourceStatus status, Boolean bookable) {
+        if (type == null && department == null && status == null && bookable == null) {
+            return getAllResources();
+        }
+
+        Query query = new Query();
+        List<Criteria> criteria = new ArrayList<>();
+
+        if (type != null) {
+            criteria.add(Criteria.where("type").is(type));
+        }
+        if (department != null) {
+            criteria.add(Criteria.where("department").is(department));
+        }
+        if (status != null) {
+            criteria.add(Criteria.where("status").is(status));
+        }
+        if (bookable != null) {
+            criteria.add(Criteria.where("bookable").is(bookable));
+        }
+
+        if (!criteria.isEmpty()) {
+            query.addCriteria(new Criteria().andOperator(criteria.toArray(new Criteria[0])));
+        }
+
+        return mongoTemplate.find(query, Resource.class);
     }
 
     @Override
