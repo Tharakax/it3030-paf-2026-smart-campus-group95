@@ -10,6 +10,8 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import TechnicianDashboard from './pages/TechnicianDashboard';
+import ResourceCatalogue from './pages/ResourceCatalogue';
+import ResourceDetails from './pages/ResourceDetails';
 import Unauthorized from './pages/Unauthorized';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -49,6 +51,18 @@ function App() {
                 <RoleProtectedRoute requiredRole="TECHNICIAN">
                   <TechnicianDashboard />
                 </RoleProtectedRoute>
+              } />
+
+              <Route path="/resources" element={
+                <PrivateRoute>
+                  <ResourceCatalogue />
+                </PrivateRoute>
+              } />
+
+              <Route path="/resources/:id" element={
+                <PrivateRoute>
+                  <ResourceDetails />
+                </PrivateRoute>
               } />
 
               <Route path="/unauthorized" element={<Unauthorized />} />

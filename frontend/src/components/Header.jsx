@@ -1,7 +1,8 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { Bell, UserCircle, LogOut, Menu, X, Settings, Shield, Wrench, LayoutDashboard } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Bell, UserCircle, LogOut, Menu, X, Settings, Shield, Wrench, LayoutDashboard, Layers, Box } from 'lucide-react';
+
 
 const Header = () => {
     const { user, logout } = useContext(AuthContext);
@@ -44,6 +45,9 @@ const Header = () => {
                     <nav className="hidden md:flex items-center space-x-1">
                         <Link to="/home" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
                             Home
+                        </Link>
+                        <Link to="/resources" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
+                            Catalogue
                         </Link>
                         <Link to="/bookings" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
                             Bookings
@@ -179,8 +183,5 @@ const Header = () => {
         </header>
     );
 };
-
-// Add Layers icon if not already imported at the top
-import { Layers } from 'lucide-react';
 
 export default Header;
