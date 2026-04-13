@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     LayoutDashboard,
     User,
@@ -9,7 +8,8 @@ import {
     Menu,
     X,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Layers
 } from 'lucide-react';
 
 const DashboardSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed, setIsCollapsed }) => {
@@ -23,10 +23,22 @@ const DashboardSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColla
 
     return (
         <aside
-            className={`fixed left-0 top-16 bottom-0 z-40 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'
+            className={`fixed left-0 top-0 bottom-0 z-40 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'
                 } hidden md:block`}
         >
-            <div className="flex flex-col h-full py-6">
+            <div className="flex flex-col h-full py-4">
+                {/* Branding Section */}
+                <div className={`px-6 mb-8 flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
+                    <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 shrink-0">
+                        <Layers className="text-white w-6 h-6" />
+                    </div>
+                    {!isCollapsed && (
+                        <span className="text-xl font-black text-slate-800 tracking-tighter">
+                            UniSync <span className="text-blue-600">Hub</span>
+                        </span>
+                    )}
+                </div>
+
                 {/* Collapse Toggle */}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
