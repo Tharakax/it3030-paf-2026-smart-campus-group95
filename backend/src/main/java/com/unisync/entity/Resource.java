@@ -39,3 +39,4 @@ public class Resource {
     private boolean bookable;
 }
 
+
