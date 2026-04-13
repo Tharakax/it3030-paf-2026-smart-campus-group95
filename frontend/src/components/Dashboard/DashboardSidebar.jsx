@@ -1,3 +1,5 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
 import {
     LayoutDashboard,
     User,
@@ -28,7 +30,10 @@ const DashboardSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColla
         >
             <div className="flex flex-col h-full py-4">
                 {/* Branding Section */}
-                <div className={`px-6 mb-8 flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
+                <Link 
+                    to="/" 
+                    className={`px-6 mb-8 flex items-center hover:opacity-80 transition-opacity ${isCollapsed ? 'justify-center' : 'space-x-3'}`}
+                >
                     <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 shrink-0">
                         <Layers className="text-white w-6 h-6" />
                     </div>
@@ -37,7 +42,7 @@ const DashboardSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColla
                             UniSync <span className="text-blue-600">Hub</span>
                         </span>
                     )}
-                </div>
+                </Link>
 
                 {/* Collapse Toggle */}
                 <button
