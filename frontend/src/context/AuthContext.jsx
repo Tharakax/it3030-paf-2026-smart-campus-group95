@@ -20,7 +20,8 @@ export const AuthProvider = ({ children }) => {
                     setUser({
                         id: decoded.id,
                         email: decoded.sub,
-                        role: decoded.role // e.g. "USER" or "ADMIN"
+                        name: decoded.name,
+                        role: decoded.role 
                     });
                     localStorage.setItem('token', token);
                 }

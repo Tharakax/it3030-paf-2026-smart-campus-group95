@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-    LayoutDashboard, 
-    ListTodo, 
-    History, 
-    Wrench, 
-    User, 
-    Settings, 
+import {
+    LayoutDashboard,
+    ListTodo,
+    History,
+    Wrench,
+    User,
+    Settings,
     LogOut,
     ChevronLeft,
     ChevronRight,
@@ -26,10 +26,9 @@ const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColl
     ];
 
     return (
-        <aside 
-            className={`fixed left-0 top-0 bottom-0 z-40 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out ${
-                isCollapsed ? 'w-20' : 'w-64'
-            } hidden md:block`}
+        <aside
+            className={`fixed left-0 top-0 bottom-0 z-40 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'
+                } hidden md:block`}
         >
             <div className="flex flex-col h-full py-4">
                 {/* Branding Section */}
@@ -45,7 +44,7 @@ const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColl
                 </div>
 
                 {/* Collapse Toggle */}
-                <button 
+                <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
                     className="absolute -right-3 top-4 bg-white border border-slate-200 rounded-full p-1 text-slate-400 hover:text-blue-600 shadow-sm z-50"
                 >
@@ -63,7 +62,7 @@ const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColl
                                 <div className="overflow-hidden">
                                     <p className="text-sm font-bold text-slate-800 truncate">{user?.name || 'Technician'}</p>
                                     <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight flex items-center">
-                                        <Circle size={8} className="fill-emerald-500 text-emerald-500 mr-1" /> Online
+                                        <Circle size={8} className="fill-emerald-500 text-emerald-500 mr-1" /> Online{console.log(user.name)}
                                     </p>
                                 </div>
                             </div>
@@ -83,17 +82,15 @@ const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColl
                                 <button
                                     key={item.id}
                                     onClick={() => setActiveTab(item.id)}
-                                    className={`w-full flex items-center group relative transition-all duration-200 ${
-                                        isCollapsed ? 'justify-center py-4' : 'px-4 py-3 rounded-xl'
-                                    } ${
-                                        isActive 
-                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+                                    className={`w-full flex items-center group relative transition-all duration-200 ${isCollapsed ? 'justify-center py-4' : 'px-4 py-3 rounded-xl'
+                                        } ${isActive
+                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
                                             : 'text-slate-500 hover:bg-slate-50 hover:text-blue-600'
-                                    }`}
+                                        }`}
                                 >
                                     <Icon size={isCollapsed ? 24 : 18} className={!isCollapsed ? 'mr-3' : ''} />
                                     {!isCollapsed && <span className="text-sm font-bold">{item.label}</span>}
-                                    
+
                                     {isCollapsed && (
                                         <div className="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
                                             {item.label}
@@ -114,13 +111,11 @@ const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColl
                                 <button
                                     key={item.id}
                                     onClick={() => setActiveTab(item.id)}
-                                    className={`w-full flex items-center group relative transition-all duration-200 ${
-                                        isCollapsed ? 'justify-center py-4' : 'px-4 py-3 rounded-xl'
-                                    } ${
-                                        isActive 
-                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+                                    className={`w-full flex items-center group relative transition-all duration-200 ${isCollapsed ? 'justify-center py-4' : 'px-4 py-3 rounded-xl'
+                                        } ${isActive
+                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
                                             : 'text-slate-500 hover:bg-slate-50 hover:text-blue-600'
-                                    }`}
+                                        }`}
                                 >
                                     <Icon size={isCollapsed ? 24 : 18} className={!isCollapsed ? 'mr-3' : ''} />
                                     {!isCollapsed && <span className="text-sm font-bold">{item.label}</span>}
@@ -134,9 +129,8 @@ const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColl
                 <div className="px-3 mt-auto pt-6 border-t border-slate-50">
                     <button
                         onClick={handleLogout}
-                        className={`w-full flex items-center group relative text-slate-500 hover:bg-red-50 hover:text-red-500 transition-all ${
-                            isCollapsed ? 'justify-center py-4' : 'px-4 py-3 rounded-xl'
-                        }`}
+                        className={`w-full flex items-center group relative text-slate-500 hover:bg-red-50 hover:text-red-500 transition-all ${isCollapsed ? 'justify-center py-4' : 'px-4 py-3 rounded-xl'
+                            }`}
                     >
                         <LogOut size={isCollapsed ? 24 : 18} className={!isCollapsed ? 'mr-3' : ''} />
                         {!isCollapsed && <span className="text-sm font-bold">Logout Session</span>}

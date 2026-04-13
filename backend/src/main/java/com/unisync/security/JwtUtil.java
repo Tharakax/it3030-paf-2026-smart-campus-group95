@@ -32,6 +32,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .subject(userPrincipal.getUser().getEmail())
                 .claim("id", userPrincipal.getUser().getId())
+                .claim("name", userPrincipal.getUser().getName())
                 .claim("role", userPrincipal.getUser().getRole().name())
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
