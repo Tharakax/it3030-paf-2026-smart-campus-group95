@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
                         id: decoded.id,
                         email: decoded.sub,
                         name: decoded.name,
+                        picture: decoded.picture,
                         role: decoded.role 
                     });
                     localStorage.setItem('token', token);

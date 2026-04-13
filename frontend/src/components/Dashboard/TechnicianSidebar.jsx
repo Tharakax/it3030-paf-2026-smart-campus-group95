@@ -55,15 +55,28 @@ const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColl
                 {!isCollapsed && (
                     <div className="px-6 mb-8">
                         <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-200">
-                                    {user?.name?.charAt(0) || 'T'}
-                                </div>
-                                <div className="overflow-hidden">
-                                    <p className="text-sm font-bold text-slate-800 truncate">{user?.name || 'Technician'}</p>
-                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight flex items-center">
-                                        <Circle size={8} className="fill-emerald-500 text-emerald-500 mr-1" /> Online{console.log(user.name)}
-                                    </p>
+                            <div className="flex items-start space-x-3">
+                                {user?.picture ? (
+                                    <img 
+                                        src={user.picture} 
+                                        className="w-11 h-11 rounded-xl shadow-md object-cover border-2 border-white" 
+                                        alt="Profile"
+                                    />
+                                ) : (
+                                    <div className="w-11 h-11 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-200 border-2 border-white shrink-0">
+                                        {user?.name?.charAt(0) || 'T'}
+                                    </div>
+                                )}
+                                <div className="flex-1 min-w-0 pt-0.5">
+                                    <p className="text-sm font-bold text-slate-800 truncate leading-tight tracking-tight">{user?.name || 'Technician'}</p>
+                                    <p className="text-[10px] text-blue-600 font-extrabold uppercase tracking-widest mt-0.5 leading-none">{user?.role}</p>
+                                    <div className="flex items-center mt-1.5">
+                                        <div className="relative flex h-2 w-2 mr-1.5">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+                                        </div>
+                                        <span className="text-[9px] text-slate-500 font-extrabold uppercase tracking-widest leading-none">Status: Online</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
