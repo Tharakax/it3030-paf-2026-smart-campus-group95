@@ -3,6 +3,9 @@ package com.unisync.controller;
 import com.unisync.dto.ResourceRequestDTO;
 import com.unisync.dto.ResourceResponseDTO;
 import com.unisync.entity.Resource;
+import com.unisync.enums.Department;
+import com.unisync.enums.ResourceStatus;
+import com.unisync.enums.ResourceType;
 import com.unisync.service.ResourceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,8 +30,13 @@ public class ResourceController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ResourceResponseDTO>> getAllResources() {
-        List<ResourceResponseDTO> resources = resourceService.getAllResources().stream()
+    public ResponseEntity<List<ResourceResponseDTO>> getAllResources(
+            @RequestParam(required = false) ResourceType type,
+            @RequestParam(required = false) Department department,
+            @RequestParam(required = false) ResourceStatus status,
+            @RequestParam(required = false) Boolean bookable) {
+        
+        List<ResourceResponseDTO> resources = resourceService.getResources(type, department, status, bookable).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(resources);
