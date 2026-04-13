@@ -3,11 +3,19 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Bell, UserCircle, LogOut, Menu, X, Settings, Shield, Wrench, LayoutDashboard, Layers, Box } from 'lucide-react';
 
+
 const Header = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+    // Hide header on dashboard, admin and technician routes
+    const hideHeaderRoutes = ['/dashboard', '/admin', '/technician'];
+    if (hideHeaderRoutes.includes(location.pathname)) {
+        return null;
+    }
 
     const handleLogout = () => {
         logout();
