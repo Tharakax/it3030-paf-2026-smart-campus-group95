@@ -67,15 +67,6 @@ const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColl
                                     </p>
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-[10px] font-bold">
-                                    <span className="text-slate-400">DAILY GOAL</span>
-                                    <span className="text-blue-600">80%</span>
-                                </div>
-                                <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                                    <div className="bg-blue-600 h-full w-[80%] rounded-full shadow-[0_0_8px_rgba(37,99,235,0.3)]" />
-                                </div>
-                            </div>
                         </div>
                     </div>
                 )}
