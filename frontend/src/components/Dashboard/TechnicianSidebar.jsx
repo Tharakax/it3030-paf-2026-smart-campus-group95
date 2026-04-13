@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     LayoutDashboard,
     ListTodo,
@@ -11,6 +10,7 @@ import {
     ChevronRight,
     Circle
 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed, setIsCollapsed }) => {
     const mainNav = [
@@ -24,6 +24,31 @@ const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColl
         { id: 'profile', label: 'My Profile', icon: User },
         { id: 'settings', label: 'Settings', icon: Settings },
     ];
+
+    const confirmLogout = () => {
+        Swal.fire({
+            title: 'Logout?',
+            text: "Are you sure you want to end your session?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#cbd5e1',
+            confirmButtonText: 'Yes, logout',
+            cancelButtonText: 'Cancel',
+            background: '#ffffff',
+            customClass: {
+                popup: 'rounded-[1.5rem] border-none shadow-2xl',
+                title: 'text-slate-800 font-bold',
+                htmlContainer: 'text-slate-600 font-medium',
+                confirmButton: 'rounded-xl font-bold px-6 py-3',
+                cancelButton: 'rounded-xl font-bold px-6 py-3 text-slate-500'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handleLogout();
+            }
+        });
+    };
 
     return (
         <aside
@@ -141,12 +166,12 @@ const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColl
                 {/* Logout Section */}
                 <div className="px-3 mt-auto pt-6 border-t border-slate-50">
                     <button
-                        onClick={handleLogout}
+                        onClick={confirmLogout}
                         className={`w-full flex items-center group relative text-slate-500 hover:bg-red-50 hover:text-red-500 transition-all ${isCollapsed ? 'justify-center py-4' : 'px-4 py-3 rounded-xl'
                             }`}
                     >
                         <LogOut size={isCollapsed ? 24 : 18} className={!isCollapsed ? 'mr-3' : ''} />
-                        {!isCollapsed && <span className="text-sm font-bold">Logout Session</span>}
+                        {!isCollapsed && <span className="text-sm font-bold">Logout</span>}
                     </button>
                 </div>
             </div>
