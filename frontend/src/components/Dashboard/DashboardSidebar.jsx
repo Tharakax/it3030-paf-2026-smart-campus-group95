@@ -13,6 +13,7 @@ import {
     ChevronRight,
     Layers
 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const DashboardSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed, setIsCollapsed }) => {
     const menuItems = [
@@ -22,6 +23,31 @@ const DashboardSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColla
         { id: 'profile', label: 'Profile', icon: User },
         { id: 'settings', label: 'Settings', icon: Settings },
     ];
+
+    const confirmLogout = () => {
+        Swal.fire({
+            title: 'Logout?',
+            text: "Are you sure you want to end your session?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#cbd5e1',
+            confirmButtonText: 'Yes, logout',
+            cancelButtonText: 'Cancel',
+            background: '#ffffff',
+            customClass: {
+                popup: 'rounded-[1.5rem] border-none shadow-2xl',
+                title: 'text-slate-800 font-bold',
+                htmlContainer: 'text-slate-600 font-medium',
+                confirmButton: 'rounded-xl font-bold px-6 py-3',
+                cancelButton: 'rounded-xl font-bold px-6 py-3 text-slate-500'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handleLogout();
+            }
+        });
+    };
 
     return (
         <aside
@@ -110,7 +136,7 @@ const DashboardSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColla
                 {/* Logout Button */}
                 <div className="px-3 mt-auto">
                     <button
-                        onClick={handleLogout}
+                        onClick={confirmLogout}
                         className={`w-full flex items-center text-red-500 hover:bg-red-50 transition-all group relative ${isCollapsed ? 'justify-center py-4' : 'px-4 py-3 rounded-xl'
                             }`}
                     >

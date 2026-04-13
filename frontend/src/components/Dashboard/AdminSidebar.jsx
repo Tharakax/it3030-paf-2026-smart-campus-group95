@@ -11,6 +11,7 @@ import {
     Circle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed, setIsCollapsed }) => {
     const adminMenu = [
@@ -20,6 +21,32 @@ const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed
         { id: 'security', label: 'System Security', icon: ShieldCheck },
         { id: 'settings', label: 'Global Settings', icon: Settings },
     ];
+
+    const confirmLogout = () => {
+        Swal.fire({
+            title: 'Logout?',
+            text: "Are you sure you want to end your session?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb', // UniSync Blue
+            cancelButtonColor: '#cbd5e1',
+            confirmButtonText: 'Yes, logout',
+            cancelButtonText: 'Cancel',
+            background: '#ffffff',
+            borderRadius: '1.5rem',
+            customClass: {
+                popup: 'rounded-[1.5rem] border-none shadow-2xl',
+                title: 'text-slate-800 font-bold',
+                htmlContainer: 'text-slate-600 font-medium',
+                confirmButton: 'rounded-xl font-bold px-6 py-3',
+                cancelButton: 'rounded-xl font-bold px-6 py-3 text-slate-500'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handleLogout();
+            }
+        });
+    };
 
     return (
         <aside
@@ -117,7 +144,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed
                 {/* Logout Button */}
                 <div className="px-3 mt-auto">
                     <button
-                        onClick={handleLogout}
+                        onClick={confirmLogout}
                         className={`w-full flex items-center text-red-500 hover:bg-red-50 transition-all group relative ${isCollapsed ? 'justify-center py-4' : 'px-4 py-3 rounded-xl'
                             }`}
                     >
