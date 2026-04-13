@@ -4,6 +4,9 @@ import com.unisync.entity.Resource;
 import com.unisync.enums.Department;
 import com.unisync.enums.ResourceStatus;
 import com.unisync.enums.ResourceType;
+import com.unisync.exception.DuplicateResourceCodeException;
+import com.unisync.exception.InvalidResourceAvailabilityException;
+import com.unisync.exception.ResourceNotFoundException;
 import com.unisync.repository.ResourceRepository;
 import com.unisync.service.ResourceService;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -27,8 +30,9 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public Resource createResource(Resource resource) {
+        validateAvailabilityTimes(resource);
         if (resourceRepository.existsByResourceCode(resource.getResourceCode())) {
-            throw new RuntimeException("Resource with code " + resource.getResourceCode() + " already exists.");
+            throw new DuplicateResourceCodeException("Resource with code " + resource.getResourceCode() + " already exists.");
         }
         return resourceRepository.save(resource);
     }
@@ -70,17 +74,18 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public Resource getResourceById(String id) {
         return resourceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Resource not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id: " + id));
     }
 
     @Override
     public Resource updateResource(String id, Resource resource) {
+        validateAvailabilityTimes(resource);
         Resource existingResource = getResourceById(id);
         
         // Check if updating resourceCode and if the new code already exists
         if (!existingResource.getResourceCode().equals(resource.getResourceCode()) && 
             resourceRepository.existsByResourceCode(resource.getResourceCode())) {
-            throw new RuntimeException("Resource with code " + resource.getResourceCode() + " already exists.");
+            throw new DuplicateResourceCodeException("Resource with code " + resource.getResourceCode() + " already exists.");
         }
 
         existingResource.setResourceCode(resource.getResourceCode());
@@ -96,11 +101,19 @@ public class ResourceServiceImpl implements ResourceService {
 
         return resourceRepository.save(existingResource);
     }
+private void validateAvailabilityTimes(Resource resource) {
+        if (resource.getAvailabilityStartTime() != null && resource.getAvailabilityEndTime() != null) {
+            if (!resource.getAvailabilityEndTime().isAfter(resource.getAvailabilityStartTime())) {
+                throw new InvalidResourceAvailabilityException("Availability end time must be after start time.");
+            }
+        }
+    }
 
+    
     @Override
     public void deleteResource(String id) {
         if (!resourceRepository.existsById(id)) {
-            throw new RuntimeException("Resource not found with id: " + id);
+            throw new ResourceNotFoundException("Resource not found with id: " + id);
         }
         resourceRepository.deleteById(id);
     }
