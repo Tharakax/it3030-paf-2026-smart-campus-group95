@@ -16,7 +16,8 @@ import {
     AlertCircle,
     ChevronRight,
     Edit3,
-    ShieldCheck
+    ShieldCheck,
+    Settings
 } from 'lucide-react';
 import DashboardSidebar from '../components/Dashboard/DashboardSidebar';
 
