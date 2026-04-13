@@ -4,9 +4,10 @@ import { Layers, Github, Twitter, Linkedin, Mail } from 'lucide-react';
 
 const Footer = () => {
     const location = useLocation();
-    
-    // Hide footer on dashboard route
-    if (location.pathname === '/dashboard') return null;
+
+    // Hide footer on dashboard, admin and technician routes
+    const hideFooterRoutes = ['/dashboard', '/admin', '/technician'];
+    if (hideFooterRoutes.includes(location.pathname)) return null;
 
     return (
         <footer className="bg-white border-t border-slate-200 mt-auto">

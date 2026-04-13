@@ -38,7 +38,7 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="flex min-h-[calc(100vh-64px)] bg-[#f8fafc]">
+        <div className="flex min-h-screen bg-[#f8fafc]">
             {/* Sidebar */}
             <DashboardSidebar 
                 activeTab={activeTab} 
