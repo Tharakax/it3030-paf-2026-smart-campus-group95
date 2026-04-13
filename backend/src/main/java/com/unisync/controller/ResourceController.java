@@ -7,9 +7,11 @@ import com.unisync.enums.Department;
 import com.unisync.enums.ResourceStatus;
 import com.unisync.enums.ResourceType;
 import com.unisync.service.ResourceService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,13 +25,15 @@ public class ResourceController {
     private final ResourceService resourceService;
 
     @PostMapping
-    public ResponseEntity<ResourceResponseDTO> createResource(@RequestBody ResourceRequestDTO requestDTO) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResourceResponseDTO> createResource(@Valid @RequestBody ResourceRequestDTO requestDTO) {
         Resource resource = mapToEntity(requestDTO);
         Resource savedResource = resourceService.createResource(resource);
         return new ResponseEntity<>(mapToResponseDTO(savedResource), HttpStatus.CREATED);
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<List<ResourceResponseDTO>> getAllResources(
             @RequestParam(required = false) ResourceType type,
             @RequestParam(required = false) Department department,
@@ -43,19 +47,22 @@ public class ResourceController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<ResourceResponseDTO> getResourceById(@PathVariable String id) {
         Resource resource = resourceService.getResourceById(id);
         return ResponseEntity.ok(mapToResponseDTO(resource));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResourceResponseDTO> updateResource(@PathVariable String id, @RequestBody ResourceRequestDTO requestDTO) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResourceResponseDTO> updateResource(@PathVariable String id, @Valid @RequestBody ResourceRequestDTO requestDTO) {
         Resource resource = mapToEntity(requestDTO);
         Resource updatedResource = resourceService.updateResource(id, resource);
         return ResponseEntity.ok(mapToResponseDTO(updatedResource));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteResource(@PathVariable String id) {
         resourceService.deleteResource(id);
         return ResponseEntity.noContent().build();
