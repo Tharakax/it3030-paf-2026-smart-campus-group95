@@ -12,16 +12,20 @@ import toast from 'react-hot-toast';
 import Modal from '../../Common/Modal';
 import TicketForm from '../Tickets/TicketForm';
 import TicketCard from '../Tickets/TicketCard';
+import TicketDetails from '../Tickets/TicketDetails';
 import api from '../../../api/axiosConfig';
 
 const Tickets = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedTicketId, setSelectedTicketId] = useState(null);
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => setIsModalOpen(false);
+    
+    const closeTicketDetails = () => setSelectedTicketId(null);
 
     // Fetch tickets from backend on mount
     const fetchTickets = async () => {
@@ -126,7 +130,7 @@ const Tickets = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {tickets.map((tkt) => (
-                        <TicketCard key={tkt.id} ticket={tkt} />
+                        <TicketCard key={tkt.id} ticket={tkt} onClick={() => setSelectedTicketId(tkt.id)} />
                     ))}
                 </div>
             )}
@@ -142,6 +146,21 @@ const Tickets = () => {
                     onClose={handleCloseModal}
                     submitting={submitting}
                 />
+            </Modal>
+
+            {/* Ticket Details Modal */}
+            <Modal
+                isOpen={!!selectedTicketId}
+                onClose={closeTicketDetails}
+                title="Incident Details"
+            >
+                {selectedTicketId && (
+                    <TicketDetails 
+                        ticketId={selectedTicketId} 
+                        onClose={closeTicketDetails}
+                        onUpdate={fetchTickets}
+                    />
+                )}
             </Modal>
         </div>
     );

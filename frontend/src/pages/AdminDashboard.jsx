@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '../components/Dashboard/AdminSidebar';
+import AdminTickets from '../components/Dashboard/Views/AdminTickets';
 
 const AdminDashboard = () => {
     const { user, logout } = useContext(AuthContext);
@@ -56,6 +57,8 @@ const AdminDashboard = () => {
                                     </div>
                                 </div>
                             )}
+
+                            {activeTab === 'tickets' && <AdminTickets />}
 
                             {activeTab === 'users' && (
                                 <div className="space-y-6">
