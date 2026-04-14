@@ -274,12 +274,6 @@ const Tickets = () => {
                     <Filter className="w-12 h-12 text-slate-200 mb-4" />
                     <p className="text-slate-500 font-bold text-lg">No matching tickets</p>
                     <p className="text-slate-400 text-sm mt-1 text-center max-w-xs">We couldn't find any tickets matching your current filter criteria.</p>
-                    <button 
-                        onClick={handleClearFilters}
-                        className="mt-6 text-indigo-600 font-bold text-sm hover:underline"
-                    >
-                        Clear all filters
-                    </button>
                 </div>
             ) : (
                 <div className="space-y-12">
