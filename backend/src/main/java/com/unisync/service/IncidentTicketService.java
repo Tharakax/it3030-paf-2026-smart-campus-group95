@@ -9,6 +9,7 @@ import com.unisync.entity.Role;
 import com.unisync.entity.User;
 import com.unisync.enums.ResourceStatus;
 import com.unisync.enums.TicketStatus;
+import com.unisync.enums.Department;
 import com.unisync.exception.ResourceNotFoundException;
 import com.unisync.exception.UnauthorizedException;
 import com.unisync.repository.IncidentTicketRepository;
@@ -170,10 +171,17 @@ public class IncidentTicketService {
                 .map(User::getName).orElse("Unknown");
         String assignedToName = ticket.getAssignedTo() != null ?
                 userRepository.findById(ticket.getAssignedTo()).map(User::getName).orElse("Unknown") : null;
+        
+        Resource resource = resourceRepository.findById(ticket.getResourceId())
+                .orElse(null);
+        String resourceName = resource != null ? resource.getName() : "Campus General";
+        Department department = resource != null ? resource.getDepartment() : null;
 
         return IncidentTicketResponseDTO.builder()
                 .id(ticket.getId())
                 .resourceId(ticket.getResourceId())
+                .resourceName(resourceName)
+                .department(department)
                 .category(ticket.getCategory())
                 .description(ticket.getDescription())
                 .priority(ticket.getPriority())

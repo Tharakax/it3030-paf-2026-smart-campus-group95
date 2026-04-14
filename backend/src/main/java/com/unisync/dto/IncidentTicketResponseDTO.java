@@ -1,5 +1,6 @@
 package com.unisync.dto;
 
+import com.unisync.enums.Department;
 import com.unisync.enums.TicketCategory;
 import com.unisync.enums.TicketPriority;
 import com.unisync.enums.TicketStatus;
@@ -18,6 +19,8 @@ import java.util.List;
 public class IncidentTicketResponseDTO {
     private String id;
     private String resourceId;
+    private String resourceName;
+    private Department department;
     private TicketCategory category;
     private String description;
     private TicketPriority priority;
