@@ -62,29 +62,27 @@ const TicketCard = ({ ticket, onClick }) => {
     const isRejected = ticket.status === 'REJECTED';
 
     return (
-        <div 
+        <div
             onClick={onClick}
             className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 group cursor-pointer relative overflow-hidden"
         >
             {/* Status Accent Bar */}
-            <div className={`absolute top-0 left-0 w-full h-1.5 ${
-                isResolved ? 'bg-emerald-500' 
-                : isRejected ? 'bg-red-500'
-                : 'bg-indigo-500'
-            }`} />
+            <div className={`absolute top-0 left-0 w-full h-1.5 ${isResolved ? 'bg-emerald-500'
+                    : isRejected ? 'bg-red-500'
+                        : 'bg-indigo-500'
+                }`} />
 
             {/* Header: ID + Priority Badge */}
             <div className="flex justify-between items-start mb-6">
                 <span className="text-[10px] font-black font-mono text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl tracking-widest border border-slate-100">
                     {ticket.id.substring(0, 8).toUpperCase()}
                 </span>
-                <span className={`px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
-                    priorityStyles[ticket.priority] || priorityStyles['LOW']
-                }`}>
+                <span className={`px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border ${priorityStyles[ticket.priority] || priorityStyles['LOW']
+                    }`}>
                     {ticket.priority} Priority
                 </span>
             </div>
-            
+
             {/* Body: Category + Description */}
             <div className="mb-6">
                 <p className="text-xs font-bold text-blue-600 uppercase tracking-tighter mb-1 opacity-70">
@@ -98,11 +96,10 @@ const TicketCard = ({ ticket, onClick }) => {
             {/* Footer: Status + Date */}
             <div className="flex items-center justify-between mt-10 pt-6 border-t border-slate-50">
                 <div className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${
-                        isResolved ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' 
-                        : isRejected ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'
-                        : 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)] animate-pulse'
-                    }`} />
+                    <div className={`w-2 h-2 rounded-full ${isResolved ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+                            : isRejected ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'
+                                : 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)] animate-pulse'
+                        }`} />
                     <span className="text-sm font-bold text-slate-500">{displayStatus}</span>
                 </div>
                 <span className="text-xs text-slate-400 font-bold">{formatDate(ticket.createdAt)}</span>

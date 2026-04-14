@@ -9,7 +9,11 @@ import {
     Loader2,
     ChevronDown,
     X,
-    ArrowUpDown
+    ArrowUpDown,
+    AlertTriangle,
+    Activity,
+    History,
+    ClipboardCheck
 } from 'lucide-react';
  import { useMemo } from 'react';
 import toast from 'react-hot-toast';
@@ -87,6 +91,27 @@ const Tickets = () => {
                 return dateB - dateA; // Default to newest first
             });
     }, [tickets, statusFilter, priorityFilter, categoryFilter, dateFrom, dateTo]);
+    
+    // Split filtered tickets into status-based pipeline sections
+    const sections = useMemo(() => {
+        const groups = {
+            new: [],
+            active: [],
+            history: []
+        };
+
+        filteredTickets.forEach(tkt => {
+            if (tkt.status === 'OPEN') {
+                groups.new.push(tkt);
+            } else if (tkt.status === 'IN_PROGRESS') {
+                groups.active.push(tkt);
+            } else {
+                groups.history.push(tkt);
+            }
+        });
+
+        return groups;
+    }, [filteredTickets]);
 
     // Submit ticket to backend: POST /api/tickets
     const handleFormSubmit = async (data) => {
@@ -238,7 +263,7 @@ const Tickets = () => {
                 </div>
             </div>
 
-            {/* Loading State */}
+            {/* Pipeline Sections */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20">
                     <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mb-4" />
@@ -257,10 +282,66 @@ const Tickets = () => {
                     </button>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredTickets.map((tkt) => (
-                        <TicketCard key={tkt.id} ticket={tkt} onClick={() => setSelectedTicketId(tkt.id)} />
-                    ))}
+                <div className="space-y-12">
+                    {/* 1. New Requests Section */}
+                    {sections.new.length > 0 && (
+                        <div className="animate-in fade-in slide-in-from-top-4 duration-700">
+                            <div className="flex items-center space-x-3 mb-6 px-4">
+                                <div className="p-2.5 bg-blue-50 rounded-xl">
+                                    <ClipboardCheck className="w-5 h-5 text-blue-500" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-800 tracking-tight">Recent Reports</h3>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Submitted and pending review ({sections.new.length})</p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {sections.new.map((tkt) => (
+                                    <TicketCard key={tkt.id} ticket={tkt} onClick={() => setSelectedTicketId(tkt.id)} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 2. Active Progress Section */}
+                    {sections.active.length > 0 && (
+                        <div className="animate-in fade-in slide-in-from-top-4 duration-700 delay-150">
+                            <div className="flex items-center space-x-3 mb-6 px-4">
+                                <div className="p-2.5 bg-violet-50 rounded-xl">
+                                    <Activity className="w-5 h-5 text-violet-500" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-800 tracking-tight">Actively Fixing</h3>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Technicians are currently working on these ({sections.active.length})</p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {sections.active.map((tkt) => (
+                                    <TicketCard key={tkt.id} ticket={tkt} onClick={() => setSelectedTicketId(tkt.id)} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 3. Completed History Section */}
+                    {sections.history.length > 0 && (
+                        <div className="animate-in fade-in slide-in-from-top-4 duration-700 delay-300">
+                            <div className="flex items-center space-x-3 mb-6 px-4 pt-12 border-t border-slate-100">
+                                <div className="p-2.5 bg-slate-50 rounded-xl">
+                                    <History className="w-5 h-5 text-slate-400" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-800 tracking-tight opacity-60">Resolved & History</h3>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Past incidents that have been handled ({sections.history.length})</p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-80 hover:opacity-100 transition-opacity">
+                                {sections.history.map((tkt) => (
+                                    <TicketCard key={tkt.id} ticket={tkt} onClick={() => setSelectedTicketId(tkt.id)} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
