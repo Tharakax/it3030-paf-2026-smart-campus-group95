@@ -251,20 +251,28 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                         </div>
                     </div>
 
-                    {/* Resolution Section (Visible only if Resolved) */}
-                    {(ticket.status === 'RESOLVED' || ticket.status === 'CLOSED') && ticket.resolutionNotes && (
-                        <div className="bg-white p-10 rounded-[2.5rem] border border-emerald-100 shadow-sm transition-all">
-                            <div className="flex items-center space-x-3 mb-6">
-                                <div className="p-2.5 bg-emerald-50 rounded-xl">
+                    {/* Resolution Section (Always Visible) */}
+                    <div className={`bg-white p-10 rounded-[2.5rem] border shadow-sm transition-all mb-8 ${ticket.resolutionNotes ? 'border-emerald-100 shadow-emerald-50' : 'border-slate-100'}`}>
+                        <div className="flex items-center space-x-3 mb-6">
+                            <div className={`p-2.5 rounded-xl ${ticket.resolutionNotes ? 'bg-emerald-50' : 'bg-slate-50'}`}>
+                                {ticket.resolutionNotes ? (
                                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                                </div>
-                                <h3 className="text-lg font-black text-slate-800 uppercase tracking-wider">Resolution & Technical Report</h3>
+                                ) : (
+                                    <Clock className="w-5 h-5 text-slate-400" />
+                                )}
                             </div>
-                            <div className="text-slate-600 leading-relaxed font-medium text-sm whitespace-pre-wrap bg-slate-50 p-6 rounded-2xl border border-slate-100/50">
-                                {ticket.resolutionNotes}
-                            </div>
+                            <h3 className={`text-lg font-black uppercase tracking-wider ${ticket.resolutionNotes ? 'text-slate-800' : 'text-slate-400'}`}>
+                                Resolution & Technical Report
+                            </h3>
                         </div>
-                    )}
+                        <div className={`leading-relaxed font-medium text-sm whitespace-pre-wrap p-6 rounded-2xl border ${
+                            ticket.resolutionNotes 
+                            ? 'text-slate-600 bg-emerald-50/30 border-emerald-100/50' 
+                            : 'text-slate-400 bg-slate-50 border-slate-100/50 italic'
+                        }`}>
+                            {ticket.resolutionNotes || "No resolution details available yet. This section will be updated after the issue is resolved."}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Sidebar Column */}
@@ -464,9 +472,9 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 <button 
                                     type="submit"
                                     disabled={!newComment.trim()}
-                                    className="mt-4 w-full py-4 bg-slate-800 hover:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-2xl flex items-center justify-center space-x-3 text-white shadow-xl shadow-slate-200"
+                                    className="mt-4 w-full py-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-2xl flex items-center justify-center space-x-3 text-white shadow-xl shadow-indigo-100"
                                 >
-                                    <span className="text-xs font-black uppercase tracking-widest">Update Discussion</span>
+                                    <span className="text-xs font-black uppercase tracking-widest">Add Comment</span>
                                     <Send className="w-4 h-4" />
                                 </button>
                             </form>
