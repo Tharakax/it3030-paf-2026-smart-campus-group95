@@ -4,11 +4,13 @@ import com.unisync.dto.IncidentTicketRequestDTO;
 import com.unisync.dto.IncidentTicketResponseDTO;
 import com.unisync.dto.StatusUpdateDTO;
 import com.unisync.entity.IncidentTicket;
+import com.unisync.entity.ResolutionRecord;
 import com.unisync.entity.Resource;
 import com.unisync.entity.Role;
 import com.unisync.entity.User;
 import com.unisync.enums.ResourceStatus;
 import com.unisync.enums.TicketStatus;
+import com.unisync.enums.Department;
 import com.unisync.exception.ResourceNotFoundException;
 import com.unisync.exception.UnauthorizedException;
 import com.unisync.repository.IncidentTicketRepository;
@@ -101,8 +103,10 @@ public class IncidentTicketService {
         } else if (currentUser.getRole() == Role.TECHNICIAN) {
             if (newStatus == TicketStatus.IN_PROGRESS || newStatus == TicketStatus.RESOLVED) {
                 ticket.setStatus(newStatus);
-                if (newStatus == TicketStatus.RESOLVED) {
-                    ticket.setResolutionNotes(update.getNotes());
+                if (newStatus == TicketStatus.RESOLVED && update.getResolutionNotes() != null) {
+                    ResolutionRecord resolution = update.getResolutionNotes();
+                    resolution.setResolvedAt(LocalDateTime.now());
+                    ticket.setResolutionRecord(resolution);
                 }
             } else {
                 throw new UnauthorizedException("Technicians can only mark tickets as IN_PROGRESS or RESOLVED");
@@ -111,8 +115,10 @@ public class IncidentTicketService {
             ticket.setStatus(newStatus);
             if (newStatus == TicketStatus.REJECTED) {
                 ticket.setRejectionReason(update.getNotes());
-            } else if (newStatus == TicketStatus.RESOLVED) {
-                ticket.setResolutionNotes(update.getNotes());
+            } else if (newStatus == TicketStatus.RESOLVED && update.getResolutionNotes() != null) {
+                ResolutionRecord resolution = update.getResolutionNotes();
+                resolution.setResolvedAt(LocalDateTime.now());
+                ticket.setResolutionRecord(resolution);
             }
         }
 
@@ -170,10 +176,17 @@ public class IncidentTicketService {
                 .map(User::getName).orElse("Unknown");
         String assignedToName = ticket.getAssignedTo() != null ?
                 userRepository.findById(ticket.getAssignedTo()).map(User::getName).orElse("Unknown") : null;
+        
+        Resource resource = resourceRepository.findById(ticket.getResourceId())
+                .orElse(null);
+        String resourceName = resource != null ? resource.getName() : "Campus General";
+        Department department = resource != null ? resource.getDepartment() : null;
 
         return IncidentTicketResponseDTO.builder()
                 .id(ticket.getId())
                 .resourceId(ticket.getResourceId())
+                .resourceName(resourceName)
+                .department(department)
                 .category(ticket.getCategory())
                 .description(ticket.getDescription())
                 .priority(ticket.getPriority())
@@ -184,7 +197,7 @@ public class IncidentTicketService {
                 .assignedTo(ticket.getAssignedTo())
                 .assignedToName(assignedToName)
                 .rejectionReason(ticket.getRejectionReason())
-                .resolutionNotes(ticket.getResolutionNotes())
+                .resolutionNotes(ticket.getResolutionRecord())
                 .imageUrls(ticket.getImageUrls())
                 .createdAt(ticket.getCreatedAt())
                 .updatedAt(ticket.getUpdatedAt())
