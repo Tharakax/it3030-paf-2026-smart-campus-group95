@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import TechnicianSidebar from '../components/Dashboard/TechnicianSidebar';
-import TechnicianTasks from '../components/Dashboard/Views/TechnicianTasks';
+import TechnicianTickets from '../components/Dashboard/Views/TechnicianTickets';
 
 const TechnicianDashboard = () => {
     const { user, logout } = useContext(AuthContext);
@@ -55,7 +55,7 @@ const TechnicianDashboard = () => {
                                 </div>
                             )}
                             
-                            {activeTab === 'tasks' && <TechnicianTasks />}
+                            {activeTab === 'tasks' && <TechnicianTickets />}
 
                             {activeTab === 'history' && (
                                 <div className="p-20 text-center text-slate-400 font-medium italic animate-in fade-in duration-500 bg-white rounded-[3rem] border border-slate-100">

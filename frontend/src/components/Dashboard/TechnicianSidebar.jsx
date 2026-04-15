@@ -15,7 +15,7 @@ import Swal from 'sweetalert2';
 const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed, setIsCollapsed }) => {
     const mainNav = [
         { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-        { id: 'tasks', label: 'Maintenance Tasks', icon: ListTodo },
+        { id: 'tasks', label: 'Ticket Hub', icon: ListTodo },
         { id: 'history', label: 'Work History', icon: History },
         { id: 'tools', label: 'Equipment & Tools', icon: Wrench },
     ];
