@@ -31,6 +31,7 @@ public class IncidentTicketService {
     private final IncidentTicketRepository ticketRepository;
     private final UserRepository userRepository;
     private final ResourceRepository resourceRepository;
+    private final SequenceGeneratorService sequenceGenerator;
 
     @Transactional
     public IncidentTicketResponseDTO createTicket(IncidentTicketRequestDTO request, User currentUser) {
@@ -39,6 +40,7 @@ public class IncidentTicketService {
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id: " + request.getResourceId()));
 
         IncidentTicket ticket = IncidentTicket.builder()
+                .ticketId("#TCK" + sequenceGenerator.generateSequence("incident_tickets_sequence"))
                 .resourceId(request.getResourceId())
                 .category(request.getCategory())
                 .description(request.getDescription())
@@ -184,6 +186,7 @@ public class IncidentTicketService {
 
         return IncidentTicketResponseDTO.builder()
                 .id(ticket.getId())
+                .ticketId(ticket.getTicketId())
                 .resourceId(ticket.getResourceId())
                 .resourceName(resourceName)
                 .department(department)

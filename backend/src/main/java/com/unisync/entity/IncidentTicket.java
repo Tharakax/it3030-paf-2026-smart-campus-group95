@@ -34,6 +34,8 @@ public class IncidentTicket {
 
     private TicketStatus status;
 
+    private String ticketId;
+
     private String createdBy; // User ID
 
     private String assignedTo; // User ID (Technician)

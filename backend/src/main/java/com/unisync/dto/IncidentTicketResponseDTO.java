@@ -19,6 +19,7 @@ import java.util.List;
 @Builder
 public class IncidentTicketResponseDTO {
     private String id;
+    private String ticketId;
     private String resourceId;
     private String resourceName;
     private Department department;
