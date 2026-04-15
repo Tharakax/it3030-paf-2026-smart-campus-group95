@@ -66,8 +66,9 @@ const TechnicianTickets = () => {
 
             const matchesStatus = statusFilter === 'ALL' || ticket.status === statusFilter;
             const matchesPriority = priorityFilter === 'ALL' || ticket.priority === priorityFilter;
-            const matchesSearch = !searchQuery ||
+            const matchesSearch = !searchQuery || 
                 ticket.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (ticket.ticketId && ticket.ticketId.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 ticket.category.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -176,8 +177,8 @@ const TechnicianTickets = () => {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search tasks by ID or description..."
-                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-700 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-50 transition-all outline-none"
+                        placeholder="Search incident ID, category, or description..."
+                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border-2 border-slate-100 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-50 rounded-lg text-sm font-bold text-slate-700 placeholder:text-slate-300 transition-all outline-none"
                     />
                 </div>
 
