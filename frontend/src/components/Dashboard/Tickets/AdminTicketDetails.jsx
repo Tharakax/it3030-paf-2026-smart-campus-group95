@@ -20,7 +20,7 @@ import {
     MessageSquare,
     MessageCircle,
     Wrench,
-    MapPin,
+    Box,
     Save
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -190,58 +190,71 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                         </div>
 
                         <div className="relative z-10">
-                            <h2 className="text-3xl font-black text-slate-800 tracking-tight leading-tight mb-8 pr-40">
-                                {ticket.category}
+                            <h2 className="text-3xl font-black text-slate-800 tracking-tight leading-tight mb-8 pr-40 uppercase">
+                                {ticket.category} ISSUE
                             </h2>
-                            
-                            <div className="flex flex-wrap gap-6 mb-10">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 mb-6">
+                                {/* Row 1: Time & Priority */}
                                 <div className="flex items-center">
-                                    <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center mr-3">
+                                    <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
                                         <Calendar className="w-5 h-5 text-slate-400" />
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest">Reported On</p>
-                                        <p className="text-xs font-bold text-slate-700">{new Date(ticket.createdAt).toLocaleDateString()} {new Date(ticket.createdAt).toLocaleTimeString()}</p>
+                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Reported On</p>
+                                        <p className="text-sm font-bold text-slate-700 leading-none">
+                                            {new Date(ticket.createdAt).toLocaleDateString()} · {new Date(ticket.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
                                     </div>
                                 </div>
+
                                 <div className="flex items-center">
-                                    <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center mr-3">
-                                        <Building2 className="w-5 h-5 text-slate-400" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest">Origin Department</p>
-                                        <p className="text-xs font-bold text-slate-700">{ticket.department || 'General'}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center">
-                                    <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center mr-3">
+                                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mr-4 ${
+                                        ticket.priority === 'HIGH' ? 'bg-red-50' :
+                                        ticket.priority === 'MEDIUM' ? 'bg-amber-50' : 'bg-sky-50'
+                                    }`}>
                                         <Tag className={`w-5 h-5 ${
-                                            ticket.priority === 'HIGH' ? 'text-orange-400' :
-                                            ticket.priority === 'MEDIUM' ? 'text-blue-400' : 'text-slate-400'
+                                            ticket.priority === 'HIGH' ? 'text-red-600' :
+                                            ticket.priority === 'MEDIUM' ? 'text-amber-600' : 'text-sky-600'
                                         }`} />
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest">Priority Flag</p>
-                                        <p className={`text-xs font-black uppercase tracking-tight ${
-                                            ticket.priority === 'HIGH' ? 'text-orange-600' :
-                                            ticket.priority === 'MEDIUM' ? 'text-blue-600' : 'text-slate-600'
+                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Priority Flag</p>
+                                        <p className={`text-sm font-black uppercase tracking-tight leading-none ${
+                                            ticket.priority === 'HIGH' ? 'text-red-600' :
+                                            ticket.priority === 'MEDIUM' ? 'text-amber-600' : 'text-sky-600'
                                         }`}>{ticket.priority}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center">
-                                    <div className="w-10 h-10 rounded-2xl bg-fuchsia-50 flex items-center justify-center mr-3 font-semibold text-fuchsia-600">
-                                        <MapPin className="w-5 h-5" />
+
+                                {/* Row 2: Department & Resource */}
+                                <div className="flex items-center border-t border-slate-50 pt-6 md:border-none md:pt-0">
+                                    <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
+                                        <Building2 className="w-5 h-5 text-slate-400" />
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest">Resource Name</p>
-                                        <p className="text-xs font-bold text-slate-700">{ticket.resourceName || 'Campus General'}</p>
+                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Department</p>
+                                        <p className="text-sm font-bold text-slate-700 leading-none">
+                                            {ticket.department 
+                                                ? ticket.department.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
+                                                : 'General'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center border-t border-slate-50 pt-6 md:border-none md:pt-0">
+                                    <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
+                                        <Box className="w-5 h-5 text-slate-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Resource Name</p>
+                                        <p className="text-sm font-bold text-slate-700 leading-none">{ticket.resourceName || 'Campus General'}</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100/50">
-                                <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-3">Issue Description</p>
-                                <p className="text-slate-600 leading-relaxed font-medium">
+                            <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100/50">
+                                <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-1">Issue Description</p>
+                                <p className="text-sm font-bold text-slate-700 leading-relaxed">
                                     {ticket.description}
                                 </p>
                             </div>
@@ -459,7 +472,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                             <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1 border-b border-slate-50 pb-2">Activity Feed</h4>
                         </div>
                         {/* Chat Feed Area */}
-                        <div className="h-[300px] overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-indigo-100 transition-colors">
+                        <div className="h-[250px] overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-indigo-100 transition-colors">
                             {comments.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-12 text-center">
                                     <div className="p-4 bg-slate-50 rounded-full mb-4">
@@ -470,8 +483,17 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                             ) : (
                                 comments.map((comment, index) => (
                                     <div key={comment.id || index} className={`flex flex-col ${comment.userId === user?.id ? 'items-end' : 'items-start'} group animate-in fade-in slide-in-from-bottom-2 duration-500`}>
-                                        <div className="flex items-center space-x-3 mb-1.5 px-1 relative">
+                                        <div className="flex items-center space-x-2 mb-1.5 px-1 relative">
                                             <span className="text-[11px] font-black text-slate-700 uppercase tracking-tighter">{comment.userId === user?.id ? 'You' : comment.authorName}</span>
+                                            {comment.authorRole && (
+                                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-[0.1em] border shadow-sm ${
+                                                    comment.authorRole === 'ADMIN' ? 'bg-indigo-50 text-indigo-500 border-indigo-100' :
+                                                    comment.authorRole === 'TECHNICIAN' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                                    'bg-slate-50 text-slate-500 border-slate-100'
+                                                }`}>
+                                                    {comment.authorRole === 'USER' ? 'User' : comment.authorRole}
+                                                </span>
+                                            )}
                                             <span className="text-[10px] font-bold text-slate-400 font-mono tracking-tighter whitespace-nowrap">{formatCommentDate(comment.createdAt)}</span>
                                             
                                             {comment.userId === user?.id && editingCommentId !== comment.id && (
