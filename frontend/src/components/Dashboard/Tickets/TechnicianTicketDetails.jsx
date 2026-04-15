@@ -40,7 +40,8 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
 
     // Resolution state
     const [isResolving, setIsResolving] = useState(false);
-    const [resolutionNotes, setResolutionNotes] = useState('');
+    const [issueIdentified, setIssueIdentified] = useState('');
+    const [actionTaken, setActionTaken] = useState('');
     const [actionLoading, setActionLoading] = useState(false);
 
     const fetchTicketDetails = async () => {
@@ -66,12 +67,22 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
     const handleStatusUpdate = async (newStatus, notes = '') => {
         setActionLoading(true);
         try {
-            await api.put(`/tickets/${ticketId}/status`, { status: newStatus, notes });
+            const payload = { 
+                status: newStatus, 
+                notes: notes,
+                resolutionNotes: newStatus === 'RESOLVED' ? {
+                    issueIdentified,
+                    actionTaken,
+                    resolvedAt: new Date().toISOString()
+                } : null
+            };
+            await api.put(`/tickets/${ticketId}/status`, payload);
             toast.success(`Success: Ticket marked as ${newStatus.replace('_', ' ')}`);
             fetchTicketDetails();
             onUpdate();
             setIsResolving(false);
-            setResolutionNotes('');
+            setIssueIdentified('');
+            setActionTaken('');
         } catch (err) {
             toast.error('Failed to update ticket status.');
         } finally {
@@ -278,12 +289,31 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 Resolution & Technical Report
                             </h3>
                         </div>
-                        <div className={`leading-relaxed font-medium text-sm whitespace-pre-wrap p-6 rounded-2xl border ${
+                        <div className={`space-y-4 p-6 rounded-2xl border ${
                             ticket.resolutionNotes 
-                            ? 'text-slate-600 bg-emerald-50/30 border-emerald-100/50' 
-                            : 'text-slate-400 bg-slate-50 border-slate-100/50 italic'
+                            ? 'bg-emerald-50/30 border-emerald-100/50' 
+                            : 'bg-slate-50 border-slate-100/50 italic'
                         }`}>
-                            {ticket.resolutionNotes || "No resolution details available yet. Provide notes upon resolving the incident."}
+                            {ticket.resolutionNotes ? (
+                                <>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase text-emerald-600 mb-1">Issue Identified</p>
+                                        <p className="text-slate-700 font-medium text-sm">{ticket.resolutionNotes.issueIdentified}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase text-emerald-600 mb-1">Action Taken</p>
+                                        <p className="text-slate-700 font-medium text-sm">{ticket.resolutionNotes.actionTaken}</p>
+                                    </div>
+                                    <div className="pt-2 border-t border-emerald-100/50 flex justify-between items-center">
+                                        <p className="text-[9px] font-bold text-emerald-500 uppercase">Resolved On</p>
+                                        <p className="text-[10px] font-bold text-slate-400 font-mono">
+                                            {new Date(ticket.resolutionNotes.resolvedAt).toLocaleDateString()} {new Date(ticket.resolutionNotes.resolvedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                    </div>
+                                </>
+                            ) : (
+                                <p className="text-slate-400 text-sm">No resolution details available yet. Provide notes upon resolving the incident.</p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -322,15 +352,29 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                         <p className="text-[10px] font-black uppercase text-emerald-600 tracking-widest">Resolution Notes</p>
                                         <button onClick={() => setIsResolving(false)}><X className="w-4 h-4 text-emerald-300" /></button>
                                     </div>
-                                    <textarea 
-                                        placeholder="Describe the fix or technical actions taken..."
-                                        value={resolutionNotes}
-                                        onChange={(e) => setResolutionNotes(e.target.value)}
-                                        className="w-full p-4 bg-white border border-emerald-100 rounded-2xl text-xs font-bold text-slate-700 outline-none focus:ring-4 focus:ring-emerald-100 mb-4 h-32 resize-none"
-                                    />
+                                    <div className="space-y-4 mb-4">
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase text-emerald-600 tracking-widest mb-2">Issue Identified</p>
+                                            <textarea 
+                                                placeholder="What was the root cause?"
+                                                value={issueIdentified}
+                                                onChange={(e) => setIssueIdentified(e.target.value)}
+                                                className="w-full p-4 bg-white border border-emerald-100 rounded-2xl text-xs font-bold text-slate-700 outline-none focus:ring-4 focus:ring-emerald-100 h-24 resize-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase text-emerald-600 tracking-widest mb-2">Action Taken</p>
+                                            <textarea 
+                                                placeholder="How did you fix it?"
+                                                value={actionTaken}
+                                                onChange={(e) => setActionTaken(e.target.value)}
+                                                className="w-full p-4 bg-white border border-emerald-100 rounded-2xl text-xs font-bold text-slate-700 outline-none focus:ring-4 focus:ring-emerald-100 h-24 resize-none"
+                                            />
+                                        </div>
+                                    </div>
                                     <button 
-                                        onClick={() => handleStatusUpdate('RESOLVED', resolutionNotes)}
-                                        disabled={!resolutionNotes.trim() || actionLoading}
+                                        onClick={() => handleStatusUpdate('RESOLVED')}
+                                        disabled={!issueIdentified.trim() || !actionTaken.trim() || actionLoading}
                                         className="w-full py-4 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-100 disabled:opacity-30 disabled:shadow-none hover:bg-emerald-700 transition-all flex items-center justify-center"
                                     >
                                         {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Finalize Resolution'}

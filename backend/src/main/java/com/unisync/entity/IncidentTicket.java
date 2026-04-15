@@ -40,7 +40,7 @@ public class IncidentTicket {
 
     private String rejectionReason;
 
-    private String resolutionNotes;
+    private ResolutionRecord resolutionRecord;
 
     private List<String> imageUrls;
 

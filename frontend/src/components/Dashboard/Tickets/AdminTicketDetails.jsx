@@ -294,12 +294,31 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 Resolution & Technical Report
                             </h3>
                         </div>
-                        <div className={`leading-relaxed font-medium text-sm whitespace-pre-wrap p-6 rounded-2xl border ${
+                        <div className={`space-y-4 p-6 rounded-2xl border ${
                             ticket.resolutionNotes 
-                            ? 'text-slate-600 bg-emerald-50/30 border-emerald-100/50' 
-                            : 'text-slate-400 bg-slate-50 border-slate-100/50 italic'
+                            ? 'bg-emerald-50/30 border-emerald-100/50' 
+                            : 'bg-slate-50 border-slate-100/50 italic'
                         }`}>
-                            {ticket.resolutionNotes || "No resolution details available yet. This section will be updated after the issue is resolved."}
+                            {ticket.resolutionNotes ? (
+                                <>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase text-emerald-600 mb-1">Issue Identified</p>
+                                        <p className="text-slate-700 font-medium text-sm">{ticket.resolutionNotes.issueIdentified}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase text-emerald-600 mb-1">Action Taken</p>
+                                        <p className="text-slate-700 font-medium text-sm">{ticket.resolutionNotes.actionTaken}</p>
+                                    </div>
+                                    <div className="pt-2 border-t border-emerald-100/50 flex justify-between items-center">
+                                        <p className="text-[9px] font-bold text-emerald-500 uppercase">Resolved On</p>
+                                        <p className="text-[10px] font-bold text-slate-400 font-mono">
+                                            {new Date(ticket.resolutionNotes.resolvedAt).toLocaleDateString()} {new Date(ticket.resolutionNotes.resolvedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                    </div>
+                                </>
+                            ) : (
+                                <p className="text-slate-400 text-sm">No resolution details available yet. This section will be updated after the issue is resolved.</p>
+                            )}
                         </div>
                     </div>
                 </div>

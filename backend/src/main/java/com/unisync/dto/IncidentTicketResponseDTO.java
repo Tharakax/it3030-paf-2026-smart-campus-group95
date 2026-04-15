@@ -1,5 +1,6 @@
 package com.unisync.dto;
 
+import com.unisync.entity.ResolutionRecord;
 import com.unisync.enums.Department;
 import com.unisync.enums.TicketCategory;
 import com.unisync.enums.TicketPriority;
@@ -31,7 +32,7 @@ public class IncidentTicketResponseDTO {
     private String assignedTo;
     private String assignedToName;
     private String rejectionReason;
-    private String resolutionNotes;
+    private ResolutionRecord resolutionNotes;
     private List<String> imageUrls;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

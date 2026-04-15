@@ -1,5 +1,6 @@
 package com.unisync.dto;
 
+import com.unisync.entity.ResolutionRecord;
 import com.unisync.enums.TicketStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,5 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class StatusUpdateDTO {
     private TicketStatus status;
-    private String notes; // Can be rejection reason or resolution notes
+    private String notes; // Can be rejection reason
+    private ResolutionRecord resolutionNotes; // Structured resolution notes
 }
