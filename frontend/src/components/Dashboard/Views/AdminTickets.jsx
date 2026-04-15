@@ -10,7 +10,13 @@ import {
     Activity, 
     ShieldAlert, 
     AlertTriangle,
-    BarChart3
+    BarChart3,
+    Calendar,
+    Tag,
+    User,
+    ChevronRight,
+    Building2,
+    History
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../../api/axiosConfig';
@@ -65,7 +71,8 @@ const AdminTickets = () => {
         total: tickets.length,
         open: tickets.filter(t => t.status === 'OPEN').length,
         inProgress: tickets.filter(t => t.status === 'IN_PROGRESS').length,
-        resolved: tickets.filter(t => t.status === 'RESOLVED').length
+        resolved: tickets.filter(t => t.status === 'RESOLVED').length,
+        closed: tickets.filter(t => t.status === 'CLOSED').length
     }), [tickets]);
 
     const handleClearFilters = () => {
@@ -89,7 +96,7 @@ const AdminTickets = () => {
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+            <div className="mb-10">
                 <div>
                     <h1 className="text-3xl font-black text-slate-800 tracking-tight flex items-center">
                         Command Center
@@ -99,113 +106,129 @@ const AdminTickets = () => {
                     </h1>
                     <p className="text-slate-500 mt-1 font-medium">Global oversight and technician coordination for campus incidents.</p>
                 </div>
-                <div className="flex items-center space-x-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
-                    <div className="flex -space-x-2">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center overflow-hidden">
-                                <div className="w-full h-full bg-indigo-100 animate-pulse" />
-                            </div>
-                        ))}
-                    </div>
-                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-2">Active Resolvers</span>
-                </div>
             </div>
 
-            {/* Interactive Stats Hub */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            {/* Optimized Stats Hub */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
                 <button 
                     onClick={() => setStatusFilter('OPEN')}
-                    className={`p-5 rounded-[1.8rem] border transition-all duration-300 flex flex-col items-start text-left group ${
+                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${
                         statusFilter === 'OPEN' ? 'bg-indigo-600 border-indigo-500 shadow-xl shadow-indigo-100' : 'bg-white border-slate-100 hover:border-indigo-200 shadow-sm'
                     }`}
                 >
-                    <AlertCircle className={`w-5 h-5 mb-3 ${statusFilter === 'OPEN' ? 'text-white' : 'text-indigo-400 group-hover:text-indigo-600'}`} />
-                    <span className={`text-[9px] font-black uppercase tracking-[0.2em] mb-1 ${statusFilter === 'OPEN' ? 'text-indigo-200' : 'text-slate-400'}`}>Requires Action</span>
-                    <span className={`text-2xl font-black ${statusFilter === 'OPEN' ? 'text-white' : 'text-slate-800'}`}>{stats.open}</span>
+                    <div className={`p-2.5 rounded-2xl ${statusFilter === 'OPEN' ? 'bg-indigo-500' : 'bg-indigo-50'}`}>
+                        <AlertCircle className={`w-4 h-4 ${statusFilter === 'OPEN' ? 'text-white' : 'text-indigo-500'}`} />
+                    </div>
+                    <div className="text-left">
+                        <p className={`text-[9px] font-black uppercase tracking-wider ${statusFilter === 'OPEN' ? 'text-indigo-200' : 'text-slate-400'}`}>Open</p>
+                        <p className={`text-xl font-black ${statusFilter === 'OPEN' ? 'text-white' : 'text-slate-800'}`}>{stats.open}</p>
+                    </div>
                 </button>
 
                 <button 
                     onClick={() => setStatusFilter('IN_PROGRESS')}
-                    className={`p-5 rounded-[1.8rem] border transition-all duration-300 flex flex-col items-start text-left group ${
+                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${
                         statusFilter === 'IN_PROGRESS' ? 'bg-violet-600 border-violet-500 shadow-xl shadow-violet-100' : 'bg-white border-slate-100 hover:border-violet-200 shadow-sm'
                     }`}
                 >
-                    <Activity className={`w-5 h-5 mb-3 ${statusFilter === 'IN_PROGRESS' ? 'text-white' : 'text-violet-400 group-hover:text-violet-600'}`} />
-                    <span className={`text-[9px] font-black uppercase tracking-[0.2em] mb-1 ${statusFilter === 'IN_PROGRESS' ? 'text-violet-200' : 'text-slate-400'}`}>In Progress</span>
-                    <span className={`text-2xl font-black ${statusFilter === 'IN_PROGRESS' ? 'text-white' : 'text-slate-800'}`}>{stats.inProgress}</span>
+                    <div className={`p-2.5 rounded-2xl ${statusFilter === 'IN_PROGRESS' ? 'bg-violet-500' : 'bg-violet-50'}`}>
+                        <Activity className={`w-4 h-4 ${statusFilter === 'IN_PROGRESS' ? 'text-white' : 'text-violet-500'}`} />
+                    </div>
+                    <div className="text-left">
+                        <p className={`text-[9px] font-black uppercase tracking-wider ${statusFilter === 'IN_PROGRESS' ? 'text-violet-200' : 'text-slate-400'}`}>Active</p>
+                        <p className={`text-xl font-black ${statusFilter === 'IN_PROGRESS' ? 'text-white' : 'text-slate-800'}`}>{stats.inProgress}</p>
+                    </div>
                 </button>
 
                 <button 
                     onClick={() => setStatusFilter('RESOLVED')}
-                    className={`p-5 rounded-[1.8rem] border transition-all duration-300 flex flex-col items-start text-left group ${
+                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${
                         statusFilter === 'RESOLVED' ? 'bg-emerald-600 border-emerald-500 shadow-xl shadow-emerald-100' : 'bg-white border-slate-100 hover:border-emerald-200 shadow-sm'
                     }`}
                 >
-                    <CheckCircle2 className={`w-5 h-5 mb-3 ${statusFilter === 'RESOLVED' ? 'text-white' : 'text-emerald-400 group-hover:text-emerald-600'}`} />
-                    <span className={`text-[9px] font-black uppercase tracking-[0.2em] mb-1 ${statusFilter === 'RESOLVED' ? 'text-emerald-200' : 'text-slate-400'}`}>Successfully Closed</span>
-                    <span className={`text-2xl font-black ${statusFilter === 'RESOLVED' ? 'text-white' : 'text-slate-800'}`}>{stats.resolved}</span>
+                    <div className={`p-2.5 rounded-2xl ${statusFilter === 'RESOLVED' ? 'bg-emerald-500' : 'bg-emerald-50'}`}>
+                        <CheckCircle2 className={`w-4 h-4 ${statusFilter === 'RESOLVED' ? 'text-white' : 'text-emerald-500'}`} />
+                    </div>
+                    <div className="text-left">
+                        <p className={`text-[9px] font-black uppercase tracking-wider ${statusFilter === 'RESOLVED' ? 'text-emerald-200' : 'text-slate-400'}`}>Resolved</p>
+                        <p className={`text-xl font-black ${statusFilter === 'RESOLVED' ? 'text-white' : 'text-slate-800'}`}>{stats.resolved}</p>
+                    </div>
+                </button>
+
+                <button 
+                    onClick={() => setStatusFilter('CLOSED')}
+                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${
+                        statusFilter === 'CLOSED' ? 'bg-slate-700 border-slate-600 shadow-xl shadow-slate-100' : 'bg-white border-slate-100 hover:border-slate-300 shadow-sm'
+                    }`}
+                >
+                    <div className={`p-2.5 rounded-2xl ${statusFilter === 'CLOSED' ? 'bg-slate-600' : 'bg-slate-100'}`}>
+                        <History className={`w-4 h-4 ${statusFilter === 'CLOSED' ? 'text-white' : 'text-slate-500'}`} />
+                    </div>
+                    <div className="text-left">
+                        <p className={`text-[9px] font-black uppercase tracking-wider ${statusFilter === 'CLOSED' ? 'text-slate-300' : 'text-slate-400'}`}>Closed Tickets</p>
+                        <p className={`text-xl font-black ${statusFilter === 'CLOSED' ? 'text-white' : 'text-slate-800'}`}>{stats.closed}</p>
+                    </div>
+                </button>
+
+                <button 
+                    onClick={() => setStatusFilter('REJECTED')}
+                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${
+                        statusFilter === 'REJECTED' ? 'bg-rose-600 border-rose-500 shadow-xl shadow-rose-100' : 'bg-white border-slate-100 hover:border-rose-200 shadow-sm'
+                    }`}
+                >
+                    <div className={`p-2.5 rounded-2xl ${statusFilter === 'REJECTED' ? 'bg-rose-500' : 'bg-rose-50'}`}>
+                        <ShieldAlert className={`w-4 h-4 ${statusFilter === 'REJECTED' ? 'text-white' : 'text-rose-500'}`} />
+                    </div>
+                    <div className="text-left">
+                        <p className={`text-[9px] font-black uppercase tracking-wider ${statusFilter === 'REJECTED' ? 'text-rose-200' : 'text-slate-400'}`}>Rejected</p>
+                        <p className={`text-xl font-black ${statusFilter === 'REJECTED' ? 'text-white' : 'text-slate-800'}`}>{stats.rejected}</p>
+                    </div>
                 </button>
             </div>
 
             {/* Advanced Command Bar */}
-            <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 mb-10 shadow-sm flex flex-col xl:flex-row gap-6 items-center">
+            <div className="bg-white p-3 rounded-2xl border border-slate-100 mb-6 shadow-sm flex flex-col xl:flex-row gap-4 items-center">
                 {/* Global Search */}
                 <div className="relative flex-1 group w-full">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
                     <input 
                         type="text" 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search incident ID, category, or description..."
-                        className="w-full pl-14 pr-6 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-700 placeholder:text-slate-300 focus:ring-4 focus:ring-indigo-50 transition-all"
+                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-700 placeholder:text-slate-300 focus:ring-2 focus:ring-indigo-50 transition-all"
                     />
                 </div>
 
                 <div className="flex flex-wrap gap-4 w-full xl:w-auto">
                     {/* Multi-Filter Dropdowns */}
-                    <div className="relative flex-1 md:flex-none">
-                        <select 
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="appearance-none w-full md:w-44 px-6 py-4 bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 cursor-pointer focus:ring-4 focus:ring-indigo-50 transition-all pr-12"
-                        >
-                            <option value="ALL">All Status</option>
-                            <option value="OPEN">Open Reports</option>
-                            <option value="IN_PROGRESS">Active Fixing</option>
-                            <option value="RESOLVED">Resolved</option>
-                            <option value="CLOSED">Archived</option>
-                            <option value="REJECTED">Rejected</option>
-                        </select>
-                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                    </div>
-
-                    <div className="relative flex-1 md:flex-none">
+                    <div className="relative flex-1 md:flex-none md:w-40">
                         <select 
                             value={priorityFilter}
                             onChange={(e) => setPriorityFilter(e.target.value)}
-                            className="appearance-none w-full md:w-44 px-6 py-4 bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-600 cursor-pointer focus:ring-4 focus:ring-indigo-50 transition-all pr-12"
+                            className="appearance-none w-full md:w-full px-4 py-2 bg-slate-50 border-none rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-600 cursor-pointer focus:ring-2 focus:ring-indigo-50 transition-all pr-10"
                         >
                             <option value="ALL">All Priorities</option>
                             <option value="HIGH">High Priority</option>
                             <option value="MEDIUM">Medium Level</option>
                             <option value="LOW">Low Level</option>
                         </select>
-                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
                     </div>
 
                     {/* Reset Button */}
                     <button 
                         onClick={handleClearFilters}
                         disabled={statusFilter === 'ALL' && priorityFilter === 'ALL' && !searchQuery}
-                        className="flex-1 md:flex-none flex items-center justify-center p-4 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-colors disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed group"
+                        className="md:flex-none flex items-center justify-center px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed group"
                         title="Clear all filters"
                     >
-                        <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
+                        <X className="w-4 h-4 group-hover:rotate-90 transition-transform" />
                     </button>
                 </div>
             </div>
 
-            {/* Global Ticket Grid */}
+            {/* Global Ticket List Table */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-40">
                     <Loader2 className="w-12 h-12 animate-spin text-indigo-500 mb-6 drop-shadow-xl shadow-indigo-200" />
@@ -226,15 +249,91 @@ const AdminTickets = () => {
                     </button>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredTickets.map((tkt) => (
-                        <div key={tkt.id} className="animate-in fade-in slide-in-from-bottom-6 duration-700 fill-mode-both" style={{ animationDelay: `${tickets.indexOf(tkt) * 50}ms` }}>
-                            <TicketCard 
-                                ticket={tkt} 
-                                onClick={() => openTicket(tkt.id)} 
-                            />
-                        </div>
-                    ))}
+                <div className="overflow-hidden bg-white rounded-[2rem] border border-slate-100 shadow-sm animate-in fade-in duration-700">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-slate-50 border-b border-slate-100">
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Incident Header</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden lg:table-cell">Details</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell">Priority</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                            {filteredTickets.map((tkt) => (
+                                <tr 
+                                    key={tkt.id} 
+                                    onClick={() => openTicket(tkt.id)}
+                                    className="hover:bg-slate-50/50 cursor-pointer transition-colors group"
+                                >
+                                    <td className="px-6 py-5">
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-tight mb-1">
+                                                ID: {tkt.id.substring(0, 8)}...
+                                            </span>
+                                            <span className="text-sm font-bold text-slate-700 line-clamp-1">
+                                                {tkt.category}
+                                            </span>
+                                            <div className="flex items-center mt-1 space-x-2 lg:hidden">
+                                                <div className="flex items-center text-[10px] font-bold text-slate-400">
+                                                    <Calendar className="w-3 h-3 mr-1" />
+                                                    {new Date(tkt.createdAt).toLocaleDateString()}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-5 hidden lg:table-cell">
+                                        <div className="flex flex-col max-w-xs">
+                                            <p className="text-xs text-slate-500 line-clamp-1 mb-1 font-medium">{tkt.description}</p>
+                                            <div className="flex items-center space-x-3">
+                                                <div className="flex items-center text-[10px] font-bold text-slate-400">
+                                                    <Calendar className="w-3 h-3 mr-1" />
+                                                    {new Date(tkt.createdAt).toLocaleDateString()}
+                                                </div>
+                                                <div className="flex items-center text-[10px] font-bold text-slate-400">
+                                                    <Building2 className="w-3 h-3 mr-1" />
+                                                    {tkt.department || 'General'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider inline-flex items-center ${
+                                            tkt.status === 'OPEN' ? 'bg-indigo-50 text-indigo-600' :
+                                            tkt.status === 'IN_PROGRESS' ? 'bg-violet-50 text-violet-600' :
+                                            tkt.status === 'RESOLVED' ? 'bg-emerald-50 text-emerald-600' :
+                                            tkt.status === 'REJECTED' ? 'bg-rose-50 text-rose-600' :
+                                            'bg-slate-50 text-slate-600'
+                                        }`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full mr-2 ${
+                                                tkt.status === 'OPEN' ? 'bg-indigo-500' :
+                                                tkt.status === 'IN_PROGRESS' ? 'bg-violet-500' :
+                                                tkt.status === 'RESOLVED' ? 'bg-emerald-500' :
+                                                tkt.status === 'REJECTED' ? 'bg-rose-500' :
+                                                'bg-slate-500'
+                                            }`} />
+                                            {tkt.status.replace('_', ' ')}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-5 hidden md:table-cell">
+                                        <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tight border ${
+                                            tkt.priority === 'HIGH' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                                            tkt.priority === 'MEDIUM' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                                            'bg-slate-50 text-slate-600 border-slate-100'
+                                        }`}>
+                                            {tkt.priority}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-5 text-right flex items-center justify-end">
+                                        <button className="p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
+                                            <ChevronRight className="w-4 h-4" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             )}
         </div>
