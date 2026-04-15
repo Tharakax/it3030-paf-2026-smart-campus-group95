@@ -511,23 +511,33 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                             </div>
 
                             <div className="p-6 pt-4 bg-white/80 backdrop-blur-md border-t border-slate-50">
-                                <form onSubmit={handleAddComment} className="relative">
-                                    <textarea
-                                        placeholder="Add a comment..."
-                                        value={newComment}
-                                        onChange={(e) => setNewComment(e.target.value)}
-                                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm text-slate-700 placeholder-slate-400 focus:ring-4 focus:ring-indigo-100 focus:border-indigo-200 transition-all outline-none resize-none"
-                                        rows={2}
-                                    />
-                                    <button
-                                        type="submit"
-                                        disabled={!newComment.trim()}
-                                        className="mt-3 w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-2xl flex items-center justify-center space-x-3 text-white shadow-xl shadow-indigo-100"
-                                    >
-                                        <span className="text-xs font-black uppercase tracking-widest">Add Comment</span>
-                                        <Send className="w-4 h-4" />
-                                    </button>
-                                </form>
+                                {['CLOSED', 'REJECTED'].includes(ticket.status) ? (
+                                    <div className="py-8 px-6 bg-slate-50/50 rounded-[2rem] border border-slate-100/50 flex flex-col items-center justify-center text-center animate-in fade-in duration-500">
+                                        <ShieldAlert className="w-10 h-10 text-slate-200 mb-3" />
+                                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Thread Archived</p>
+                                        <p className="text-[11px] font-bold text-slate-300 mt-2 italic px-4 leading-relaxed">
+                                            This incident is finalized and the communication channel is now closed.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <form onSubmit={handleAddComment} className="relative">
+                                        <textarea
+                                            placeholder="Add a comment..."
+                                            value={newComment}
+                                            onChange={(e) => setNewComment(e.target.value)}
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm text-slate-700 placeholder-slate-400 focus:ring-4 focus:ring-indigo-100 focus:border-indigo-200 transition-all outline-none resize-none"
+                                            rows={2}
+                                        />
+                                        <button
+                                            type="submit"
+                                            disabled={!newComment.trim()}
+                                            className="mt-3 w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-2xl flex items-center justify-center space-x-3 text-white shadow-xl shadow-indigo-100"
+                                        >
+                                            <span className="text-xs font-black uppercase tracking-widest">Add Comment</span>
+                                            <Send className="w-4 h-4" />
+                                        </button>
+                                    </form>
+                                )}
                             </div>
                         </div>
 
