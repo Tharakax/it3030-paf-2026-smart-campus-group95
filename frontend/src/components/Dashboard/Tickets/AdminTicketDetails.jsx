@@ -166,7 +166,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                 </button>
                 <div className="flex items-center space-x-2">
                     <span className="text-[10px] font-black uppercase text-indigo-500 bg-indigo-50 px-3 py-1 rounded-xl border border-indigo-100">
-                        REF: {ticket.id.substring(0, 8)}
+                        REF: {ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
                     </span>
                     <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border ${
                         ticket.status === 'OPEN' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' :

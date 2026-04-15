@@ -75,7 +75,7 @@ const TicketCard = ({ ticket, onClick }) => {
             {/* Header: ID + Priority Badge */}
             <div className="flex justify-between items-start mb-6">
                 <span className="text-[10px] font-black font-mono text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl tracking-widest border border-slate-100">
-                    {ticket.id.substring(0, 8).toUpperCase()}
+                    {ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
                 </span>
                 <span className={`px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border ${priorityStyles[ticket.priority] || priorityStyles['LOW']
                     }`}>

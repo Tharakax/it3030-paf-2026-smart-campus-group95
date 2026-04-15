@@ -175,7 +175,7 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                 </button>
                 <div className="flex items-center space-x-2">
                     <span className="text-[10px] font-black uppercase text-blue-500 bg-blue-50 px-3 py-1 rounded-xl border border-blue-100">
-                        REF: {ticket.id.substring(0, 8).toUpperCase()}
+                        REF: {ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
                     </span>
                     <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border ${
                         ticket.status === 'OPEN' ? 'bg-amber-50 text-amber-600 border-amber-100' :

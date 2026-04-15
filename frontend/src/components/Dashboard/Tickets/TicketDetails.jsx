@@ -175,7 +175,9 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                             <div className="bg-white p-10 rounded-[2.4rem]">
                                 <div className="flex justify-between items-start mb-8">
                                     <div className="space-y-4">
-                                        <span className="text-indigo-500 font-mono text-xs font-bold tracking-widest block opacity-60">#{ticket.id.substring(0, 8).toUpperCase()}</span>
+                                        <span className="text-indigo-500 font-mono text-xs font-bold tracking-widest block opacity-60">
+                                            {ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
+                                        </span>
                                         <h1 className="text-2xl font-black text-slate-800 tracking-tight uppercase">{ticket.category.replace('_', ' ')} ISSUE</h1>
 
                                         <div className="flex items-center space-x-3 pt-1">
