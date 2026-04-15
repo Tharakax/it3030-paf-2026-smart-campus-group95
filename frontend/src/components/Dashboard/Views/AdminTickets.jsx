@@ -21,7 +21,7 @@ import {
 import toast from 'react-hot-toast';
 import api from '../../../api/axiosConfig';
 import TicketCard from '../Tickets/TicketCard';
-import TicketDetails from '../Tickets/TicketDetails';
+import AdminTicketDetails from '../Tickets/AdminTicketDetails';
 import Modal from '../../Common/Modal';
 
 const AdminTickets = () => {
@@ -84,7 +84,7 @@ const AdminTickets = () => {
     if (selectedTicketId) {
         return (
             <div className="animate-in fade-in slide-in-from-right-8 duration-500">
-                <TicketDetails 
+                <AdminTicketDetails 
                     ticketId={selectedTicketId} 
                     onClose={closeTicket}
                     onUpdate={fetchTickets}
