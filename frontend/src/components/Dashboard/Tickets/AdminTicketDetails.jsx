@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { 
-    ArrowLeft, 
-    Calendar, 
-    Tag, 
-    User, 
-    Building2, 
-    Clock, 
-    Loader2, 
-    CheckCircle2, 
-    AlertCircle, 
-    ShieldAlert, 
-    Activity, 
-    Send, 
-    MoreVertical, 
-    Edit2, 
-    Trash2, 
+import React, { useState, useEffect, useRef } from 'react';
+import {
+    ArrowLeft,
+    Calendar,
+    Tag,
+    User,
+    Building2,
+    Clock,
+    Loader2,
+    CheckCircle2,
+    AlertCircle,
+    ShieldAlert,
+    Activity,
+    Send,
+    MoreVertical,
+    Edit2,
+    Trash2,
     UserPlus,
     X,
     MessageSquare,
@@ -43,6 +43,19 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
     const [selectedTechnicianId, setSelectedTechnicianId] = useState('');
     const [selectedPreviewImage, setSelectedPreviewImage] = useState(null);
     const [activeMenuId, setActiveMenuId] = useState(null);
+    const scrollContainerRef = useRef(null);
+
+    const scrollToBottom = () => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+        }
+    };
+
+    useEffect(() => {
+        if (comments.length > 0) {
+            scrollToBottom();
+        }
+    }, [comments]);
 
     const fetchTicketDetails = async () => {
         try {
@@ -81,27 +94,67 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
 
     const handleAssignTechnician = async () => {
         if (!selectedTechnicianId) return;
-        try {
-            // Assign technician
-            await api.put(`/tickets/${ticketId}/assign`, { technicianId: selectedTechnicianId });
-            
-            // Automatically update status to IN_PROGRESS as requested
-            try {
-                await api.put(`/tickets/${ticketId}/status`, { 
-                    status: 'IN_PROGRESS', 
-                    notes: 'Automatically updated upon technician assignment' 
-                });
-            } catch (statusErr) {
-                console.error('Failed to auto-update status to IN_PROGRESS', statusErr);
-            }
 
-            toast.success('Technician assigned and status updated to In Progress');
-            fetchTicketDetails();
-            onUpdate();
-            setIsAssigning(false);
-        } catch (err) {
-            toast.error('Failed to assign technician.');
-        }
+        const tech = technicians.find(t => t.id === selectedTechnicianId);
+
+        toast((t) => (
+            <div className="flex flex-col space-y-3 p-1">
+                <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+                        <UserPlus className="w-5 h-5 text-indigo-600" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-800">Confirm Technician?</p>
+                        <p className="text-[10px] font-medium text-slate-500">Authorize technician <span className="font-bold text-indigo-600">{tech?.name}</span></p>
+                    </div>
+                </div>
+                <div className="flex items-center space-x-2 pt-2">
+                    <button
+                        onClick={() => toast.dismiss(t.id)}
+                        className="flex-1 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 bg-slate-50 rounded-lg transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={async () => {
+                            toast.dismiss(t.id);
+                            const loadingToast = toast.loading('Deploying Specialist...');
+                            try {
+                                await api.put(`/tickets/${ticketId}/assign`, { technicianId: selectedTechnicianId });
+                                
+                                try {
+                                    await api.put(`/tickets/${ticketId}/status`, { 
+                                        status: 'IN_PROGRESS', 
+                                        notes: `Protocol: Deployed tech ${tech?.name} to incident` 
+                                    });
+                                } catch (statusErr) {
+                                    console.error('Deployment sync failed', statusErr);
+                                }
+
+                                toast.success('Technician Deployed Successfully', { id: loadingToast });
+                                fetchTicketDetails();
+                                onUpdate();
+                                setIsAssigning(false);
+                            } catch (err) {
+                                toast.error('Assignment Protocol Failed', { id: loadingToast });
+                            }
+                        }}
+                        className="flex-1 py-2 text-[10px] font-black uppercase tracking-widest text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors"
+                    >
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        ), {
+            duration: 6000,
+            position: 'top-center',
+            style: {
+                minWidth: '320px',
+                borderRadius: '1.5rem',
+                border: '1px solid #f1f5f9',
+                boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.15)',
+            }
+        });
     };
 
     const handleAddComment = async (e) => {
@@ -140,15 +193,15 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
     const formatCommentDate = (dateStr) => {
         if (!dateStr) return '';
         const date = new Date(dateStr);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' · ' + 
-               date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' · ' +
+            date.toLocaleDateString([], { month: 'short', day: 'numeric' });
     };
 
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center py-40">
                 <Loader2 className="w-12 h-12 animate-spin text-indigo-500 mb-6 drop-shadow-xl shadow-indigo-200" />
-                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Accessing Secure Incident Log...</p>
+                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Accessing Secure Comment Log...</p>
             </div>
         );
     }
@@ -157,7 +210,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
         <div className="max-w-7xl mx-auto pb-12">
             {/* Header & Back Action */}
             <div className="flex items-center justify-between mb-8 group">
-                <button 
+                <button
                     onClick={onClose}
                     className="flex items-center px-5 py-2.5 bg-white border border-slate-100 rounded-2xl text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all shadow-sm"
                 >
@@ -172,19 +225,18 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                     {/* Primary Details */}
                     <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-sm relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-50/30 rounded-bl-[5rem] -mr-20 -mt-20 -z-0" />
-                        
+
                         {/* Status & ID Badge Relocated */}
                         <div className="absolute top-10 right-10 flex items-center space-x-2 z-20">
                             <span className="text-[10px] font-black uppercase text-indigo-500 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-xl border border-indigo-100 shadow-sm">
                                 Ticket Id: {ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
                             </span>
-                            <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border shadow-sm ${
-                                ticket.status === 'OPEN' ? 'bg-indigo-600 text-white border-indigo-500' :
-                                ticket.status === 'IN_PROGRESS' ? 'bg-violet-600 text-white border-violet-500' :
-                                ticket.status === 'RESOLVED' ? 'bg-emerald-600 text-white border-emerald-500' :
-                                ticket.status === 'REJECTED' ? 'bg-rose-600 text-white border-rose-500' :
-                                'bg-slate-700 text-white border-slate-600'
-                            }`}>
+                            <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border shadow-sm ${ticket.status === 'OPEN' ? 'bg-indigo-600 text-white border-indigo-500' :
+                                    ticket.status === 'IN_PROGRESS' ? 'bg-violet-600 text-white border-violet-500' :
+                                        ticket.status === 'RESOLVED' ? 'bg-emerald-600 text-white border-emerald-500' :
+                                            ticket.status === 'REJECTED' ? 'bg-rose-600 text-white border-rose-500' :
+                                                'bg-slate-700 text-white border-slate-600'
+                                }`}>
                                 {ticket.status.replace('_', ' ')}
                             </span>
                         </div>
@@ -193,7 +245,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                             <h2 className="text-3xl font-black text-slate-800 tracking-tight leading-tight mb-8 pr-40 uppercase">
                                 {ticket.category} ISSUE
                             </h2>
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 mb-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 mb-6">
                                 {/* Row 1: Time & Priority */}
                                 <div className="flex items-center">
                                     <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
@@ -208,21 +260,18 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 </div>
 
                                 <div className="flex items-center">
-                                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mr-4 ${
-                                        ticket.priority === 'HIGH' ? 'bg-red-50' :
-                                        ticket.priority === 'MEDIUM' ? 'bg-amber-50' : 'bg-sky-50'
-                                    }`}>
-                                        <Tag className={`w-5 h-5 ${
-                                            ticket.priority === 'HIGH' ? 'text-red-600' :
-                                            ticket.priority === 'MEDIUM' ? 'text-amber-600' : 'text-sky-600'
-                                        }`} />
+                                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mr-4 ${ticket.priority === 'HIGH' ? 'bg-red-50' :
+                                            ticket.priority === 'MEDIUM' ? 'bg-amber-50' : 'bg-sky-50'
+                                        }`}>
+                                        <Tag className={`w-5 h-5 ${ticket.priority === 'HIGH' ? 'text-red-600' :
+                                                ticket.priority === 'MEDIUM' ? 'text-amber-600' : 'text-sky-600'
+                                            }`} />
                                     </div>
                                     <div>
                                         <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Priority Flag</p>
-                                        <p className={`text-sm font-black uppercase tracking-tight leading-none ${
-                                            ticket.priority === 'HIGH' ? 'text-red-600' :
-                                            ticket.priority === 'MEDIUM' ? 'text-amber-600' : 'text-sky-600'
-                                        }`}>{ticket.priority}</p>
+                                        <p className={`text-sm font-black uppercase tracking-tight leading-none ${ticket.priority === 'HIGH' ? 'text-red-600' :
+                                                ticket.priority === 'MEDIUM' ? 'text-amber-600' : 'text-sky-600'
+                                            }`}>{ticket.priority}</p>
                                     </div>
                                 </div>
 
@@ -234,7 +283,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                     <div>
                                         <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Department</p>
                                         <p className="text-sm font-bold text-slate-700 leading-none">
-                                            {ticket.department 
+                                            {ticket.department
                                                 ? ticket.department.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
                                                 : 'General'}
                                         </p>
@@ -274,15 +323,15 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                     <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-4">Evidence & Documentation</p>
                                     <div className="flex flex-wrap gap-4">
                                         {ticket.imageUrls.map((img, idx) => (
-                                            <button 
-                                                key={idx} 
+                                            <button
+                                                key={idx}
                                                 onClick={() => setSelectedPreviewImage(img)}
                                                 className="relative group overflow-hidden rounded-2xl border-2 border-slate-100 shadow-sm hover:border-indigo-200 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                                             >
-                                                <img 
-                                                    src={img} 
-                                                    alt={`Evidence ${idx + 1}`} 
-                                                    className="w-24 h-24 object-cover group-hover:scale-110 transition-transform duration-500" 
+                                                <img
+                                                    src={img}
+                                                    alt={`Evidence ${idx + 1}`}
+                                                    className="w-24 h-24 object-cover group-hover:scale-110 transition-transform duration-500"
                                                 />
                                                 <div className="absolute inset-0 bg-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                     <Activity className="w-5 h-5 text-indigo-600 drop-shadow-sm" />
@@ -309,11 +358,10 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 Resolution & Technical Report
                             </h3>
                         </div>
-                        <div className={`space-y-4 p-6 rounded-2xl border ${
-                            ticket.resolutionNotes 
-                            ? 'bg-emerald-50/30 border-emerald-100/50' 
-                            : 'bg-slate-50 border-slate-100/50 italic'
-                        }`}>
+                        <div className={`space-y-4 p-6 rounded-2xl border ${ticket.resolutionNotes
+                                ? 'bg-emerald-50/30 border-emerald-100/50'
+                                : 'bg-slate-50 border-slate-100/50 italic'
+                            }`}>
                             {ticket.resolutionNotes ? (
                                 <>
                                     <div>
@@ -343,7 +391,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                     {/* Management & Actions */}
                     <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
                         <p className="text-xs font-black uppercase text-slate-400 tracking-[0.2em] mb-6 border-b border-slate-50 pb-2">Management Panel</p>
-                        
+
                         <div className="space-y-4">
                             {/* Technician Assignment */}
                             <div>
@@ -351,8 +399,17 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                     <UserPlus className="w-3.5 h-3.5 mr-2 text-indigo-500" />
                                     Security & Tech Assignment
                                 </p>
-                                
-                                {ticket.assignedTo ? (
+
+                                {['CLOSED', 'REJECTED'].includes(ticket.status) ? (
+                                    <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 border-dashed flex flex-col items-center justify-center text-center animate-in fade-in duration-500">
+                                        <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center mb-3 shadow-sm border border-slate-100">
+                                            <ShieldAlert className="w-5 h-5 text-slate-300" />
+                                        </div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 max-w-[150px] leading-relaxed">
+                                            Assignment Locked for {ticket.status} ticket
+                                        </p>
+                                    </div>
+                                ) : ticket.assignedTo ? (
                                     <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between group">
                                         <div className="flex items-center">
                                             <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center mr-3 font-black text-indigo-500 text-xs shadow-sm">
@@ -363,7 +420,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                                 <p className="text-xs font-bold text-slate-700">{ticket.assignedToName || 'Technician'}</p>
                                             </div>
                                         </div>
-                                        <button 
+                                        <button
                                             onClick={() => setIsAssigning(true)}
                                             className="p-1 px-3 bg-white text-slate-400 border border-slate-100 rounded-lg text-[9px] font-black uppercase tracking-widest hover:text-indigo-600 transition-colors opacity-0 group-hover:opacity-100"
                                         >
@@ -371,7 +428,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                         </button>
                                     </div>
                                 ) : (
-                                    <button 
+                                    <button
                                         onClick={() => setIsAssigning(true)}
                                         className="w-full flex items-center justify-center p-4 py-8 border-2 border-dashed border-slate-200 rounded-3xl text-slate-400 hover:border-indigo-400 hover:text-indigo-500 transition-all group"
                                     >
@@ -382,13 +439,13 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                     </button>
                                 )}
 
-                                {isAssigning && (
+                                {isAssigning && !['CLOSED', 'REJECTED'].includes(ticket.status) && (
                                     <div className="mt-4 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl animate-in zoom-in-95 duration-200">
                                         <div className="flex items-center justify-between mb-3">
                                             <p className="text-[10px] font-black uppercase text-indigo-600 tracking-widest">Choose Resolver</p>
                                             <button onClick={() => setIsAssigning(false)}><X className="w-3.5 h-3.5 text-indigo-400" /></button>
                                         </div>
-                                        <select 
+                                        <select
                                             value={selectedTechnicianId}
                                             onChange={(e) => setSelectedTechnicianId(e.target.value)}
                                             className="w-full bg-white border border-indigo-200 rounded-xl p-3 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-200 mb-4 appearance-none appearance-custom"
@@ -398,7 +455,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                                 <option key={tech.id} value={tech.id}>{tech.name} ({tech.specialization || 'General'})</option>
                                             ))}
                                         </select>
-                                        <button 
+                                        <button
                                             onClick={handleAssignTechnician}
                                             disabled={!selectedTechnicianId}
                                             className="w-full py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-indigo-100 disabled:opacity-30 disabled:shadow-none hover:bg-indigo-700 transition-all"
@@ -409,19 +466,22 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 )}
                             </div>
 
-                            <hr className="border-slate-50 my-2" />
 
-                            {/* Status Management */}
-                            <div>
-                                <p className="text-[11px] font-black uppercase text-slate-600 mb-3 flex items-center">
-                                    <Clock className="w-3.5 h-3.5 mr-2 text-indigo-500" />
-                                    Status Override
-                                </p>
-                                
-                                <div className="grid grid-cols-1 gap-2">
+                            {((['OPEN', 'IN_PROGRESS', 'RESOLVED'].includes(ticket.status) && !ticket.assignedTo) || ticket.status === 'RESOLVED' || isRejecting) && (
+                                <>
+                                    <hr className="border-slate-50 my-2" />
 
-                                    {['OPEN', 'IN_PROGRESS', 'RESOLVED'].includes(ticket.status) && !isRejecting && (
-                                        <button 
+                                    {/* Status Management */}
+                                    <div>
+                                        <p className="text-[11px] font-black uppercase text-slate-600 mb-3 flex items-center">
+                                            <Clock className="w-3.5 h-3.5 mr-2 text-indigo-500" />
+                                            Status Override
+                                        </p>
+
+                                        <div className="grid grid-cols-1 gap-2">
+
+                                    {['OPEN', 'IN_PROGRESS', 'RESOLVED'].includes(ticket.status) && !isRejecting && !ticket.assignedTo && (
+                                        <button
                                             onClick={() => setIsRejecting(true)}
                                             className="w-full p-4 flex items-center justify-between bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-2xl transition-all group"
                                         >
@@ -431,7 +491,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                     )}
 
                                     {ticket.status === 'RESOLVED' && (
-                                        <button 
+                                        <button
                                             onClick={() => handleStatusUpdate('CLOSED')}
                                             className="w-full p-4 flex items-center justify-between bg-slate-800 text-white rounded-2xl hover:bg-slate-900 transition-all shadow-lg shadow-slate-200"
                                         >
@@ -447,58 +507,69 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                             <p className="text-[10px] font-black uppercase text-rose-600 tracking-widest">Rejection Protocol</p>
                                             <button onClick={() => setIsRejecting(false)}><X className="w-4 h-4 text-rose-300" /></button>
                                         </div>
-                                        <textarea 
+                                        <textarea
                                             placeholder="Provide technical reason for rejection..."
                                             value={rejectionReason}
                                             onChange={(e) => setRejectionReason(e.target.value)}
                                             className="w-full p-4 bg-white border border-rose-100 rounded-2xl text-xs font-bold text-slate-700 outline-none focus:ring-4 focus:ring-rose-100 mb-4 h-24 resize-none"
                                         />
-                                        <button 
+                                        <button
                                             onClick={() => handleStatusUpdate('REJECTED', rejectionReason)}
-                                            disabled={!rejectionReason.trim()}
                                             className="w-full py-3.5 bg-rose-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-rose-100 disabled:opacity-30 disabled:shadow-none hover:bg-rose-700 transition-all"
                                         >
                                             Confirm Rejection
                                         </button>
                                     </div>
                                 )}
-                            </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 
-                    {/* Activity Feed (User-side style) */}
+                    {/* Comments Section */}
                     <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden flex flex-col max-h-[600px]">
                         <div className="p-8 pb-4">
-                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1 border-b border-slate-50 pb-2">Activity Feed</h4>
+                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1 border-b border-slate-50 pb-2">Comments</h4>
                         </div>
-                        {/* Chat Feed Area */}
-                        <div className="h-[250px] overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-indigo-100 transition-colors">
+                        <div 
+                            ref={scrollContainerRef}
+                            className="h-[250px] overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-indigo-100 transition-colors"
+                        >
                             {comments.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-12 text-center">
                                     <div className="p-4 bg-slate-50 rounded-full mb-4">
                                         <MessageCircle className="w-6 h-6 text-slate-300" />
                                     </div>
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-tight leading-relaxed"> No updates yet.<br/>Be the first to comment.</p>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-tight leading-relaxed"> No updates yet.<br />Be the first to comment.</p>
                                 </div>
                             ) : (
                                 comments.map((comment, index) => (
                                     <div key={comment.id || index} className={`flex flex-col ${comment.userId === user?.id ? 'items-end' : 'items-start'} group animate-in fade-in slide-in-from-bottom-2 duration-500`}>
-                                        <div className="flex items-center space-x-2 mb-1.5 px-1 relative">
-                                            <span className="text-[11px] font-black text-slate-700 uppercase tracking-tighter">{comment.userId === user?.id ? 'You' : comment.authorName}</span>
-                                            {comment.authorRole && (
-                                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-[0.1em] border shadow-sm ${
-                                                    comment.authorRole === 'ADMIN' ? 'bg-indigo-50 text-indigo-500 border-indigo-100' :
-                                                    comment.authorRole === 'TECHNICIAN' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                                                    'bg-slate-50 text-slate-500 border-slate-100'
-                                                }`}>
-                                                    {comment.authorRole === 'USER' ? 'User' : comment.authorRole}
+                                        <div className={`flex items-center space-x-2 mb-2 px-1 relative w-full ${comment.userId === user?.id ? 'justify-end' : 'justify-start'}`}>
+                                            <span className="text-[11px] font-black text-slate-800 uppercase tracking-tighter flex items-center">
+                                                {comment.userId === user?.id ? 'You' : comment.authorName}
+                                            </span>
+                                            {comment.authorRole && comment.userId !== user?.id ? (
+                                                <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border shadow-sm ${comment.authorRole === 'ADMIN' ? 'bg-indigo-500 text-white border-indigo-400' :
+                                                        comment.authorRole === 'TECHNICIAN' ? 'bg-amber-500 text-white border-amber-400' :
+                                                            'bg-slate-400 text-white border-slate-300'
+                                                    }`}>
+                                                    {comment.authorRole === 'USER' ? 'Staff/Student' : comment.authorRole}
+                                                </span>
+                                            ) : comment.userId !== user?.id && (
+                                                <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 uppercase tracking-widest border border-slate-200">
+                                                    Member
                                                 </span>
                                             )}
-                                            <span className="text-[10px] font-bold text-slate-400 font-mono tracking-tighter whitespace-nowrap">{formatCommentDate(comment.createdAt)}</span>
-                                            
+                                            <span className="text-[10px] font-bold text-slate-400 font-mono tracking-tighter whitespace-nowrap opacity-60 flex items-center">
+                                                <span className="mx-1.5 text-slate-300">·</span>
+                                                {formatCommentDate(comment.createdAt)}
+                                            </span>
+
                                             {comment.userId === user?.id && editingCommentId !== comment.id && (
                                                 <div className="relative">
-                                                    <button 
+                                                    <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setActiveMenuId(activeMenuId === comment.id ? null : comment.id);
@@ -510,12 +581,12 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
 
                                                     {activeMenuId === comment.id && (
                                                         <>
-                                                            <div 
-                                                                className="fixed inset-0 z-10" 
+                                                            <div
+                                                                className="fixed inset-0 z-10"
                                                                 onClick={() => setActiveMenuId(null)}
                                                             />
                                                             <div className="absolute right-0 mt-1 w-32 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 z-20 animate-in fade-in zoom-in-95 duration-200 origin-top-right">
-                                                                <button 
+                                                                <button
                                                                     onClick={() => {
                                                                         setEditingCommentId(comment.id);
                                                                         setEditingCommentContent(comment.content);
@@ -526,7 +597,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                                                     <Wrench className="w-3 h-3" />
                                                                     <span>Edit</span>
                                                                 </button>
-                                                                <button 
+                                                                <button
                                                                     onClick={() => {
                                                                         handleDeleteComment(comment.id);
                                                                         setActiveMenuId(null);
@@ -545,7 +616,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
 
                                         {editingCommentId === comment.id ? (
                                             <div className="w-full bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 animate-in zoom-in-95 duration-200">
-                                                <textarea 
+                                                <textarea
                                                     value={editingCommentContent}
                                                     onChange={(e) => setEditingCommentContent(e.target.value)}
                                                     maxLength={50}
@@ -554,13 +625,13 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                                 <div className="flex justify-between items-center mt-3">
                                                     <span className="text-[10px] font-bold text-slate-400">{editingCommentContent.length}/50</span>
                                                     <div className="flex space-x-2">
-                                                        <button 
+                                                        <button
                                                             onClick={() => setEditingCommentId(null)}
                                                             className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600"
                                                         >
                                                             Cancel
                                                         </button>
-                                                        <button 
+                                                        <button
                                                             onClick={() => handleEditComment(comment.id)}
                                                             className="px-5 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100"
                                                         >
@@ -570,11 +641,10 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                                 </div>
                                             </div>
                                         ) : (
-                                            <div className={`p-4 rounded-2xl text-sm max-w-[85%] shadow-sm border ${
-                                                comment.userId === user?.id 
-                                                ? 'bg-indigo-600 text-white border-indigo-500 rounded-tr-none' 
-                                                : 'bg-slate-50 text-slate-700 border-slate-100 rounded-tl-none'
-                                            }`}>
+                                            <div className={`p-4 rounded-2xl text-sm max-w-[85%] shadow-sm border ${comment.userId === user?.id
+                                                    ? 'bg-indigo-600 text-white border-indigo-500 rounded-tr-none'
+                                                    : 'bg-slate-50 text-slate-700 border-slate-100 rounded-tl-none'
+                                                }`}>
                                                 {comment.content}
                                             </div>
                                         )}
@@ -582,33 +652,43 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 ))
                             )}
                         </div>
-                        
-                        <div className="p-6 pt-4 bg-white/80 backdrop-blur-md border-t border-slate-50">
-                            <form onSubmit={handleAddComment} className="relative">
-                                <div className="relative">
-                                    <textarea 
-                                        placeholder="Add a comment..." 
-                                        value={newComment}
-                                        onChange={(e) => setNewComment(e.target.value)}
-                                        maxLength={50}
-                                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm text-slate-700 placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-100 focus:border-indigo-200 transition-all outline-none resize-none"
-                                        rows={2}
-                                    />
-                                    <span className="absolute right-4 top-2 text-[9px] font-black text-slate-300 uppercase tracking-widest">
-                                        {newComment.length}/50
-                                    </span>
-                                </div>
-                                <button 
-                                    type="submit"
-                                    disabled={!newComment.trim()}
-                                    className="mt-4 w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-2xl flex items-center justify-center space-x-3 text-white shadow-xl shadow-indigo-100"
-                                >
-                                    <span className="text-xs font-black uppercase tracking-widest">Add Comment</span>
-                                    <Send className="w-4 h-4" />
-                                </button>
-                            </form>
-                        </div>
 
+                        <div className="p-6 pt-4 bg-white/80 backdrop-blur-md border-t border-slate-50">
+                            {['CLOSED', 'REJECTED'].includes(ticket.status) ? (
+                                <div className="py-4 px-6 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center space-x-3 group animate-in fade-in duration-500">
+                                    <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 group-hover:scale-110 transition-transform">
+                                        <X className="w-4 h-4 text-slate-400" />
+                                    </div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                        Thread Archived · Ticket {ticket.status}
+                                    </p>
+                                </div>
+                            ) : (
+                                <form onSubmit={handleAddComment} className="relative">
+                                    <div className="relative">
+                                        <textarea
+                                            placeholder="Add a comment..."
+                                            value={newComment}
+                                            onChange={(e) => setNewComment(e.target.value)}
+                                            maxLength={50}
+                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm text-slate-700 placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-100 focus:border-indigo-200 transition-all outline-none resize-none"
+                                            rows={2}
+                                        />
+                                        <span className="absolute right-4 top-2 text-[9px] font-black text-slate-300 uppercase tracking-widest">
+                                            {newComment.length}/50
+                                        </span>
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={!newComment.trim()}
+                                        className="mt-4 w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-2xl flex items-center justify-center space-x-3 text-white shadow-xl shadow-indigo-100"
+                                    >
+                                        <span className="text-xs font-black uppercase tracking-widest">Add Comment</span>
+                                        <Send className="w-4 h-4" />
+                                    </button>
+                                </form>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -620,16 +700,16 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                 title="Evidence Preview"
             >
                 <div className="flex flex-col items-center">
-                    <img 
-                        src={selectedPreviewImage} 
-                        alt="Evidence Large Preview" 
-                        className="w-full max-h-[70vh] object-contain rounded-2xl shadow-xl border border-slate-100" 
+                    <img
+                        src={selectedPreviewImage}
+                        alt="Evidence Large Preview"
+                        className="w-full max-h-[70vh] object-contain rounded-2xl shadow-xl border border-slate-100"
                     />
                     <div className="mt-6 flex justify-between w-full items-center">
                         <p className="text-xs font-black uppercase text-slate-400 tracking-widest italic">Secure Incident Asset</p>
-                        <a 
-                            href={selectedPreviewImage} 
-                            target="_blank" 
+                        <a
+                            href={selectedPreviewImage}
+                            target="_blank"
                             rel="noreferrer"
                             className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 hover:text-indigo-700 underline underline-offset-4"
                         >
