@@ -112,18 +112,7 @@ const AdminTickets = () => {
             </div>
 
             {/* Interactive Stats Hub */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-                <button 
-                    onClick={() => handleClearFilters()}
-                    className={`p-5 rounded-[1.8rem] border transition-all duration-300 flex flex-col items-start text-left group ${
-                        statusFilter === 'ALL' ? 'bg-slate-800 border-slate-700 shadow-xl shadow-slate-200' : 'bg-white border-slate-100 hover:border-slate-300 shadow-sm'
-                    }`}
-                >
-                    <BarChart3 className={`w-5 h-5 mb-3 ${statusFilter === 'ALL' ? 'text-white' : 'text-slate-400 group-hover:text-slate-600'}`} />
-                    <span className={`text-[9px] font-black uppercase tracking-[0.2em] mb-1 ${statusFilter === 'ALL' ? 'text-slate-400' : 'text-slate-400'}`}>Total Tickets</span>
-                    <span className={`text-2xl font-black ${statusFilter === 'ALL' ? 'text-white' : 'text-slate-800'}`}>{stats.total}</span>
-                </button>
-
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 <button 
                     onClick={() => setStatusFilter('OPEN')}
                     className={`p-5 rounded-[1.8rem] border transition-all duration-300 flex flex-col items-start text-left group ${
