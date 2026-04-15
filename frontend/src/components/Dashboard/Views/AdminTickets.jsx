@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-    AlertCircle, 
-    Search, 
-    Filter, 
-    Loader2, 
-    CheckCircle2, 
-    ChevronDown, 
-    X, 
-    Activity, 
-    ShieldAlert, 
+import {
+    AlertCircle,
+    Search,
+    Filter,
+    Loader2,
+    CheckCircle2,
+    ChevronDown,
+    X,
+    Activity,
+    ShieldAlert,
     AlertTriangle,
     BarChart3,
     Calendar,
@@ -58,8 +58,9 @@ const AdminTickets = () => {
         return tickets.filter(ticket => {
             const matchesStatus = statusFilter === 'ALL' || ticket.status === statusFilter;
             const matchesPriority = priorityFilter === 'ALL' || ticket.priority === priorityFilter;
-            const matchesSearch = !searchQuery || 
+            const matchesSearch = !searchQuery ||
                 ticket.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (ticket.ticketId && ticket.ticketId.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 ticket.category.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -84,8 +85,8 @@ const AdminTickets = () => {
     if (selectedTicketId) {
         return (
             <div className="animate-in fade-in slide-in-from-right-8 duration-500">
-                <AdminTicketDetails 
-                    ticketId={selectedTicketId} 
+                <AdminTicketDetails
+                    ticketId={selectedTicketId}
                     onClose={closeTicket}
                     onUpdate={fetchTickets}
                 />
@@ -109,12 +110,11 @@ const AdminTickets = () => {
             </div>
 
             {/* Optimized Stats Hub */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
-                <button 
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <button
                     onClick={() => setStatusFilter('OPEN')}
-                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${
-                        statusFilter === 'OPEN' ? 'bg-indigo-600 border-indigo-500 shadow-xl shadow-indigo-100' : 'bg-white border-slate-100 hover:border-indigo-200 shadow-sm'
-                    }`}
+                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${statusFilter === 'OPEN' ? 'bg-indigo-600 border-indigo-500 shadow-xl shadow-indigo-100' : 'bg-white border-slate-100 hover:border-indigo-200 shadow-sm'
+                        }`}
                 >
                     <div className={`p-2.5 rounded-2xl ${statusFilter === 'OPEN' ? 'bg-indigo-500' : 'bg-indigo-50'}`}>
                         <AlertCircle className={`w-4 h-4 ${statusFilter === 'OPEN' ? 'text-white' : 'text-indigo-500'}`} />
@@ -125,11 +125,10 @@ const AdminTickets = () => {
                     </div>
                 </button>
 
-                <button 
+                <button
                     onClick={() => setStatusFilter('IN_PROGRESS')}
-                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${
-                        statusFilter === 'IN_PROGRESS' ? 'bg-violet-600 border-violet-500 shadow-xl shadow-violet-100' : 'bg-white border-slate-100 hover:border-violet-200 shadow-sm'
-                    }`}
+                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${statusFilter === 'IN_PROGRESS' ? 'bg-violet-600 border-violet-500 shadow-xl shadow-violet-100' : 'bg-white border-slate-100 hover:border-violet-200 shadow-sm'
+                        }`}
                 >
                     <div className={`p-2.5 rounded-2xl ${statusFilter === 'IN_PROGRESS' ? 'bg-violet-500' : 'bg-violet-50'}`}>
                         <Activity className={`w-4 h-4 ${statusFilter === 'IN_PROGRESS' ? 'text-white' : 'text-violet-500'}`} />
@@ -140,11 +139,10 @@ const AdminTickets = () => {
                     </div>
                 </button>
 
-                <button 
+                <button
                     onClick={() => setStatusFilter('RESOLVED')}
-                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${
-                        statusFilter === 'RESOLVED' ? 'bg-emerald-600 border-emerald-500 shadow-xl shadow-emerald-100' : 'bg-white border-slate-100 hover:border-emerald-200 shadow-sm'
-                    }`}
+                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${statusFilter === 'RESOLVED' ? 'bg-emerald-600 border-emerald-500 shadow-xl shadow-emerald-100' : 'bg-white border-slate-100 hover:border-emerald-200 shadow-sm'
+                        }`}
                 >
                     <div className={`p-2.5 rounded-2xl ${statusFilter === 'RESOLVED' ? 'bg-emerald-500' : 'bg-emerald-50'}`}>
                         <CheckCircle2 className={`w-4 h-4 ${statusFilter === 'RESOLVED' ? 'text-white' : 'text-emerald-500'}`} />
@@ -155,11 +153,10 @@ const AdminTickets = () => {
                     </div>
                 </button>
 
-                <button 
+                <button
                     onClick={() => setStatusFilter('CLOSED')}
-                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${
-                        statusFilter === 'CLOSED' ? 'bg-slate-700 border-slate-600 shadow-xl shadow-slate-100' : 'bg-white border-slate-100 hover:border-slate-300 shadow-sm'
-                    }`}
+                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${statusFilter === 'CLOSED' ? 'bg-slate-700 border-slate-600 shadow-xl shadow-slate-100' : 'bg-white border-slate-100 hover:border-slate-300 shadow-sm'
+                        }`}
                 >
                     <div className={`p-2.5 rounded-2xl ${statusFilter === 'CLOSED' ? 'bg-slate-600' : 'bg-slate-100'}`}>
                         <History className={`w-4 h-4 ${statusFilter === 'CLOSED' ? 'text-white' : 'text-slate-500'}`} />
@@ -170,11 +167,10 @@ const AdminTickets = () => {
                     </div>
                 </button>
 
-                <button 
+                <button
                     onClick={() => setStatusFilter('REJECTED')}
-                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${
-                        statusFilter === 'REJECTED' ? 'bg-rose-600 border-rose-500 shadow-xl shadow-rose-100' : 'bg-white border-slate-100 hover:border-rose-200 shadow-sm'
-                    }`}
+                    className={`p-4 rounded-3xl border transition-all duration-300 flex items-center space-x-4 group ${statusFilter === 'REJECTED' ? 'bg-rose-600 border-rose-500 shadow-xl shadow-rose-100' : 'bg-white border-slate-100 hover:border-rose-200 shadow-sm'
+                        }`}
                 >
                     <div className={`p-2.5 rounded-2xl ${statusFilter === 'REJECTED' ? 'bg-rose-500' : 'bg-rose-50'}`}>
                         <ShieldAlert className={`w-4 h-4 ${statusFilter === 'REJECTED' ? 'text-white' : 'text-rose-500'}`} />
@@ -191,19 +187,19 @@ const AdminTickets = () => {
                 {/* Global Search */}
                 <div className="relative flex-1 group w-full">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search incident ID, category, or description..."
-                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-700 placeholder:text-slate-300 focus:ring-2 focus:ring-indigo-50 transition-all"
+                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border-2 border-slate-100 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-50 rounded-lg text-sm font-bold text-slate-700 placeholder:text-slate-300 transition-all outline-none"
                     />
                 </div>
 
                 <div className="flex flex-wrap gap-4 w-full xl:w-auto">
                     {/* Multi-Filter Dropdowns */}
                     <div className="relative flex-1 md:flex-none md:w-40">
-                        <select 
+                        <select
                             value={priorityFilter}
                             onChange={(e) => setPriorityFilter(e.target.value)}
                             className="appearance-none w-full md:w-full px-4 py-2 bg-slate-50 border-none rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-600 cursor-pointer focus:ring-2 focus:ring-indigo-50 transition-all pr-10"
@@ -217,13 +213,14 @@ const AdminTickets = () => {
                     </div>
 
                     {/* Reset Button */}
-                    <button 
+                    <button
                         onClick={handleClearFilters}
                         disabled={statusFilter === 'ALL' && priorityFilter === 'ALL' && !searchQuery}
-                        className="md:flex-none flex items-center justify-center px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed group"
+                        className="md:flex-none flex items-center justify-center px-6 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed group border border-red-100"
                         title="Clear all filters"
                     >
-                        <X className="w-4 h-4 group-hover:rotate-90 transition-transform" />
+                        <X className="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Clear All Filters</span>
                     </button>
                 </div>
             </div>
@@ -241,7 +238,7 @@ const AdminTickets = () => {
                     </div>
                     <p className="text-slate-800 font-black text-xl tracking-tight uppercase">No incidents found</p>
                     <p className="text-slate-400 text-sm mt-2 max-w-xs text-center leading-relaxed">Adjust your filters or search criteria to locate specific campus tickets.</p>
-                    <button 
+                    <button
                         onClick={handleClearFilters}
                         className="mt-8 text-indigo-600 font-black uppercase text-[10px] tracking-widest hover:text-indigo-700 underline underline-offset-8"
                     >
@@ -253,75 +250,71 @@ const AdminTickets = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-slate-50 border-b border-slate-100">
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Incident Header</th>
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden lg:table-cell">Details</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Ticket Id</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Type</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden lg:table-cell">Resource</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden xl:table-cell">Department</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell">Date</th>
                                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell">Priority</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell text-center">Priority</th>
                                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {filteredTickets.map((tkt) => (
-                                <tr 
-                                    key={tkt.id} 
+                                <tr
+                                    key={tkt.id}
                                     onClick={() => openTicket(tkt.id)}
                                     className="hover:bg-slate-50/50 cursor-pointer transition-colors group"
                                 >
+                                    <td className="px-6 py-5 font-mono">
+                                        <span className="text-sm font-bold text-slate-700 uppercase tracking-tighter">
+                                            {tkt.ticketId || tkt.id.substring(0, 8).toUpperCase()}
+                                        </span>
+                                    </td>
                                     <td className="px-6 py-5">
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-tight mb-1">
-                                                ID: {tkt.id.substring(0, 8)}...
-                                            </span>
-                                            <span className="text-sm font-bold text-slate-700 line-clamp-1">
-                                                {tkt.category}
-                                            </span>
-                                            <div className="flex items-center mt-1 space-x-2 lg:hidden">
-                                                <div className="flex items-center text-[10px] font-bold text-slate-400">
-                                                    <Calendar className="w-3 h-3 mr-1" />
-                                                    {new Date(tkt.createdAt).toLocaleDateString()}
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <span className="text-sm font-bold text-slate-700 uppercase tracking-tighter">
+                                            {tkt.category.replace('_', ' ')}
+                                        </span>
                                     </td>
                                     <td className="px-6 py-5 hidden lg:table-cell">
-                                        <div className="flex flex-col max-w-xs">
-                                            <p className="text-xs text-slate-500 line-clamp-1 mb-1 font-medium">{tkt.description}</p>
-                                            <div className="flex items-center space-x-3">
-                                                <div className="flex items-center text-[10px] font-bold text-slate-400">
-                                                    <Calendar className="w-3 h-3 mr-1" />
-                                                    {new Date(tkt.createdAt).toLocaleDateString()}
-                                                </div>
-                                                <div className="flex items-center text-[10px] font-bold text-slate-400">
-                                                    <Building2 className="w-3 h-3 mr-1" />
-                                                    {tkt.department || 'General'}
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <span className="text-sm font-bold text-slate-700 uppercase tracking-tighter">
+                                            {tkt.resourceName || 'Campus General'}
+                                        </span>
                                     </td>
-                                    <td className="px-6 py-5">
-                                        <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider inline-flex items-center ${
-                                            tkt.status === 'OPEN' ? 'bg-indigo-50 text-indigo-600' :
-                                            tkt.status === 'IN_PROGRESS' ? 'bg-violet-50 text-violet-600' :
-                                            tkt.status === 'RESOLVED' ? 'bg-emerald-50 text-emerald-600' :
-                                            tkt.status === 'REJECTED' ? 'bg-rose-50 text-rose-600' :
-                                            'bg-slate-50 text-slate-600'
-                                        }`}>
-                                            <div className={`w-1.5 h-1.5 rounded-full mr-2 ${
-                                                tkt.status === 'OPEN' ? 'bg-indigo-500' :
-                                                tkt.status === 'IN_PROGRESS' ? 'bg-violet-500' :
-                                                tkt.status === 'RESOLVED' ? 'bg-emerald-500' :
-                                                tkt.status === 'REJECTED' ? 'bg-rose-500' :
-                                                'bg-slate-500'
-                                            }`} />
-                                            {tkt.status.replace('_', ' ')}
+                                    <td className="px-6 py-5 hidden xl:table-cell">
+                                        <span className="text-sm font-bold text-slate-700 tracking-tighter">
+                                            {tkt.department 
+                                                ? tkt.department.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
+                                                : 'General'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-5 hidden md:table-cell">
-                                        <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tight border ${
-                                            tkt.priority === 'HIGH' ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                                            tkt.priority === 'MEDIUM' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                                            'bg-slate-50 text-slate-600 border-slate-100'
-                                        }`}>
+                                        <span className="text-sm font-bold text-slate-700 uppercase tracking-tighter">
+                                            {new Date(tkt.createdAt).toLocaleDateString()}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-5">
+                                        <span className={`px-3 py-1.5 rounded-xl text-sm font-bold uppercase tracking-tighter inline-flex items-center ${tkt.status === 'OPEN' ? 'bg-indigo-50 text-indigo-600' :
+                                            tkt.status === 'IN_PROGRESS' ? 'bg-violet-50 text-violet-600' :
+                                                tkt.status === 'RESOLVED' ? 'bg-emerald-50 text-emerald-600' :
+                                                    tkt.status === 'REJECTED' ? 'bg-rose-50 text-rose-600' :
+                                                        'bg-slate-50 text-slate-600'
+                                            }`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full mr-2 ${tkt.status === 'OPEN' ? 'bg-indigo-500' :
+                                                tkt.status === 'IN_PROGRESS' ? 'bg-violet-500' :
+                                                    tkt.status === 'RESOLVED' ? 'bg-emerald-500' :
+                                                        tkt.status === 'REJECTED' ? 'bg-rose-500' :
+                                                            'bg-slate-500'
+                                                }`} />
+                                            {tkt.status.replace('_', ' ')}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-5 hidden md:table-cell text-center">
+                                        <span className={`px-2.5 py-1 rounded-lg text-sm font-bold uppercase tracking-tighter border ${tkt.priority === 'HIGH' ? 'bg-red-50 text-red-600 border-red-100' :
+                                            tkt.priority === 'MEDIUM' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                                'bg-sky-50 text-sky-600 border-sky-100'
+                                            }`}>
                                             {tkt.priority}
                                         </span>
                                     </td>

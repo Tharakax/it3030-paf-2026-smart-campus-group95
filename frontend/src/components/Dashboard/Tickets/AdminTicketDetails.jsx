@@ -164,20 +164,6 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                     <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
                     Back to Command Center
                 </button>
-                <div className="flex items-center space-x-2">
-                    <span className="text-[10px] font-black uppercase text-indigo-500 bg-indigo-50 px-3 py-1 rounded-xl border border-indigo-100">
-                        REF: {ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
-                    </span>
-                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border ${
-                        ticket.status === 'OPEN' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' :
-                        ticket.status === 'IN_PROGRESS' ? 'bg-violet-50 text-violet-600 border-violet-100' :
-                        ticket.status === 'RESOLVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                        ticket.status === 'REJECTED' ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                        'bg-slate-50 text-slate-600 border-slate-100'
-                    }`}>
-                        {ticket.status.replace('_', ' ')}
-                    </span>
-                </div>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
@@ -185,10 +171,26 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                 <div className="xl:col-span-2 space-y-8">
                     {/* Primary Details */}
                     <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-sm relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-bl-[5rem] -mr-16 -mt-16 -z-0" />
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-50/30 rounded-bl-[5rem] -mr-20 -mt-20 -z-0" />
                         
+                        {/* Status & ID Badge Relocated */}
+                        <div className="absolute top-10 right-10 flex items-center space-x-2 z-20">
+                            <span className="text-[10px] font-black uppercase text-indigo-500 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-xl border border-indigo-100 shadow-sm">
+                                Ticket Id: {ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
+                            </span>
+                            <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border shadow-sm ${
+                                ticket.status === 'OPEN' ? 'bg-indigo-600 text-white border-indigo-500' :
+                                ticket.status === 'IN_PROGRESS' ? 'bg-violet-600 text-white border-violet-500' :
+                                ticket.status === 'RESOLVED' ? 'bg-emerald-600 text-white border-emerald-500' :
+                                ticket.status === 'REJECTED' ? 'bg-rose-600 text-white border-rose-500' :
+                                'bg-slate-700 text-white border-slate-600'
+                            }`}>
+                                {ticket.status.replace('_', ' ')}
+                            </span>
+                        </div>
+
                         <div className="relative z-10">
-                            <h2 className="text-3xl font-black text-slate-800 tracking-tight leading-tight mb-6">
+                            <h2 className="text-3xl font-black text-slate-800 tracking-tight leading-tight mb-8 pr-40">
                                 {ticket.category}
                             </h2>
                             
@@ -198,7 +200,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                         <Calendar className="w-5 h-5 text-slate-400" />
                                     </div>
                                     <div>
-                                        <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Reported On</p>
+                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest">Reported On</p>
                                         <p className="text-xs font-bold text-slate-700">{new Date(ticket.createdAt).toLocaleDateString()} {new Date(ticket.createdAt).toLocaleTimeString()}</p>
                                     </div>
                                 </div>
@@ -207,7 +209,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                         <Building2 className="w-5 h-5 text-slate-400" />
                                     </div>
                                     <div>
-                                        <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Origin Department</p>
+                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest">Origin Department</p>
                                         <p className="text-xs font-bold text-slate-700">{ticket.department || 'General'}</p>
                                     </div>
                                 </div>
@@ -219,7 +221,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                         }`} />
                                     </div>
                                     <div>
-                                        <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Priority Flag</p>
+                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest">Priority Flag</p>
                                         <p className={`text-xs font-black uppercase tracking-tight ${
                                             ticket.priority === 'HIGH' ? 'text-orange-600' :
                                             ticket.priority === 'MEDIUM' ? 'text-blue-600' : 'text-slate-600'
@@ -231,14 +233,14 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                         <MapPin className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Resource Name</p>
+                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest">Resource Name</p>
                                         <p className="text-xs font-bold text-slate-700">{ticket.resourceName || 'Campus General'}</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100/50">
-                                <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-3">Issue Description</p>
+                                <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-3">Issue Description</p>
                                 <p className="text-slate-600 leading-relaxed font-medium">
                                     {ticket.description}
                                 </p>
@@ -327,12 +329,12 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                 <div className="space-y-8">
                     {/* Management & Actions */}
                     <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
-                        <p className="text-[9px] font-black uppercase text-slate-400 tracking-[0.2em] mb-6">Management Panel</p>
+                        <p className="text-xs font-black uppercase text-slate-400 tracking-[0.2em] mb-6 border-b border-slate-50 pb-2">Management Panel</p>
                         
                         <div className="space-y-4">
                             {/* Technician Assignment */}
                             <div>
-                                <p className="text-[10px] font-black uppercase text-slate-600 mb-3 flex items-center">
+                                <p className="text-[11px] font-black uppercase text-slate-600 mb-3 flex items-center">
                                     <UserPlus className="w-3.5 h-3.5 mr-2 text-indigo-500" />
                                     Security & Tech Assignment
                                 </p>
@@ -398,7 +400,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
 
                             {/* Status Management */}
                             <div>
-                                <p className="text-[10px] font-black uppercase text-slate-600 mb-3 flex items-center">
+                                <p className="text-[11px] font-black uppercase text-slate-600 mb-3 flex items-center">
                                     <Clock className="w-3.5 h-3.5 mr-2 text-indigo-500" />
                                     Status Override
                                 </p>
@@ -454,7 +456,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                     {/* Activity Feed (User-side style) */}
                     <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden flex flex-col max-h-[600px]">
                         <div className="p-8 pb-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 px-1">Activity Feed</h4>
+                            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 px-1 border-b border-slate-50 pb-2">Activity Feed</h4>
                         </div>
                         {/* Chat Feed Area */}
                         <div className="h-[300px] overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-indigo-100 transition-colors">
