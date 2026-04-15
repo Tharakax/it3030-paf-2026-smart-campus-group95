@@ -1,3 +1,5 @@
+package com.unisync.service;
+
 import com.unisync.dto.IncidentTicketRequestDTO;
 import com.unisync.dto.IncidentTicketResponseDTO;
 import com.unisync.dto.StatusUpdateDTO;
