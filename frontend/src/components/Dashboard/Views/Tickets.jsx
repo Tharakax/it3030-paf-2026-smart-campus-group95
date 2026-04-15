@@ -338,8 +338,6 @@ const Tickets = () => {
                 </div>
             )}
 
-            )}
-
             {/* Modal & Form Integration */}
             <Modal
                 isOpen={isModalOpen}
