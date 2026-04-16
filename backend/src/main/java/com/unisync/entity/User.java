@@ -1,5 +1,6 @@
 package com.unisync.entity;
  
+import com.unisync.enums.TicketCategory;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -23,4 +24,6 @@ public class User {
     private String profilePictureUrl;
  
     private Role role;
+
+    private TicketCategory specialization;
 }

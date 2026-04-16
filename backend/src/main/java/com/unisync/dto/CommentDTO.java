@@ -16,6 +16,7 @@ public class CommentDTO {
     private String ticketId;
     private String userId;
     private String authorName;
+    private String authorRole;
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
