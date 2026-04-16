@@ -5,8 +5,9 @@ import axiosInstance from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 
-const ResourceDetails = () => {
-    const { id } = useParams();
+const ResourceDetails = ({ resourceId, onClose, onEdit }) => {
+    const { id: paramId } = useParams();
+    const id = resourceId || paramId;
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
     const [resource, setResource] = useState(null);
@@ -40,7 +41,11 @@ const ResourceDetails = () => {
         try {
             await axiosInstance.delete(`/resources/${id}`);
             toast.success('Resource deleted successfully');
-            navigate('/resources');
+            if (onClose) {
+                onClose();
+            } else {
+                navigate('/resources');
+            }
         } catch (err) {
             console.error('Error deleting resource:', err);
             const errorMessage = err.response?.data?.message || 'Failed to delete the resource. Please try again.';
@@ -61,12 +66,12 @@ const ResourceDetails = () => {
 
     if (error || !resource) {
         return (
-            <div className="container mx-auto p-6 text-center">
-                <div className="bg-red-50 text-red-700 p-6 rounded-xl border border-red-100 max-w-lg mx-auto">
+            <div className={`container mx-auto p-6 text-center ${onClose ? 'max-w-full' : 'max-w-lg'}`}>
+                <div className="bg-red-50 text-red-700 p-6 rounded-xl border border-red-100 mx-auto">
                     <Info className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p className="text-lg font-semibold">{error || 'Resource not found'}</p>
                     <button 
-                        onClick={() => navigate('/resources')}
+                        onClick={() => onClose ? onClose() : navigate('/resources')}
                         className="mt-6 flex items-center justify-center py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition mx-auto"
                     >
                         <ArrowLeft className="w-4 h-4 mr-2" />
@@ -78,21 +83,13 @@ const ResourceDetails = () => {
     }
 
     return (
-        <div className="container mx-auto p-4 max-w-4xl">
-            {/* Navigation */}
-            <div className="flex justify-between items-center mb-6">
-                <button 
-                    onClick={() => navigate('/resources')}
-                    className="flex items-center text-slate-500 hover:text-blue-600 transition font-medium"
-                >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Catalogue
-                </button>
-
+        <div className={`container mx-auto p-4 ${onClose ? 'max-w-full' : 'max-w-4xl'}`}>
+            {/* Header / Admin Actions */}
+            <div className="flex justify-end items-center mb-6">
                 {user?.role === 'ADMIN' && (
                     <div className="flex items-center space-x-3">
                         <button 
-                            onClick={() => navigate(`/resources/${id}/edit`)}
+                            onClick={() => onEdit ? onEdit(id) : navigate(`/resources/${id}/edit`)}
                             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-md shadow-blue-500/20"
                         >
                             <Edit className="w-4 h-4 mr-2" />
