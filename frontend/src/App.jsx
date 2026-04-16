@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import TechnicianDashboard from './pages/TechnicianDashboard';
 import ResourceCatalogue from './pages/ResourceCatalogue';
+import UserResourceCatalogue from './pages/UserResourceCatalogue';
 import ResourceDetails from './pages/ResourceDetails';
 import CreateResource from './pages/CreateResource';
 import EditResource from './pages/EditResource';
@@ -57,7 +58,7 @@ function App() {
 
               <Route path="/resources" element={
                 <PrivateRoute>
-                  <ResourceCatalogue />
+                  <UserResourceCatalogue />
                 </PrivateRoute>
               } />
 
