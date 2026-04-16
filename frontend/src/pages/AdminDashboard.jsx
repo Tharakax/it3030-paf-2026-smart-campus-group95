@@ -5,6 +5,7 @@ import AdminSidebar from '../components/Dashboard/AdminSidebar';
 import ResourceCatalogue from './ResourceCatalogue';
 import CreateResource from './CreateResource';
 import EditResource from './EditResource';
+import AdminTickets from '../components/Dashboard/Views/AdminTickets';
 
 const AdminDashboard = () => {
     const { user, logout } = useContext(AuthContext);
@@ -60,6 +61,8 @@ const AdminDashboard = () => {
                                     </div>
                                 </div>
                             )}
+
+                            {activeTab === 'tickets' && <AdminTickets />}
 
                             {activeTab === 'users' && (
                                 <div className="space-y-6">

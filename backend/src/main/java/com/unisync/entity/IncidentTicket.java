@@ -34,13 +34,15 @@ public class IncidentTicket {
 
     private TicketStatus status;
 
+    private String ticketId;
+
     private String createdBy; // User ID
 
     private String assignedTo; // User ID (Technician)
 
     private String rejectionReason;
 
-    private String resolutionNotes;
+    private ResolutionRecord resolutionRecord;
 
     private List<String> imageUrls;
 

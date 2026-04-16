@@ -26,6 +26,7 @@ public class AuthController {
                 .email(user.getEmail())
                 .profilePictureUrl(user.getProfilePictureUrl())
                 .role(user.getRole())
+                .specialization(user.getSpecialization())
                 .build();
 
         return ResponseEntity.ok(userProfileDTO);

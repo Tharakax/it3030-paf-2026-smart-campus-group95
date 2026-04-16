@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import TechnicianSidebar from '../components/Dashboard/TechnicianSidebar';
+import TechnicianTickets from '../components/Dashboard/Views/TechnicianTickets';
 
 const TechnicianDashboard = () => {
     const { user, logout } = useContext(AuthContext);
@@ -54,14 +55,7 @@ const TechnicianDashboard = () => {
                                 </div>
                             )}
                             
-                            {activeTab === 'tasks' && (
-                                <div>
-                                    <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Maintenance Tasks</h2>
-                                    <div className="mt-8 p-20 text-center border-2 border-dashed border-slate-200 rounded-[3rem] bg-white text-slate-400 italic">
-                                        Task management list coming next
-                                    </div>
-                                </div>
-                            )}
+                            {activeTab === 'tasks' && <TechnicianTickets />}
 
                             {activeTab === 'history' && (
                                 <div className="p-20 text-center text-slate-400 font-medium italic animate-in fade-in duration-500 bg-white rounded-[3rem] border border-slate-100">

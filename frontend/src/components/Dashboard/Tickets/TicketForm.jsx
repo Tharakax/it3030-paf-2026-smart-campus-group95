@@ -7,14 +7,19 @@ import {
     AlertCircle, 
     Info, 
     Phone, 
-    Mail 
+    Mail,
+    Loader2 
 } from 'lucide-react';
 import SearchableDropdown from '../../Common/SearchableDropdown';
+import api from '../../../api/axiosConfig';
+import MediaUpload from '../../../utils/supabaseClient';
 
-const TicketForm = ({ onSubmit, onClose }) => {
+const TicketForm = ({ onSubmit, onClose, submitting }) => {
     const [formData, setFormData] = useState({
         department: '',
         resourceType: '',
+        resourceId: '',
+        resourceName: '',
         category: '',
         description: '',
         priority: 'MEDIUM',
@@ -24,35 +29,128 @@ const TicketForm = ({ onSubmit, onClose }) => {
     const [images, setImages] = useState([]);
     const [previews, setPreviews] = useState([]);
     const [errors, setErrors] = useState({});
+    const [uploading, setUploading] = useState(false);
 
-    // Mock Data
-    const departments = ['Computing', 'Engineering', 'Business', 'Humanities', 'Science', 'Architecture'];
-    
-    const resourceTypesByDept = {
-        'Computing': ['LAB', 'MEETING_ROOM', 'STUDY_ROOM'],
-        'Engineering': ['LECTURE_HALL', 'LAB', 'EQUIPMENT'],
-        'Business': ['AUDITORIUM', 'MEETING_ROOM'],
-        'Humanities': ['STUDY_ROOM', 'LECTURE_HALL'],
-        'Science': ['LAB', 'GROUND', 'EQUIPMENT'],
-        'Architecture': ['STUDY_ROOM', 'LAB']
-    };
+    // Data from backend
+    const [departments, setDepartments] = useState([]);
+    const [resourceTypes, setResourceTypes] = useState([]);
+    const [resources, setResources] = useState([]);
+    const [loadingResources, setLoadingResources] = useState(false);
 
-    const categories = [
-        'IT & Network Support',
-        'Electrical & Lighting',
-        'Plumbing & Water',
-        'Audio-Visual (AV) Equipment',
-        'Furniture & Fixtures',
-        'Safety & Security',
-        'Cleaning & Janitorial',
-        'Structure & HVAC Maintenance'
+    // Backend enum values
+    const departmentEnums = [
+        'FACULTY_OF_COMPUTING',
+        'FACULTY_OF_ENGINEERING',
+        'FACULTY_OF_BUSINESS',
+        'FACULTY_OF_HUMANITIES',
+        'FACULTY_OF_SCIENCE'
     ];
 
+    const resourceTypeEnums = [
+        'LECTURE_HALL',
+        'LAB',
+        'MEETING_ROOM',
+        'AUDITORIUM',
+        'STUDY_ROOM',
+        'GROUND',
+        'EQUIPMENT'
+    ];
+
+    // Display-friendly labels
+    const formatEnumLabel = (value) => {
+        return value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    };
+
+    // Reverse: display label → enum value
+    const toEnumValue = (label, enumList) => {
+        return enumList.find(e => formatEnumLabel(e) === label) || label;
+    };
+
+    // Categories mapping: display label → backend enum
+    const categoryMap = {
+        'Electrical & Lighting': 'ELECTRICAL',
+        'IT & Network Support': 'IT_NETWORK',
+        'Projector & AV Equipment': 'PROJECTOR_AV',
+        'Furniture & Fixtures': 'FURNITURE',
+        'Plumbing & Water': 'PLUMBING',
+        'AC & Ventilation': 'AC_VENTILATION',
+        'Cleaning & Janitorial': 'CLEANING',
+        'Safety & Security': 'SAFETY_SECURITY',
+        'Lab Equipment': 'LAB_EQUIPMENT',
+        'Other': 'OTHER'
+    };
+
+    const categories = Object.keys(categoryMap);
+
     const priorities = [
-        { id: 'LOW', label: 'Low', color: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
+        { id: 'LOW', label: 'Low', color: 'bg-sky-50 text-sky-600 border-sky-100' },
         { id: 'MEDIUM', label: 'Medium', color: 'bg-amber-50 text-amber-600 border-amber-100' },
         { id: 'HIGH', label: 'High', color: 'bg-red-50 text-red-600 border-red-100' }
     ];
+
+    // Initialize department display labels
+    useEffect(() => {
+        setDepartments(departmentEnums.map(formatEnumLabel));
+    }, []);
+
+    // When department changes → fetch available resource types for that department
+    useEffect(() => {
+        if (!formData.department) {
+            setResourceTypes([]);
+            return;
+        }
+
+        const deptEnum = toEnumValue(formData.department, departmentEnums);
+
+        // Fetch resources for this department to discover which types exist
+        const fetchResourceTypes = async () => {
+            try {
+                const res = await api.get('/resources', {
+                    params: { department: deptEnum }
+                });
+                // Extract unique resource types from the returned resources
+                const types = [...new Set(res.data.map(r => r.type))];
+                setResourceTypes(types.map(formatEnumLabel));
+            } catch (err) {
+                console.error('Failed to fetch resource types:', err);
+                // Fallback: show all resource types
+                setResourceTypes(resourceTypeEnums.map(formatEnumLabel));
+            }
+        };
+
+        fetchResourceTypes();
+    }, [formData.department]);
+
+    // When department + resourceType change → fetch matching resources
+    useEffect(() => {
+        if (!formData.department || !formData.resourceType) {
+            setResources([]);
+            return;
+        }
+
+        const deptEnum = toEnumValue(formData.department, departmentEnums);
+        const typeEnum = toEnumValue(formData.resourceType, resourceTypeEnums);
+
+        const fetchResources = async () => {
+            setLoadingResources(true);
+            try {
+                const res = await api.get('/resources', {
+                    params: {
+                        department: deptEnum,
+                        type: typeEnum
+                    }
+                });
+                setResources(res.data);
+            } catch (err) {
+                console.error('Failed to fetch resources:', err);
+                setResources([]);
+            } finally {
+                setLoadingResources(false);
+            }
+        };
+
+        fetchResources();
+    }, [formData.department, formData.resourceType]);
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
@@ -83,6 +181,7 @@ const TicketForm = ({ onSubmit, onClose }) => {
         const newErrors = {};
         if (!formData.department) newErrors.department = 'Department is required';
         if (!formData.resourceType) newErrors.resourceType = 'Resource Type is required';
+        if (!formData.resourceId) newErrors.resource = 'Resource is required';
         if (!formData.category) newErrors.category = 'Category is required';
         if (!formData.description || formData.description.length < 10) 
             newErrors.description = 'Description must be at least 10 characters';
@@ -102,21 +201,42 @@ const TicketForm = ({ onSubmit, onClose }) => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (validate()) {
-            const ticketData = {
-                ...formData,
-                attachments: images,
-                date: new Date().toISOString()
-            };
-            onSubmit(ticketData);
-            toast.success('Incident ticket submitted successfully!');
-            onClose();
-        } else {
+        if (!validate()) {
             toast.error('Please fix the errors in the form.');
+            return;
         }
+
+        // Upload images to Supabase Storage
+        let uploadedUrls = [];
+        if (images.length > 0) {
+            setUploading(true);
+            try {
+                const uploadPromises = images.map(file => MediaUpload(file));
+                uploadedUrls = await Promise.all(uploadPromises);
+            } catch (err) {
+                console.error('Image upload failed:', err);
+                toast.error('Failed to upload images. Please try again.');
+                setUploading(false);
+                return;
+            }
+            setUploading(false);
+        }
+
+        const ticketData = {
+            resourceId: formData.resourceId,
+            category: categoryMap[formData.category],
+            description: formData.description,
+            priority: formData.priority,
+            contactDetails: formData.contactDetails,
+            imageUrls: uploadedUrls
+        };
+        onSubmit(ticketData);
     };
+
+    // Build resource dropdown options: "Resource Name (Resource Code)"
+    const resourceOptions = resources.map(r => `${r.name} (${r.resourceCode})`);
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -128,22 +248,58 @@ const TicketForm = ({ onSubmit, onClose }) => {
                     placeholder="Select Department"
                     value={formData.department}
                     onSelect={(val) => {
-                        setFormData({ ...formData, department: val, resourceType: '' });
+                        setFormData({ ...formData, department: val, resourceType: '', resourceId: '', resourceName: '' });
                         setErrors({ ...errors, department: null });
                     }}
                     error={errors.department}
                 />
                 <SearchableDropdown 
                     label="Resource Type"
-                    options={formData.department ? resourceTypesByDept[formData.department] : []}
+                    options={formData.department ? resourceTypes : []}
                     placeholder={formData.department ? "Select Resource Type" : "Select Dept First"}
                     value={formData.resourceType}
                     onSelect={(val) => {
-                        setFormData({ ...formData, resourceType: val });
+                        setFormData({ ...formData, resourceType: val, resourceId: '', resourceName: '' });
                         setErrors({ ...errors, resourceType: null });
                     }}
                     error={errors.resourceType}
                 />
+            </div>
+
+            {/* Resource (Filtered by Department + Type) */}
+            <div className="relative">
+                <SearchableDropdown 
+                    label="Resource"
+                    options={resourceOptions}
+                    placeholder={
+                        !formData.department 
+                            ? "Select Department First" 
+                            : !formData.resourceType 
+                                ? "Select Resource Type First" 
+                                : loadingResources 
+                                    ? "Loading resources..." 
+                                    : "Select Resource"
+                    }
+                    value={formData.resourceName}
+                    onSelect={(val) => {
+                        // Find the resource object from the display string
+                        const selectedResource = resources.find(r => `${r.name} (${r.resourceCode})` === val);
+                        if (selectedResource) {
+                            setFormData({ 
+                                ...formData, 
+                                resourceId: selectedResource.id, 
+                                resourceName: val 
+                            });
+                        }
+                        setErrors({ ...errors, resource: null });
+                    }}
+                    error={errors.resource}
+                />
+                {loadingResources && (
+                    <div className="absolute right-4 top-9">
+                        <Loader2 size={16} className="animate-spin text-blue-500" />
+                    </div>
+                )}
             </div>
 
             {/* Category */}
@@ -260,16 +416,23 @@ const TicketForm = ({ onSubmit, onClose }) => {
                 <button 
                     type="button"
                     onClick={onClose}
-                    className="flex-1 py-4 px-6 rounded-3xl bg-slate-50 text-slate-500 font-bold hover:bg-slate-100 transition-all active:scale-95"
+                    disabled={submitting}
+                    className="flex-1 py-4 px-6 rounded-3xl bg-slate-50 text-slate-500 font-bold hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-50"
                 >
                     Cancel
                 </button>
                 <button 
                     type="submit"
-                    className="flex-[2] py-4 px-6 rounded-3xl bg-blue-600 text-white font-bold flex items-center justify-center shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95"
+                    disabled={submitting || uploading}
+                    className="flex-[2] py-4 px-6 rounded-3xl bg-blue-600 text-white font-bold flex items-center justify-center shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                    <Send size={18} className="mr-2" />
-                    Submit Request
+                    {uploading ? (
+                        <><Loader2 size={18} className="mr-2 animate-spin" /> Uploading images...</>
+                    ) : submitting ? (
+                        <><Loader2 size={18} className="mr-2 animate-spin" /> Submitting...</>
+                    ) : (
+                        <><Send size={18} className="mr-2" /> Submit Request</>
+                    )}
                 </button>
             </div>
             
