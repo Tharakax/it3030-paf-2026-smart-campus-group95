@@ -1,0 +1,10 @@
+package com.unisync.enums;
+
+public enum Department {
+    FACULTY_OF_COMPUTING,
+    FACULTY_OF_ENGINEERING,
+    FACULTY_OF_BUSINESS,
+    FACULTY_OF_HUMANITIES,
+    FACULTY_OF_SCIENCE,
+    COMMON_AREA
+}

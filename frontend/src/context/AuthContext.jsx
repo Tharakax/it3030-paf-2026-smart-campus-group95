@@ -7,6 +7,8 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token') || null);
     const [loading, setLoading] = useState(true);
+    
+console.log(token);
 
     useEffect(() => {
         if (token) {
@@ -20,7 +22,9 @@ export const AuthProvider = ({ children }) => {
                     setUser({
                         id: decoded.id,
                         email: decoded.sub,
-                        role: decoded.role // e.g. "USER" or "ADMIN"
+                        name: decoded.name,
+                        picture: decoded.picture,
+                        role: decoded.role 
                     });
                     localStorage.setItem('token', token);
                 }
@@ -57,4 +61,12 @@ export const AuthProvider = ({ children }) => {
             {!loading ? children : <div>Loading session...</div>}
         </AuthContext.Provider>
     );
+};
+
+export const useAuth = () => {
+    const context = React.useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
 };

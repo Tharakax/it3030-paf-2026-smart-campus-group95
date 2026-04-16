@@ -18,34 +18,34 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    @GetMapping("/tickets/{ticketId}/comments")
+    public ResponseEntity<List<CommentDTO>> getComments(@PathVariable String ticketId) {
+        return ResponseEntity.ok(commentService.getCommentsByTicket(ticketId));
+    }
+
     @PostMapping("/tickets/{ticketId}/comments")
     public ResponseEntity<CommentDTO> addComment(
             @PathVariable String ticketId,
-            @RequestBody Map<String, String> body,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        String content = body.get("content");
-        return ResponseEntity.ok(commentService.addComment(ticketId, content, userPrincipal.getUser()));
-    }
-
-    @GetMapping("/tickets/{ticketId}/comments")
-    public ResponseEntity<List<CommentDTO>> getCommentsByTicket(@PathVariable String ticketId) {
-        return ResponseEntity.ok(commentService.getCommentsByTicket(ticketId));
+            @RequestBody Map<String, String> request,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        String content = request.get("content");
+        return ResponseEntity.ok(commentService.addComment(ticketId, content, principal.getUser()));
     }
 
     @PutMapping("/comments/{id}")
     public ResponseEntity<CommentDTO> updateComment(
             @PathVariable String id,
-            @RequestBody Map<String, String> body,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        String content = body.get("content");
-        return ResponseEntity.ok(commentService.updateComment(id, content, userPrincipal.getUser()));
+            @RequestBody Map<String, String> request,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        String content = request.get("content");
+        return ResponseEntity.ok(commentService.updateComment(id, content, principal.getUser()));
     }
 
     @DeleteMapping("/comments/{id}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable String id,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        commentService.deleteComment(id, userPrincipal.getUser());
+            @AuthenticationPrincipal UserPrincipal principal) {
+        commentService.deleteComment(id, principal.getUser());
         return ResponseEntity.noContent().build();
     }
 }

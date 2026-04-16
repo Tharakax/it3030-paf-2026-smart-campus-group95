@@ -10,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -33,13 +34,17 @@ public class IncidentTicket {
 
     private TicketStatus status;
 
+    private String ticketId;
+
     private String createdBy; // User ID
 
     private String assignedTo; // User ID (Technician)
 
     private String rejectionReason;
 
-    private String resolutionNotes;
+    private ResolutionRecord resolutionRecord;
+
+    private List<String> imageUrls;
 
     @CreatedDate
     private LocalDateTime createdAt;

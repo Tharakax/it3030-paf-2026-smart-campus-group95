@@ -1,6 +1,7 @@
 package com.unisync.dto;
 
 import com.unisync.entity.Role;
+import com.unisync.enums.TicketCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,4 +17,5 @@ public class UserProfileDTO {
     private String name;
     private String profilePictureUrl;
     private Role role;
+    private TicketCategory specialization;
 }

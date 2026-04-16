@@ -1,24 +1,25 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axiosConfig';
-import { ShieldAlert, Users, Server, Activity, ArrowLeft, Settings, Database, Lock } from 'lucide-react';
+import AdminSidebar from '../components/Dashboard/AdminSidebar';
+import ResourceCatalogue from './ResourceCatalogue';
+import CreateResource from './CreateResource';
+import EditResource from './EditResource';
+import ResourceDetails from './ResourceDetails';
+import AdminTickets from '../components/Dashboard/Views/AdminTickets';
 
 const AdminDashboard = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
-    const [message, setMessage] = useState('');
+    const [activeTab, setActiveTab] = useState('overview');
+    const [selectedResourceId, setSelectedResourceId] = useState(null);
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchAdminData = async () => {
-            try {
-                const response = await api.get('/admin/dashboard');
-                setMessage(response.data.message);
-            } catch (err) {
-                console.error("Failed to fetch admin dashboard", err);
-            }
-        };
-        fetchAdminData();
+        // System initialization mock
+        const timer = setTimeout(() => setIsLoading(false), 800);
+        return () => clearTimeout(timer);
     }, []);
 
     const handleLogout = () => {
@@ -27,115 +28,132 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="min-h-[calc(100vh-140px)] bg-slate-900 p-6 md:p-12 font-sans relative overflow-hidden">
-            {/* Dark Mode Ambient Background for Admin View */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="flex min-h-screen bg-[#f8fafc]">
+            {/* Admin Sidebar */}
+            <AdminSidebar 
+                activeTab={activeTab} 
+                setActiveTab={setActiveTab} 
+                user={user} 
+                handleLogout={handleLogout}
+                isCollapsed={isCollapsed}
+                setIsCollapsed={setIsCollapsed}
+            />
 
-            <div className="max-w-7xl mx-auto relative z-10">
-                {/* Admin Header */}
-                <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6 md:p-8 mb-8 flex flex-col md:flex-row justify-between items-center shadow-2xl">
-                    <div className="flex items-center space-x-4 mb-4 md:mb-0">
-                        <div className="bg-indigo-500/20 p-3 rounded-xl border border-indigo-500/30">
-                            <ShieldAlert className="w-8 h-8 text-indigo-400" />
+            {/* Main Control Area */}
+            <main className={`flex-1 transition-all duration-300 ${isCollapsed ? 'md:ml-20' : 'md:ml-64'} p-4 md:p-10 pb-20`}>
+                <div className="max-w-7xl mx-auto">
+                    {isLoading ? (
+                        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+                            <div className="w-16 h-16 border-4 border-blue-600 border-t-emerald-500 rounded-full animate-spin shadow-2xl shadow-blue-100" />
+                            <div className="text-center">
+                                <p className="text-blue-600 font-black uppercase tracking-widest text-xs animate-pulse mb-1">Authenticating Root Access...</p>
+                                <p className="text-slate-400 text-[10px] uppercase font-bold tracking-tighter italic">UniSync Secure Shield Active</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 className="text-2xl font-bold text-white flex items-center">
-                                System Administration
-                                <span className="ml-3 px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/20 uppercase tracking-wider">Highly Restricted</span>
-                            </h2>
-                            <p className="text-slate-400 text-sm">Elevated access portal for global management.</p>
-                        </div>
-                    </div>
-
-                    <div className="flex space-x-3">
-                        <button
-                            onClick={() => navigate('/home')}
-                            className="flex items-center bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-lg transition-colors border border-slate-600"
-                        >
-                            <ArrowLeft className="w-4 h-4 mr-2" />
-                            Return to Portal
-                        </button>
-                    </div>
-                </div>
-
-                {/* Dashboard Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    {[
-                        { title: 'Total Users', value: '1,234', icon: Users, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
-                        { title: 'System Status', value: 'Healthy', icon: Activity, color: 'text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/20' },
-                        { title: 'Database Nodes', value: '3 Active', icon: Database, color: 'text-purple-400', bg: 'bg-purple-400/10', border: 'border-purple-400/20' },
-                        { title: 'Security Alerts', value: '0 Found', icon: Lock, color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-400/20' }
-                    ].map((stat, idx) => (
-                        <div key={idx} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:bg-slate-800 transition-colors">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className={`p-2 rounded-lg ${stat.bg} ${stat.border} border`}>
-                                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                    ) : (
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            {activeTab === 'overview' && (
+                                <div className="space-y-6">
+                                    <h1 className="text-4xl font-black text-slate-800 tracking-tighter">
+                                        System <span className="text-blue-600 underline decoration-emerald-400 decoration-4">Dashboard</span>
+                                    </h1>
+                                    <div className="p-20 text-center border-2 border-dashed border-slate-200 rounded-[3rem] bg-white group hover:border-slate-900 transition-colors cursor-help">
+                                        <p className="text-slate-400 font-bold italic group-hover:text-slate-600">Core administrative modules ready for deployment</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <p className="text-slate-400 text-sm font-medium mb-1">{stat.title}</p>
-                            <p className="text-2xl font-bold text-white">{stat.value}</p>
+                            )}
+
+                            {activeTab === 'tickets' && <AdminTickets />}
+
+                            {activeTab === 'users' && (
+                                <div className="space-y-6">
+                                    <h2 className="text-3xl font-black text-slate-800 tracking-tighter">User Management</h2>
+                                    <div className="p-20 text-center bg-white rounded-[3rem] border border-slate-100 shadow-sm">
+                                        <p className="text-slate-400 font-bold italic">User audit and permission controls initialization pending</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'campus' && (
+                                <div className="space-y-6">
+                                    <ResourceCatalogue 
+                                        onAddResourceClick={() => setActiveTab('campus-create')} 
+                                        onEditResourceClick={(id) => {
+                                            setSelectedResourceId(id);
+                                            setActiveTab('campus-edit');
+                                        }}
+                                        onRowClick={(id) => {
+                                            setSelectedResourceId(id);
+                                            setActiveTab('campus-details');
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {activeTab === 'campus-details' && (
+                                <div className="space-y-6">
+                                    <div className="relative py-4 flex flex-col items-center">
+                                        <button 
+                                            onClick={() => setActiveTab('campus')}
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 px-4 py-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition flex items-center"
+                                        >
+                                            <span className="mr-1">←</span> Back to Catalogue
+                                        </button>
+                                        <h2 className="text-3xl font-black text-slate-800 tracking-tighter text-center">Resource Details</h2>
+                                    </div>
+                                    <ResourceDetails 
+                                        resourceId={selectedResourceId} 
+                                        onClose={() => setActiveTab('campus')}
+                                        onEdit={(id) => {
+                                            setSelectedResourceId(id);
+                                            setActiveTab('campus-edit');
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {activeTab === 'campus-create' && (
+                                <div className="space-y-6">
+                                    <div className="relative py-4 flex flex-col items-center">
+                                        <button 
+                                            onClick={() => setActiveTab('campus')}
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 px-4 py-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition flex items-center"
+                                        >
+                                            <span className="mr-1">←</span> Cancel & Return
+                                        </button>
+                                        <h2 className="text-3xl font-black text-slate-800 tracking-tighter text-center">Add Campus Resource</h2>
+                                    </div>
+                                    <CreateResource onResourceCreated={() => setActiveTab('campus')} />
+                                </div>
+                            )}
+
+                            {activeTab === 'campus-edit' && (
+                                <div className="space-y-6">
+                                    <div className="relative py-4 flex flex-col items-center">
+                                        <button 
+                                            onClick={() => setActiveTab('campus')}
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 px-4 py-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition flex items-center"
+                                        >
+                                            <span className="mr-1">←</span> Cancel & Return
+                                        </button>
+                                        <h2 className="text-3xl font-black text-slate-800 tracking-tighter text-center border-b-4 border-blue-600 pb-1">Edit Campus Resource</h2>
+                                    </div>
+                                    <EditResource 
+                                        resourceId={selectedResourceId} 
+                                        onResourceUpdated={() => setActiveTab('campus')} 
+                                    />
+                                </div>
+                            )}
+
+                            {['security', 'settings'].includes(activeTab) && (
+                                <div className="p-20 text-center text-slate-400 font-bold italic border-2 border-slate-100 rounded-[3rem] bg-white uppercase tracking-widest text-xs">
+                                    Terminal: Accessing {activeTab} Control Node...
+                                </div>
+                            )}
                         </div>
-                    ))}
+                    )}
                 </div>
-
-                {/* Secure Data Module */}
-                <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl overflow-hidden shadow-2xl">
-                    <div className="px-6 py-4 border-b border-slate-700/50 flex justify-between items-center bg-slate-800/80">
-                        <div className="flex items-center space-x-2">
-                            <Server className="w-5 h-5 text-indigo-400" />
-                            <h3 className="text-lg font-bold text-slate-200">Secure Backend Handshake</h3>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <span className="relative flex h-2.5 w-2.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
-                            </span>
-                            <span className="text-xs font-mono text-indigo-300">Port 8080 : LIVE</span>
-                        </div>
-                    </div>
-
-                    <div className="p-8">
-                        <div className="bg-slate-900 rounded-xl p-6 font-mono text-sm border border-slate-700 relative overflow-hidden group">
-                            {/* Decorative terminal header */}
-                            <div className="flex items-center space-x-2 mb-4">
-                                <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-                                <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                                <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
-                                <span className="text-slate-500 text-xs ml-2">bash ~ GET /api/admin/dashboard</span>
-                            </div>
-
-                            <p className="text-slate-400 mb-2">
-                                <span className="text-emerald-400">admin@{user?.name?.split(' ')[0]?.toLowerCase() || 'user'}</span>
-                                <span className="text-slate-500">:$</span> Initiating secure request...
-                            </p>
-                            <p className="text-slate-400 mb-4">
-                                <span className="text-emerald-400">admin@{user?.name?.split(' ')[0]?.toLowerCase() || 'user'}</span>
-                                <span className="text-slate-500">:$</span> Verifying active Bearer token validity... <span className="text-indigo-400">[OK]</span>
-                            </p>
-
-                            <div className="mt-4 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
-                                <p className="text-indigo-300 font-bold mb-2">&gt;_ SERVER RESPONSE:</p>
-                                {message ? (
-                                    <p className="text-emerald-400 text-base leading-relaxed typing-animation">
-                                        {message}
-                                    </p>
-                                ) : (
-                                    <p className="text-slate-500 animate-pulse">Awaiting payload...</p>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="mt-6 flex justify-end">
-                            <button className="flex items-center text-slate-400 hover:text-white transition-colors text-sm font-medium">
-                                <Settings className="w-4 h-4 mr-2" />
-                                Advanced Configuration
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            </main>
         </div>
     );
 };

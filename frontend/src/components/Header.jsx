@@ -1,13 +1,25 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import { Bell, UserCircle, LogOut, Menu, X, Settings, Shield, Wrench } from 'lucide-react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { Bell, UserCircle, LogOut, Menu, X, Settings, Shield, Wrench, LayoutDashboard, Layers, Box } from 'lucide-react';
+
 
 const Header = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+    // Hide header on dashboard, admin and technician routes
+    const hideHeaderRoutes = ['/dashboard', '/admin', '/technician'];
+    
+    // Show header even on admin sub-routes if they are resource related
+    const isResourceRoute = location.pathname.startsWith('/resources');
+    
+    if (hideHeaderRoutes.includes(location.pathname) && !isResourceRoute) {
+        return null;
+    }
 
     const handleLogout = () => {
         logout();
@@ -36,13 +48,16 @@ const Header = () => {
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center space-x-1">
                         <Link to="/home" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
-                            Dashboard
+                            Home
+                        </Link>
+                        <Link to="/resources" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
+                            Catalogue
                         </Link>
                         <Link to="/bookings" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
                             Bookings
                         </Link>
-                        <Link to="/tickets" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
-                            Tickets
+                        <Link to="/contact" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
+                            Contact Us
                         </Link>
 
                         {/* Role-Specific Badges/Links */}
@@ -94,9 +109,15 @@ const Header = () => {
                                     <div className="px-4 py-2 border-b border-slate-100 mb-2">
                                         <p className="text-sm font-medium text-slate-900 truncate">{user?.email}</p>
                                     </div>
-                                    <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center">
-                                        <UserCircle className="w-4 h-4 mr-2 text-slate-400" />
-                                        Profile Settings
+                                    <button
+                                        onClick={() => {
+                                            navigate('/dashboard');
+                                            setIsProfileOpen(false);
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center"
+                                    >
+                                        <LayoutDashboard className="w-4 h-4 mr-2 text-slate-400" />
+                                        Dashboard
                                     </button>
                                     <button
                                         onClick={handleLogout}
@@ -127,13 +148,13 @@ const Header = () => {
                 <div className="md:hidden border-t border-slate-100 bg-white">
                     <div className="px-4 pt-2 pb-4 space-y-1">
                         <Link to="/home" className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            Dashboard
+                            Home
                         </Link>
                         <Link to="/bookings" className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600">
                             Bookings
                         </Link>
-                        <Link to="/tickets" className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            Tickets
+                        <Link to="/contact" className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-600">
+                            Contact Us
                         </Link>
 
                         {user?.role === 'ADMIN' && (
@@ -166,8 +187,5 @@ const Header = () => {
         </header>
     );
 };
-
-// Add Layers icon if not already imported at the top
-import { Layers } from 'lucide-react';
 
 export default Header;

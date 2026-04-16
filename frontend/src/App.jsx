@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
+import { Toaster } from 'react-hot-toast';
 
 import Login from './pages/Login';
 import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
@@ -9,15 +10,19 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import TechnicianDashboard from './pages/TechnicianDashboard';
+import ResourceCatalogue from './pages/ResourceCatalogue';
+import UserResourceCatalogue from './pages/UserResourceCatalogue';
+import ResourceDetails from './pages/ResourceDetails';
+import CreateResource from './pages/CreateResource';
+import EditResource from './pages/EditResource';
 import Unauthorized from './pages/Unauthorized';
-import TicketsPage from './pages/maintenance/TicketsPage';
-import TicketDetails from './pages/maintenance/TicketDetails';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
 function App() {
   return (
     <AuthProvider>
+      <Toaster position="top-center" reverseOrder={false} />
       <Router>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Header />
@@ -51,16 +56,28 @@ function App() {
                 </RoleProtectedRoute>
               } />
 
-              <Route path="/tickets" element={
+              <Route path="/resources" element={
                 <PrivateRoute>
-                  <TicketsPage />
+                  <UserResourceCatalogue />
                 </PrivateRoute>
               } />
 
-              <Route path="/tickets/:id" element={
+              <Route path="/resources/:id" element={
                 <PrivateRoute>
-                  <TicketDetails />
+                  <ResourceDetails />
                 </PrivateRoute>
+              } />
+
+              <Route path="/resources/create" element={
+                <RoleProtectedRoute requiredRole="ADMIN">
+                  <CreateResource />
+                </RoleProtectedRoute>
+              } />
+
+              <Route path="/resources/:id/edit" element={
+                <RoleProtectedRoute requiredRole="ADMIN">
+                  <EditResource />
+                </RoleProtectedRoute>
               } />
 
               <Route path="/unauthorized" element={<Unauthorized />} />
