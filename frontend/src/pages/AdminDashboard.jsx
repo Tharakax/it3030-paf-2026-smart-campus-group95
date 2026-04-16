@@ -2,11 +2,15 @@ import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '../components/Dashboard/AdminSidebar';
+import ResourceCatalogue from './ResourceCatalogue';
+import CreateResource from './CreateResource';
+import EditResource from './EditResource';
 
 const AdminDashboard = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
+    const [selectedResourceId, setSelectedResourceId] = useState(null);
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -66,7 +70,52 @@ const AdminDashboard = () => {
                                 </div>
                             )}
 
-                            {['campus', 'security', 'settings'].includes(activeTab) && (
+                            {activeTab === 'campus' && (
+                                <div className="space-y-6">
+                                    <ResourceCatalogue 
+                                        onAddResourceClick={() => setActiveTab('campus-create')} 
+                                        onEditResourceClick={(id) => {
+                                            setSelectedResourceId(id);
+                                            setActiveTab('campus-edit');
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {activeTab === 'campus-create' && (
+                                <div className="space-y-6">
+                                    <div className="relative py-4 flex flex-col items-center">
+                                        <button 
+                                            onClick={() => setActiveTab('campus')}
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 px-4 py-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition flex items-center"
+                                        >
+                                            <span className="mr-1">←</span> Cancel & Return
+                                        </button>
+                                        <h2 className="text-3xl font-black text-slate-800 tracking-tighter text-center">Add Campus Resource</h2>
+                                    </div>
+                                    <CreateResource onResourceCreated={() => setActiveTab('campus')} />
+                                </div>
+                            )}
+
+                            {activeTab === 'campus-edit' && (
+                                <div className="space-y-6">
+                                    <div className="relative py-4 flex flex-col items-center">
+                                        <button 
+                                            onClick={() => setActiveTab('campus')}
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 px-4 py-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition flex items-center"
+                                        >
+                                            <span className="mr-1">←</span> Cancel & Return
+                                        </button>
+                                        <h2 className="text-3xl font-black text-slate-800 tracking-tighter text-center border-b-4 border-blue-600 pb-1">Edit Campus Resource</h2>
+                                    </div>
+                                    <EditResource 
+                                        resourceId={selectedResourceId} 
+                                        onResourceUpdated={() => setActiveTab('campus')} 
+                                    />
+                                </div>
+                            )}
+
+                            {['security', 'settings'].includes(activeTab) && (
                                 <div className="p-20 text-center text-slate-400 font-bold italic border-2 border-slate-100 rounded-[3rem] bg-white uppercase tracking-widest text-xs">
                                     Terminal: Accessing {activeTab} Control Node...
                                 </div>

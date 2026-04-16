@@ -70,7 +70,6 @@ public class ResourceController {
 
     private Resource mapToEntity(ResourceRequestDTO dto) {
         return Resource.builder()
-                .resourceCode(dto.getResourceCode())
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .type(dto.getType())

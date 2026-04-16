@@ -9,6 +9,7 @@ import com.unisync.exception.InvalidResourceAvailabilityException;
 import com.unisync.exception.ResourceNotFoundException;
 import com.unisync.repository.ResourceRepository;
 import com.unisync.service.ResourceService;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -31,10 +32,58 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public Resource createResource(Resource resource) {
         validateAvailabilityTimes(resource);
+        
+        // Auto-generate resourceCode
+        String prefix = getPrefixForType(resource.getType());
+        long nextSequence = getNextSequenceForType(resource.getType(), prefix);
+        String generatedCode = String.format("%s-%03d", prefix, nextSequence);
+        
+        resource.setResourceCode(generatedCode);
+        
+        // Final safety check for uniqueness (shouldn't be needed with proper sequence, but good for concurrency)
         if (resourceRepository.existsByResourceCode(resource.getResourceCode())) {
-            throw new DuplicateResourceCodeException("Resource with code " + resource.getResourceCode() + " already exists.");
+            throw new DuplicateResourceCodeException("Resource with generated code " + resource.getResourceCode() + " already exists.");
         }
+        
         return resourceRepository.save(resource);
+    }
+
+    private String getPrefixForType(ResourceType type) {
+        return switch (type) {
+            case LECTURE_HALL -> "LH";
+            case LAB -> "LAB";
+            case MEETING_ROOM -> "MR";
+            case AUDITORIUM -> "AUD";
+            case STUDY_ROOM -> "SR";
+            case GROUND -> "GRD";
+            case EQUIPMENT -> "EQ";
+            default -> "RES";
+        };
+    }
+
+    private long getNextSequenceForType(ResourceType type, String prefix) {
+        Query query = new Query(Criteria.where("type").is(type))
+                .with(Sort.by(Sort.Direction.DESC, "resourceCode"))
+                .limit(1);
+        
+        Resource lastResource = mongoTemplate.findOne(query, Resource.class);
+        
+        if (lastResource == null || lastResource.getResourceCode() == null) {
+            return 1;
+        }
+
+        String lastCode = lastResource.getResourceCode();
+        try {
+            int dashIndex = lastCode.lastIndexOf("-");
+            if (dashIndex != -1) {
+                String suffix = lastCode.substring(dashIndex + 1);
+                return Long.parseLong(suffix) + 1;
+            }
+            return resourceRepository.countByType(type) + 1;
+        } catch (Exception e) {
+            // Fallback if existing codes don't follow pattern strictly
+            return resourceRepository.countByType(type) + 1;
+        }
     }
 
     @Override
@@ -82,13 +131,9 @@ public class ResourceServiceImpl implements ResourceService {
         validateAvailabilityTimes(resource);
         Resource existingResource = getResourceById(id);
         
-        // Check if updating resourceCode and if the new code already exists
-        if (!existingResource.getResourceCode().equals(resource.getResourceCode()) && 
-            resourceRepository.existsByResourceCode(resource.getResourceCode())) {
-            throw new DuplicateResourceCodeException("Resource with code " + resource.getResourceCode() + " already exists.");
-        }
-
-        existingResource.setResourceCode(resource.getResourceCode());
+        // resourceCode must remain unchanged on update
+        // existingResource.setResourceCode(resource.getResourceCode()); 
+        
         existingResource.setName(resource.getName());
         existingResource.setDescription(resource.getDescription());
         existingResource.setType(resource.getType());

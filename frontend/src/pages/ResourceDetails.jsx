@@ -1,19 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, Users, Building2, Shield, Info, Box } from 'lucide-react';
+import { ArrowLeft, Clock, Users, Building2, Shield, Info, Box, Edit, Trash2 } from 'lucide-react';
 import axiosInstance from '../api/axiosConfig';
+import { AuthContext } from '../context/AuthContext';
+import { toast } from 'react-hot-toast';
 
 const ResourceDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
     const [resource, setResource] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [deleting, setDeleting] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchResource = async () => {
             try {
-                const response = await axiosInstance.get(`/api/resources/${id}`);
+                //const response = await axiosInstance.get(`/api/resources/${id}`);
+                const response = await axiosInstance.get(`/resources/${id}`);
                 setResource(response.data);
                 setError(null);
             } catch (err) {
@@ -26,6 +31,24 @@ const ResourceDetails = () => {
 
         fetchResource();
     }, [id]);
+
+    const handleDelete = async () => {
+        const confirmDelete = window.confirm(`Are you sure you want to delete "${resource.name}"? This action cannot be undone.`);
+        if (!confirmDelete) return;
+
+        setDeleting(true);
+        try {
+            await axiosInstance.delete(`/resources/${id}`);
+            toast.success('Resource deleted successfully');
+            navigate('/resources');
+        } catch (err) {
+            console.error('Error deleting resource:', err);
+            const errorMessage = err.response?.data?.message || 'Failed to delete the resource. Please try again.';
+            toast.error(errorMessage);
+        } finally {
+            setDeleting(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -57,13 +80,35 @@ const ResourceDetails = () => {
     return (
         <div className="container mx-auto p-4 max-w-4xl">
             {/* Navigation */}
-            <button 
-                onClick={() => navigate('/resources')}
-                className="mb-6 flex items-center text-slate-500 hover:text-blue-600 transition font-medium"
-            >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Catalogue
-            </button>
+            <div className="flex justify-between items-center mb-6">
+                <button 
+                    onClick={() => navigate('/resources')}
+                    className="flex items-center text-slate-500 hover:text-blue-600 transition font-medium"
+                >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to Catalogue
+                </button>
+
+                {user?.role === 'ADMIN' && (
+                    <div className="flex items-center space-x-3">
+                        <button 
+                            onClick={() => navigate(`/resources/${id}/edit`)}
+                            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-md shadow-blue-500/20"
+                        >
+                            <Edit className="w-4 h-4 mr-2" />
+                            Edit Resource
+                        </button>
+                        <button 
+                            onClick={handleDelete}
+                            disabled={deleting}
+                            className={`flex items-center px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition font-semibold ${deleting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            {deleting ? 'Deleting...' : 'Delete'}
+                        </button>
+                    </div>
+                )}
+            </div>
 
             {/* Main Content */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">

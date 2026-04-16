@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Bell, UserCircle, LogOut, Menu, X, Settings, Shield, Wrench, LayoutDashboard, Layers, Box } from 'lucide-react';
 
 
@@ -13,7 +13,11 @@ const Header = () => {
 
     // Hide header on dashboard, admin and technician routes
     const hideHeaderRoutes = ['/dashboard', '/admin', '/technician'];
-    if (hideHeaderRoutes.includes(location.pathname)) {
+    
+    // Show header even on admin sub-routes if they are resource related
+    const isResourceRoute = location.pathname.startsWith('/resources');
+    
+    if (hideHeaderRoutes.includes(location.pathname) && !isResourceRoute) {
         return null;
     }
 

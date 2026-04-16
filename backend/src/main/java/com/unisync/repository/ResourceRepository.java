@@ -24,4 +24,6 @@ public interface ResourceRepository extends MongoRepository<Resource, String> {
     List<Resource> findByStatus(ResourceStatus status);
 
     List<Resource> findByBookable(Boolean bookable);
+
+    long countByType(ResourceType type);
 }

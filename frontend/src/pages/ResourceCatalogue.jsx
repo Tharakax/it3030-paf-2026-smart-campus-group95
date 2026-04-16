@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosConfig';
+import { AuthContext } from '../context/AuthContext';
+import { PlusCircle, Edit2, Trash2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
-const ResourceCatalogue = () => {
+const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick }) => {
+    const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const [resources, setResources] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -43,6 +47,21 @@ const ResourceCatalogue = () => {
         fetchResources();
     }, [filters]);
 
+    const handleDelete = async (e, id, name) => {
+        e.stopPropagation();
+        const confirmDelete = window.confirm(`Are you sure you want to delete "${name}"?`);
+        if (!confirmDelete) return;
+
+        try {
+            await axiosInstance.delete(`/resources/${id}`);
+            toast.success('Resource deleted successfully');
+            fetchResources();
+        } catch (err) {
+            console.error('Error deleting resource:', err);
+            toast.error(err.response?.data?.message || 'Failed to delete resource');
+        }
+    };
+
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters(prev => ({
@@ -75,13 +94,28 @@ const ResourceCatalogue = () => {
     return (
         <div className="container mx-auto p-4">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Facilities & Assets Catalogue</h1>
-                <button 
-                    onClick={clearFilters}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                >
-                    Clear Filters
-                </button>
+                <div>
+                    <h1 className="text-2xl font-bold">Facilities & Assets Catalogue</h1>
+                    <p className="text-sm text-gray-500">View and manage campus resources and equipment.</p>
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                    {user?.role === 'ADMIN' && (
+                        <button 
+                            onClick={() => onAddResourceClick ? onAddResourceClick() : navigate('/resources/create')}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center font-semibold shadow-md shadow-blue-500/20"
+                        >
+                            <PlusCircle className="w-4 h-4 mr-2" />
+                            Add Resource
+                        </button>
+                    )}
+                    <button 
+                        onClick={clearFilters}
+                        className="text-sm text-blue-600 hover:text-blue-800 font-medium px-2 py-1 hover:bg-blue-50 rounded"
+                    >
+                        Clear Filters
+                    </button>
+                </div>
             </div>
 
             {/* Filter Controls */}
@@ -184,6 +218,7 @@ const ResourceCatalogue = () => {
                                 <th className="py-3 px-6 text-left">Capacity</th>
                                 <th className="py-3 px-6 text-left">Status</th>
                                 <th className="py-3 px-6 text-left">Bookable</th>
+                                {user?.role === 'ADMIN' && <th className="py-3 px-6 text-center">Actions</th>}
                             </tr>
                         </thead>
                         <tbody className="text-gray-600 text-sm font-light">
@@ -206,6 +241,33 @@ const ResourceCatalogue = () => {
                                     <td className="py-3 px-6 text-left">
                                         {resource.bookable ? '✅ Yes' : '❌ No'}
                                     </td>
+                                    {user?.role === 'ADMIN' && (
+                                        <td className="py-3 px-6 text-center">
+                                            <div className="flex item-center justify-center space-x-3">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (onEditResourceClick) {
+                                                            onEditResourceClick(resource.id);
+                                                        } else {
+                                                            navigate(`/resources/${resource.id}/edit`);
+                                                        }
+                                                    }}
+                                                    className="w-4 mr-2 transform hover:text-blue-500 hover:scale-110 transition-all"
+                                                    title="Edit"
+                                                >
+                                                    <Edit2 size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={(e) => handleDelete(e, resource.id, resource.name)}
+                                                    className="w-4 mr-2 transform hover:text-red-500 hover:scale-110 transition-all"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    )}
                                 </tr>
                             ))}
                         </tbody>

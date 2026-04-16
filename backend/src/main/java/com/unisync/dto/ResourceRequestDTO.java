@@ -18,9 +18,6 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 public class ResourceRequestDTO {
-    @NotBlank(message = "Resource code is required")
-    private String resourceCode;
-
     @NotBlank(message = "Name is required")
     private String name;
 
