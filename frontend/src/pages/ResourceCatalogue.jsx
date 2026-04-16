@@ -5,7 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import { PlusCircle, Edit2, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick }) => {
+const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick, onRowClick }) => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const [resources, setResources] = useState([]);
@@ -153,6 +153,7 @@ const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick }) => {
                         <option value="FACULTY_OF_BUSINESS">Business</option>
                         <option value="FACULTY_OF_HUMANITIES">Humanities</option>
                         <option value="FACULTY_OF_SCIENCE">Science</option>
+                        <option value="COMMON_AREA">Common Area</option>
                     </select>
                 </div>
 
@@ -226,7 +227,7 @@ const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick }) => {
                                 <tr 
                                     key={resource.id} 
                                     className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
-                                    onClick={() => navigate(`/resources/${resource.id}`)}
+                                    onClick={() => onRowClick ? onRowClick(resource.id) : navigate(`/resources/${resource.id}`)}
                                 >
                                     <td className="py-3 px-6 text-left whitespace-nowrap">{resource.resourceCode}</td>
                                     <td className="py-3 px-6 text-left font-medium text-blue-600 hover:underline">{resource.name}</td>

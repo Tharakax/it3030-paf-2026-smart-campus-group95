@@ -211,6 +211,7 @@ const EditResource = ({ resourceId, onResourceUpdated }) => {
                                 <option value="FACULTY_OF_BUSINESS">Business</option>
                                 <option value="FACULTY_OF_HUMANITIES">Humanities</option>
                                 <option value="FACULTY_OF_SCIENCE">Science</option>
+                                <option value="COMMON_AREA">Common Area</option>
                             </select>
                         </div>
 
