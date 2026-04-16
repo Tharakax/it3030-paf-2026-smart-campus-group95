@@ -143,6 +143,7 @@ public class ResourceServiceImpl implements ResourceService {
         existingResource.setAvailabilityEndTime(resource.getAvailabilityEndTime());
         existingResource.setStatus(resource.getStatus());
         existingResource.setBookable(resource.isBookable());
+        existingResource.setImageUrls(resource.getImageUrls());
 
         return resourceRepository.save(existingResource);
     }
