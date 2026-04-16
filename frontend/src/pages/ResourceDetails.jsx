@@ -11,6 +11,7 @@ const ResourceDetails = ({ resourceId, onClose, onEdit }) => {
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
     const [resource, setResource] = useState(null);
+    const [activeImage, setActiveImage] = useState(0);
     const [loading, setLoading] = useState(true);
     const [deleting, setDeleting] = useState(false);
     const [error, setError] = useState(null);
@@ -18,8 +19,9 @@ const ResourceDetails = ({ resourceId, onClose, onEdit }) => {
     useEffect(() => {
         const fetchResource = async () => {
             try {
-                //const response = await axiosInstance.get(`/api/resources/${id}`);
+                // Use the relative path because the base URL in axiosConfig already includes /api
                 const response = await axiosInstance.get(`/resources/${id}`);
+                console.log("Fetched resource data:", response.data);
                 setResource(response.data);
                 setError(null);
             } catch (err) {
@@ -109,6 +111,55 @@ const ResourceDetails = ({ resourceId, onClose, onEdit }) => {
 
             {/* Main Content */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                {/* Debug Info (Optional - Remove after testing) */}
+                {/* <div className="p-2 bg-yellow-50 text-[10px] text-yellow-800 font-mono">
+                    Found {resource.imageUrls?.length || 0} images in data array
+                </div> */}
+
+                {/* Enhanced Image Gallery */}
+                {resource.imageUrls && resource.imageUrls.length > 0 && (
+                    <div className="w-full flex flex-col md:flex-row bg-slate-900 overflow-hidden min-h-100">
+                        {/* Main Featured Image */}
+                        <div className="flex-1 relative group overflow-hidden bg-slate-800 flex items-center justify-center">
+                            <img 
+                                src={resource.imageUrls[activeImage]} 
+                                alt={resource.name}
+                                className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                            />
+                            <div className="absolute inset-0 bg-linear-to-t from-slate-900/60 via-transparent to-transparent pointer-events-none" />
+                            
+                            {/* Image Counter Badge */}
+                            <div className="absolute top-4 left-4 px-3 py-1 bg-black/40 backdrop-blur-md rounded-full border border-white/10 text-[10px] font-bold text-white uppercase tracking-widest">
+                                Image {activeImage + 1} / {resource.imageUrls.length}
+                            </div>
+                        </div>
+
+                        {/* Thumbnail Sidebar (only if multiple images) */}
+                        {resource.imageUrls.length > 1 && (
+                            <div className="w-full md:w-32 bg-slate-900/50 backdrop-blur-xl p-3 border-l border-white/5 flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto no-scrollbar max-h-37.5 md:max-h-100">
+                                {resource.imageUrls.map((url, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => setActiveImage(index)}
+                                        className={`relative shrink-0 w-20 h-20 md:w-full md:h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ${
+                                            activeImage === index 
+                                            ? 'border-blue-500 scale-95 ring-4 ring-blue-500/20'
+                                            : 'border-white/10 opacity-60 hover:opacity-100'
+                                        }`}
+                                    >
+                                        <img src={url} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                                        {activeImage === index && (
+                                            <div className="absolute inset-0 bg-blue-500/10 flex items-center justify-center">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-white shadow-lg animate-pulse" />
+                                            </div>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* Header Section */}
                 <div className="bg-slate-50 px-8 py-6 border-b border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>

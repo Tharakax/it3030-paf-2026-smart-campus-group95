@@ -79,6 +79,7 @@ public class ResourceController {
                 .availabilityEndTime(dto.getAvailabilityEndTime())
                 .status(dto.getStatus())
                 .bookable(dto.isBookable())
+                .imageUrls(dto.getImageUrls())
                 .build();
     }
 
@@ -95,6 +96,7 @@ public class ResourceController {
                 .availabilityEndTime(resource.getAvailabilityEndTime())
                 .status(resource.getStatus())
                 .bookable(resource.isBookable())
+                .imageUrls(resource.getImageUrls())
                 .build();
     }
 }
