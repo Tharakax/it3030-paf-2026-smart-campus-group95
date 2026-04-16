@@ -12,6 +12,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import TechnicianDashboard from './pages/TechnicianDashboard';
 import ResourceCatalogue from './pages/ResourceCatalogue';
 import ResourceDetails from './pages/ResourceDetails';
+import CreateResource from './pages/CreateResource';
+import EditResource from './pages/EditResource';
 import Unauthorized from './pages/Unauthorized';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -63,6 +65,18 @@ function App() {
                 <PrivateRoute>
                   <ResourceDetails />
                 </PrivateRoute>
+              } />
+
+              <Route path="/resources/create" element={
+                <RoleProtectedRoute requiredRole="ADMIN">
+                  <CreateResource />
+                </RoleProtectedRoute>
+              } />
+
+              <Route path="/resources/:id/edit" element={
+                <RoleProtectedRoute requiredRole="ADMIN">
+                  <EditResource />
+                </RoleProtectedRoute>
               } />
 
               <Route path="/unauthorized" element={<Unauthorized />} />

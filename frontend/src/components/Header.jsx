@@ -13,7 +13,11 @@ const Header = () => {
 
     // Hide header on dashboard, admin and technician routes
     const hideHeaderRoutes = ['/dashboard', '/admin', '/technician'];
-    if (hideHeaderRoutes.includes(location.pathname)) {
+    
+    // Show header even on admin sub-routes if they are resource related
+    const isResourceRoute = location.pathname.startsWith('/resources');
+    
+    if (hideHeaderRoutes.includes(location.pathname) && !isResourceRoute) {
         return null;
     }
 
