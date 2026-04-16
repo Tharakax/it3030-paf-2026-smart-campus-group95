@@ -188,12 +188,24 @@ const ResourceDetails = ({ resourceId, onClose, onEdit }) => {
                 </div>
 
                 <div className="p-8">
-                    {/* Description */}
-                    <div className="mb-10">
-                        <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3">Description</h2>
-                        <p className="text-slate-600 text-lg leading-relaxed">
-                            {resource.description || 'No description provided for this resource.'}
-                        </p>
+                    {/* Description & Action */}
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-10">
+                        <div className="flex-1">
+                            <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3">Description</h2>
+                            <p className="text-slate-600 text-lg leading-relaxed">
+                                {resource.description || 'No description provided for this resource.'}
+                            </p>
+                        </div>
+                        {user?.role === 'USER' && resource.bookable && (
+                            <div className="shrink-0">
+                                <button
+                                    onClick={() => navigate('/bookings', { state: { resourceId: id, resourceName: resource.name } })}
+                                    className="w-full md:w-auto px-8 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-lg shadow-blue-500/20 active:scale-95"
+                                >
+                                    Book Now
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {/* Metadata Grid */}
