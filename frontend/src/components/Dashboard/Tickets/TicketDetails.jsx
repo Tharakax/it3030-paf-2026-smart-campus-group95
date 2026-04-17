@@ -363,6 +363,11 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 block pb-1">Technician</span>
                                 {ticket.assignedToName ? (
                                     <span className="text-slate-800 font-black text-base uppercase tracking-tight">{ticket.assignedToName}</span>
+                                ) : ticket.status === 'REJECTED' ? (
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-slate-400 font-black text-sm uppercase tracking-wider">Not Assigned</span>
+                                        <X className="w-3.5 h-3.5 text-slate-300" />
+                                    </div>
                                 ) : (
                                     <div className="flex items-center space-x-2">
                                         <span className="text-slate-800 font-black text-sm uppercase tracking-wider">Awaiting</span>
