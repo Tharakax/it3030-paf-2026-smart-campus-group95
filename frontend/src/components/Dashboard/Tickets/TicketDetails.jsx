@@ -169,7 +169,7 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                 <div className="flex justify-between items-center mb-12">
                     <button
                         onClick={onClose}
-                        className="flex items-center space-x-3 text-slate-400 hover:text-slate-600 transition-colors group"
+                        className="flex items-center space-x-3 text-slate-400 hover:text-slate-600 transition-colors group cursor-pointer"
                     >
                         <div className="p-3 bg-white rounded-2xl group-hover:bg-slate-100 transition-all border border-slate-100 shadow-sm">
                             <ArrowLeft className="w-5 h-5 text-slate-600" />

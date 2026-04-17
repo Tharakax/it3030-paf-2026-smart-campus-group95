@@ -182,7 +182,7 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
             <div className="flex items-center justify-between mb-8 group">
                 <button 
                     onClick={onClose}
-                    className="flex items-center px-5 py-2.5 bg-white border border-slate-100 rounded-2xl text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all shadow-sm"
+                    className="flex items-center px-5 py-2.5 bg-white border border-slate-100 rounded-2xl text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
                     Back to Hub
