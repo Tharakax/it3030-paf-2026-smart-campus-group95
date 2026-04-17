@@ -14,7 +14,13 @@ import {
     ChevronRight, 
     Compass,
     Sparkles,
-    LayoutGrid
+    LayoutGrid,
+    BookOpen,
+    FlaskConical,
+    MessagesSquare,
+    Mic2,
+    Monitor,
+    Trophy
 } from 'lucide-react';
 
 /* ─── Google Fonts injection ─────────────────────────────────── */
@@ -120,6 +126,19 @@ const UserResourceCatalogue = () => {
             'EQUIPMENT': 'from-slate-500 to-slate-600'
         };
         return types[type] || 'from-gray-500 to-gray-600';
+    };
+
+    const getTypeIcon = (type) => {
+        switch (type) {
+            case 'LECTURE_HALL': return <BookOpen className="w-6 h-6 text-white" />;
+            case 'LAB': return <Monitor className="w-6 h-6 text-white" />;
+            case 'MEETING_ROOM': return <MessagesSquare className="w-6 h-6 text-white" />;
+            case 'AUDITORIUM': return <Mic2 className="w-6 h-6 text-white" />;
+            case 'STUDY_ROOM': return <Users className="w-6 h-6 text-white" />;
+            case 'GROUND': return <Trophy className="w-6 h-6 text-white" />;
+            case 'EQUIPMENT': return <LayoutGrid className="w-6 h-6 text-white" />;
+            default: return <Building2 className="w-6 h-6 text-white" />;
+        }
     };
 
     if (error) return (
@@ -250,7 +269,7 @@ const UserResourceCatalogue = () => {
                             name="type" 
                             value={filters.type} 
                             onChange={handleFilterChange} 
-                            className="filter-select flex-1 min-w-[150px] px-4 py-2.5 text-sm font-semibold outline-none transition-all cursor-pointer shadow-sm"
+                            className="filter-select flex-1 min-w-37.5 px-4 py-2.5 text-sm font-semibold outline-none transition-all cursor-pointer shadow-sm"
                         >
                             <option value="">All Types</option>
                             <option value="LECTURE_HALL">📚 Lecture Halls</option>
@@ -266,7 +285,7 @@ const UserResourceCatalogue = () => {
                             name="department" 
                             value={filters.department} 
                             onChange={handleFilterChange} 
-                            className="filter-select flex-1 min-w-[150px] px-4 py-2.5 text-sm font-semibold outline-none transition-all cursor-pointer shadow-sm"
+                            className="filter-select flex-1 min-w-37.5 px-4 py-2.5 text-sm font-semibold outline-none transition-all cursor-pointer shadow-sm"
                         >
                             <option value="">All Departments</option>
                             <option value="FACULTY_OF_COMPUTING">💻 Computing</option>
@@ -281,7 +300,7 @@ const UserResourceCatalogue = () => {
                             name="bookable" 
                             value={filters.bookable} 
                             onChange={handleFilterChange} 
-                            className="filter-select flex-1 min-w-[150px] px-4 py-2.5 text-sm font-semibold outline-none transition-all cursor-pointer shadow-sm"
+                            className="filter-select flex-1 min-w-37.5 px-4 py-2.5 text-sm font-semibold outline-none transition-all cursor-pointer shadow-sm"
                         >
                             <option value="">Any Status</option>
                             <option value="true">✅ Bookable</option>
@@ -333,8 +352,8 @@ const UserResourceCatalogue = () => {
                                 className="resource-card group relative p-6 cursor-pointer overflow-hidden bg-white/60 border-slate-200/50"
                             >
                                 <div className="flex justify-between items-start mb-5">
-                                    <div className={`p-3 rounded-2xl bg-gradient-to-br ${getTypeColor(resource.type)} shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform duration-300`}>
-                                        <Building2 className="w-6 h-6 text-white" />
+                                    <div className={`p-3 rounded-2xl bg-linear-to-br ${getTypeColor(resource.type)} shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform duration-300`}>
+                                        {getTypeIcon(resource.type)}
                                     </div>
                                     <div className="px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider text-slate-400 bg-slate-50 border border-slate-200">
                                         {resource.resourceCode}
