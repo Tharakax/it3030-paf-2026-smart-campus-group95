@@ -53,9 +53,6 @@ const Header = () => {
                         <Link to="/resources" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
                             Catalogue
                         </Link>
-                        <Link to="/bookings" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
-                            Bookings
-                        </Link>
                         <Link to="/contact" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
                             Contact Us
                         </Link>
