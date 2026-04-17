@@ -5,7 +5,6 @@ import AdminSidebar from '../components/Dashboard/AdminSidebar';
 import ResourceCatalogue from './ResourceCatalogue';
 import CreateResource from './CreateResource';
 import EditResource from './EditResource';
-import ResourceDetails from './ResourceDetails';
 import AdminTickets from '../components/Dashboard/Views/AdminTickets';
 
 const AdminDashboard = () => {
@@ -79,32 +78,6 @@ const AdminDashboard = () => {
                                     <ResourceCatalogue 
                                         onAddResourceClick={() => setActiveTab('campus-create')} 
                                         onEditResourceClick={(id) => {
-                                            setSelectedResourceId(id);
-                                            setActiveTab('campus-edit');
-                                        }}
-                                        onRowClick={(id) => {
-                                            setSelectedResourceId(id);
-                                            setActiveTab('campus-details');
-                                        }}
-                                    />
-                                </div>
-                            )}
-
-                            {activeTab === 'campus-details' && (
-                                <div className="space-y-6">
-                                    <div className="relative py-4 flex flex-col items-center">
-                                        <button 
-                                            onClick={() => setActiveTab('campus')}
-                                            className="absolute left-0 top-1/2 -translate-y-1/2 px-4 py-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition flex items-center"
-                                        >
-                                            <span className="mr-1">←</span> Back to Catalogue
-                                        </button>
-                                        <h2 className="text-3xl font-black text-slate-800 tracking-tighter text-center">Resource Details</h2>
-                                    </div>
-                                    <ResourceDetails 
-                                        resourceId={selectedResourceId} 
-                                        onClose={() => setActiveTab('campus')}
-                                        onEdit={(id) => {
                                             setSelectedResourceId(id);
                                             setActiveTab('campus-edit');
                                         }}
