@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import {
     X,
     ArrowLeft,
@@ -36,6 +36,19 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
     const [activeMenuId, setActiveMenuId] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
+    const scrollContainerRef = useRef(null);
+
+    const scrollToBottom = () => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+        }
+    };
+
+    useEffect(() => {
+        if (comments.length > 0) {
+            scrollToBottom();
+        }
+    }, [comments]);
 
     useEffect(() => {
         if (ticketId) {
@@ -399,15 +412,17 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 )}
                             </div>
                         </div>
-
-                        {/* Activity & Comment Box */}
+                        {/* Comments Section */}
                         <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden flex flex-col max-h-[600px]">
                             <div className="p-8 pb-4">
                                 <h4 className="text-sm font-black uppercase tracking-widest text-slate-800 mb-2 px-1">Comments</h4>
                             </div>
 
                             {/* Chat Feed Area */}
-                            <div className="h-[220px] overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-indigo-100 transition-colors">
+                            <div 
+                                ref={scrollContainerRef}
+                                className="h-[220px] overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent hover:scrollbar-thumb-indigo-100 transition-colors"
+                            >
                                 {comments.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center py-12 text-center">
                                         <div className="p-4 bg-slate-50 rounded-full mb-4">
@@ -418,16 +433,26 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 ) : (
                                     comments.map((comment, index) => (
                                         <div key={comment.id || index} className={`flex flex-col ${comment.userId === user?.id ? 'items-end' : 'items-start'} group animate-in fade-in slide-in-from-bottom-2 duration-500`}>
-                                            <div className="flex items-center space-x-3 mb-1.5 px-1 relative">
-                                                <div className="flex items-center">
-                                                    <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-tighter">
-                                                        {comment.authorName ? comment.authorName.split(' ')[0] : 'User'}
+                                            <div className={`flex items-center space-x-2 mb-2 px-1 relative w-full ${comment.userId === user?.id ? 'justify-end' : 'justify-start'}`}>
+                                                <span className="text-[11px] font-black text-slate-800 uppercase tracking-tighter flex items-center">
+                                                    {comment.userId === user?.id ? 'You' : (comment.authorName ? comment.authorName.split(' ')[0] : 'User')}
+                                                </span>
+                                                {comment.authorRole && comment.userId !== user?.id ? (
+                                                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border shadow-sm ${comment.authorRole === 'ADMIN' ? 'bg-indigo-500 text-white border-indigo-400' :
+                                                            comment.authorRole === 'TECHNICIAN' ? 'bg-amber-500 text-white border-amber-400' :
+                                                                'bg-slate-400 text-white border-slate-300'
+                                                        }`}>
+                                                        {comment.authorRole === 'USER' ? 'Staff' : comment.authorRole}
                                                     </span>
-                                                    {comment.userId === ticket.createdBy && (
-                                                        <span className="ml-1.5 px-1.5 py-0.5 bg-indigo-50 text-indigo-600 text-[8px] font-black rounded-md border border-indigo-100 uppercase tracking-widest">Reporter</span>
-                                                    )}
-                                                </div>
-                                                <span className="text-[10px] font-bold text-slate-400 font-mono tracking-tighter whitespace-nowrap">{formatCommentDate(comment.createdAt)}</span>
+                                                ) : comment.userId !== user?.id && (
+                                                    <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 uppercase tracking-widest border border-slate-200">
+                                                        Member
+                                                    </span>
+                                                )}
+                                                <span className="text-[10px] font-bold text-slate-400 font-mono tracking-tighter whitespace-nowrap opacity-60 flex items-center">
+                                                    <span className="mx-1.5 text-slate-300">·</span>
+                                                    {formatCommentDate(comment.createdAt)}
+                                                </span>
 
                                                 {comment.userId === user?.id && editingCommentId !== comment.id && (
                                                     <div className="relative">
@@ -480,27 +505,31 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                                     <textarea
                                                         value={editContent}
                                                         onChange={(e) => setEditContent(e.target.value)}
-                                                        className="w-full bg-white border border-indigo-200 rounded-xl p-4 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/10 min-h-[80px] resize-none"
+                                                        maxLength={50}
+                                                        className="w-full bg-white border border-indigo-200 rounded-xl p-4 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/10 min-h-[60px] resize-none"
                                                     />
-                                                    <div className="flex justify-end space-x-2 mt-3">
-                                                        <button
-                                                            onClick={handleCancelEdit}
-                                                            className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600"
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleUpdateComment(comment.id)}
-                                                            className="px-5 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100"
-                                                        >
-                                                            Save Changes
-                                                        </button>
+                                                    <div className="flex justify-between items-center mt-3">
+                                                        <span className="text-[10px] font-bold text-slate-400">{editContent.length}/50</span>
+                                                        <div className="flex space-x-2">
+                                                            <button
+                                                                onClick={handleCancelEdit}
+                                                                className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleUpdateComment(comment.id)}
+                                                                className="px-5 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100"
+                                                            >
+                                                                Save Changes
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ) : (
                                                 <div className={`p-4 rounded-2xl text-sm max-w-[85%] shadow-sm border ${comment.userId === user?.id
-                                                    ? 'bg-indigo-600 text-white border-indigo-500 rounded-tr-none'
-                                                    : 'bg-slate-50 text-slate-700 border-slate-100 rounded-tl-none'
+                                                        ? 'bg-indigo-600 text-white border-indigo-500 rounded-tr-none'
+                                                        : 'bg-slate-50 text-slate-700 border-slate-100 rounded-tl-none'
                                                     }`}>
                                                     {comment.content}
                                                 </div>
@@ -521,13 +550,19 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                     </div>
                                 ) : (
                                     <form onSubmit={handleAddComment} className="relative">
-                                        <textarea
-                                            placeholder="Add a comment..."
-                                            value={newComment}
-                                            onChange={(e) => setNewComment(e.target.value)}
-                                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm text-slate-700 placeholder-slate-400 focus:ring-4 focus:ring-indigo-100 focus:border-indigo-200 transition-all outline-none resize-none"
-                                            rows={2}
-                                        />
+                                        <div className="relative">
+                                            <textarea
+                                                placeholder="Add a comment..."
+                                                value={newComment}
+                                                onChange={(e) => setNewComment(e.target.value)}
+                                                maxLength={50}
+                                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm text-slate-700 placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-100 focus:border-indigo-200 transition-all outline-none resize-none"
+                                                rows={2}
+                                            />
+                                            <span className="absolute right-4 top-2 text-[9px] font-black text-slate-300 uppercase tracking-widest">
+                                                {newComment.length}/50
+                                            </span>
+                                        </div>
                                         <button
                                             type="submit"
                                             disabled={!newComment.trim()}
@@ -540,6 +575,7 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 )}
                             </div>
                         </div>
+
 
                     </div>
                 </div>
