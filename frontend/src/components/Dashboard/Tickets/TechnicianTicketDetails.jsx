@@ -456,7 +456,7 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                                         comment.authorRole === 'TECHNICIAN' ? 'bg-amber-500 text-white border-amber-400' :
                                                             'bg-slate-400 text-white border-slate-300'
                                                     }`}>
-                                                    {comment.authorRole === 'USER' ? 'Staff/Student' : comment.authorRole}
+                                                    {comment.authorRole === 'USER' ? 'User' : comment.authorRole}
                                                 </span>
                                             ) : comment.userId !== user?.id && (
                                                 <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 uppercase tracking-widest border border-slate-200">
