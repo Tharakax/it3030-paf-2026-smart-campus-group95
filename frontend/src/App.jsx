@@ -15,6 +15,7 @@ import UserResourceCatalogue from './pages/UserResourceCatalogue';
 import ResourceDetails from './pages/ResourceDetails';
 import CreateResource from './pages/CreateResource';
 import EditResource from './pages/EditResource';
+import ContactUs from './pages/ContactUs';
 import Unauthorized from './pages/Unauthorized';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -79,6 +80,8 @@ function App() {
                   <EditResource />
                 </RoleProtectedRoute>
               } />
+
+              <Route path="/contact" element={<ContactUs />} />
 
               <Route path="/unauthorized" element={<Unauthorized />} />
 
