@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Plus, 
-    AlertCircle, 
+import {
+    Plus,
+    AlertCircle,
     CheckCircle2,
     Calendar,
     Search,
@@ -15,7 +15,7 @@ import {
     History,
     ClipboardCheck
 } from 'lucide-react';
- import { useMemo } from 'react';
+import { useMemo } from 'react';
 import toast from 'react-hot-toast';
 import Modal from '../../Common/Modal';
 import TicketForm from '../Tickets/TicketForm';
@@ -41,7 +41,7 @@ const Tickets = () => {
 
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => setIsModalOpen(false);
-    
+
     const closeTicketDetails = () => setSelectedTicketId(null);
 
     const handleClearFilters = () => {
@@ -77,7 +77,7 @@ const Tickets = () => {
                 const matchesStatus = statusFilter === 'ALL' || ticket.status === statusFilter;
                 const matchesPriority = priorityFilter === 'ALL' || ticket.priority === priorityFilter;
                 const matchesCategory = categoryFilter === 'ALL' || ticket.category === categoryFilter;
-                
+
                 // Date filtering logic
                 const ticketDate = ticket.createdAt ? ticket.createdAt.split('T')[0] : '';
                 const matchesDateFrom = !dateFrom || ticketDate >= dateFrom;
@@ -91,7 +91,7 @@ const Tickets = () => {
                 return dateB - dateA; // Default to newest first
             });
     }, [tickets, statusFilter, priorityFilter, categoryFilter, dateFrom, dateTo]);
-    
+
     // Split filtered tickets into status-based pipeline sections
     const sections = useMemo(() => {
         const groups = {
@@ -146,14 +146,11 @@ const Tickets = () => {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div>
                         <h2 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center">
-                            Support Tickets
-                            <span className="ml-3 px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-black uppercase rounded-lg border border-blue-100">
-                                {filteredTickets.length} Found
-                            </span>
+                            My Tickets
                         </h2>
                         <p className="text-slate-500 mt-1 font-medium">Get assistance with campus services, technical issues, and facility maintenance.</p>
                     </div>
-                    <button 
+                    <button
                         onClick={handleOpenModal}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-3xl font-bold flex items-center shadow-xl shadow-indigo-100 transition-all active:scale-95 group"
                     >
@@ -169,7 +166,7 @@ const Tickets = () => {
                     <div className="flex flex-wrap gap-2 w-full">
                         {/* Status Filter */}
                         <div className="relative flex-1 md:flex-none">
-                            <select 
+                            <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
                                 className="appearance-none w-full md:w-40 px-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-600 cursor-pointer focus:ring-4 focus:ring-blue-50 transition-all pr-10"
@@ -186,7 +183,7 @@ const Tickets = () => {
 
                         {/* Priority Filter */}
                         <div className="relative flex-1 md:flex-none">
-                            <select 
+                            <select
                                 value={priorityFilter}
                                 onChange={(e) => setPriorityFilter(e.target.value)}
                                 className="appearance-none w-full md:w-36 px-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-600 cursor-pointer focus:ring-4 focus:ring-blue-50 transition-all pr-10"
@@ -201,7 +198,7 @@ const Tickets = () => {
 
                         {/* Category Filter */}
                         <div className="relative flex-1 md:flex-none">
-                            <select 
+                            <select
                                 value={categoryFilter}
                                 onChange={(e) => setCategoryFilter(e.target.value)}
                                 className="appearance-none w-full md:w-44 px-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-600 cursor-pointer focus:ring-4 focus:ring-blue-50 transition-all pr-10"
@@ -224,8 +221,8 @@ const Tickets = () => {
                         {/* Date From */}
                         <div className="flex-1 md:flex-none flex items-center bg-slate-50 rounded-2xl px-4 py-3 group focus-within:ring-4 focus-within:ring-blue-50 transition-all">
                             <span className="text-[10px] font-black uppercase text-slate-400 mr-3">From</span>
-                            <input 
-                                type="date" 
+                            <input
+                                type="date"
                                 value={dateFrom}
                                 max={dateTo || today}
                                 onChange={(e) => {
@@ -240,8 +237,8 @@ const Tickets = () => {
                         {/* Date To */}
                         <div className="flex-1 md:flex-none flex items-center bg-slate-50 rounded-2xl px-4 py-3 group focus-within:ring-4 focus-within:ring-blue-50 transition-all">
                             <span className="text-[10px] font-black uppercase text-slate-400 mr-3">To</span>
-                            <input 
-                                type="date" 
+                            <input
+                                type="date"
                                 value={dateTo}
                                 min={dateFrom}
                                 max={today}
@@ -255,7 +252,7 @@ const Tickets = () => {
                         </div>
 
                         {/* Clear Filters */}
-                        <button 
+                        <button
                             onClick={handleClearFilters}
                             disabled={statusFilter === 'ALL' && priorityFilter === 'ALL' && categoryFilter === 'ALL' && !dateFrom && !dateTo}
                             className="flex-1 md:flex-none xl:ml-auto flex items-center justify-center px-6 py-3 bg-red-50 border border-red-100 rounded-2xl text-sm font-bold text-red-600 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -268,9 +265,20 @@ const Tickets = () => {
             )}
 
             {/* 3. Render View (List or Detail) */}
-            {selectedTicketId ? (
-                <TicketDetails 
-                    ticketId={selectedTicketId} 
+            {loading ? (
+                <div className="flex flex-col items-center justify-center min-h-[400px] bg-white rounded-[3rem] border border-slate-100 shadow-sm animate-in fade-in duration-700">
+                    <div className="relative">
+                        <div className="w-20 h-20 border-4 border-indigo-50 border-t-indigo-600 rounded-full animate-spin" />
+                        <Loader2 className="w-8 h-8 text-indigo-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+                    </div>
+                    <div className="mt-8 text-center space-y-2">
+                        <h3 className="text-xl font-black text-slate-800 uppercase tracking-tighter">Synchronizing Tickets</h3>
+                        <p className="text-sm text-slate-400 font-medium">Connecting to Servers...</p>
+                    </div>
+                </div>
+            ) : selectedTicketId ? (
+                <TicketDetails
+                    ticketId={selectedTicketId}
                     onClose={closeTicketDetails}
                     onUpdate={fetchTickets}
                 />
@@ -344,7 +352,7 @@ const Tickets = () => {
                 onClose={handleCloseModal}
                 title="Create Incident Ticket"
             >
-                <TicketForm 
+                <TicketForm
                     onSubmit={handleFormSubmit}
                     onClose={handleCloseModal}
                     submitting={submitting}
