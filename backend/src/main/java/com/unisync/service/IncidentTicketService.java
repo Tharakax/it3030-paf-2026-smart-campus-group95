@@ -189,6 +189,7 @@ public class IncidentTicketService {
                 .ticketId(ticket.getTicketId())
                 .resourceId(ticket.getResourceId())
                 .resourceName(resourceName)
+                .resourceType(resource != null ? resource.getType() : null)
                 .department(department)
                 .category(ticket.getCategory())
                 .description(ticket.getDescription())

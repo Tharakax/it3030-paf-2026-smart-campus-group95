@@ -18,7 +18,8 @@ import {
     Loader2,
     MoreVertical,
     Trash2,
-    Camera
+    Camera,
+    Box
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../../api/axiosConfig';
@@ -284,6 +285,16 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                         <div className="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-100 text-slate-700 rounded-2xl h-[46px]">
                                             <MapPin className="w-4 h-4 shrink-0 text-indigo-500" />
                                             <span className="text-xs font-black uppercase tracking-tight leading-tight">{ticket.resourceName || "General"}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 min-w-[180px] space-y-2">
+                                        <p className="text-[10px] font-black uppercase text-slate-800 tracking-widest pl-1">Resource Type</p>
+                                        <div className="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-100 text-slate-700 rounded-2xl h-[46px]">
+                                            <Box className="w-4 h-4 shrink-0 text-indigo-500" />
+                                            <span className="text-xs font-black uppercase tracking-tight leading-tight">
+                                                {ticket.resourceType ? ticket.resourceType.replace(/_/g, ' ') : "Uncategorized"}
+                                            </span>
                                         </div>
                                     </div>
 
