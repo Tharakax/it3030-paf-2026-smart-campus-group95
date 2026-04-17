@@ -19,7 +19,10 @@ import {
     MoreVertical,
     Trash2,
     Camera,
-    Box
+    Box,
+    Building2,
+    Tag,
+    Activity
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../../api/axiosConfig';
@@ -182,183 +185,191 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
 
                     {/* Main Content Column */}
-                    <div className="lg:col-span-3 space-y-8">
+                    <div className="lg:col-span-3 space-y-6">
+                        
 
-                        {/* Hero Title Area */}
-                        <div className="relative p-1 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm">
-                            <div className="bg-white p-10 rounded-[2.4rem]">
-                                <div className="flex justify-between items-start mb-8">
-                                    <div className="space-y-4">
-                                        <span className="text-indigo-500 font-mono text-xs font-bold tracking-widest block opacity-60">
-                                            {ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
-                                        </span>
-                                        <h1 className="text-2xl font-black text-slate-800 tracking-tight uppercase">{ticket.category.replace('_', ' ')} ISSUE</h1>
+                        {/* Primary Detail Card (Admin Inspired Style) */}
+                        <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-sm relative overflow-hidden transition-all hover:shadow-md">
+                            <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-50/30 rounded-bl-[5rem] -mr-20 -mt-20 -z-0" />
 
-                                        <div className="flex items-center space-x-3 pt-1">
-                                            <div className={`flex items-center space-x-3 px-5 py-2.5 rounded-2xl border-2 shadow-sm ${ticket.priority === 'HIGH' ? 'bg-rose-50 border-rose-100 text-rose-600' :
-                                                ticket.priority === 'MEDIUM' ? 'bg-amber-50 border-amber-100 text-amber-600' :
-                                                    'bg-sky-50 border-sky-100 text-sky-600'
-                                                }`}>
-                                                <AlertCircle className="w-5 h-5" />
-                                                <span className="text-sm font-black uppercase tracking-widest whitespace-nowrap">{ticket.priority} PRIORITY</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center space-x-6">
-                                        <div className="text-right">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center justify-end">
-                                                Current Stage
-                                            </p>
-                                            <div className="flex items-center space-x-3">
-                                                <p className="text-xs font-black text-slate-800 tracking-tight uppercase bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 inline-block shadow-sm">
-                                                    {ticket.status === 'IN_PROGRESS' ? 'Under Repair' : ticket.status === 'OPEN' ? 'Reviewing' : 'Completed'}
-                                                </p>
+                            {/* Status & ID Badge Overlay */}
+                            <div className="absolute top-10 right-10 flex items-center space-x-2 z-20">
+                                <span className="text-[10px] font-black uppercase text-indigo-500 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-xl border border-indigo-100 shadow-sm">
+                                    Id: {ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
+                                </span>
+                                <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border shadow-sm ${ticket.status === 'OPEN' ? 'bg-indigo-600 text-white border-indigo-500' :
+                                        ticket.status === 'IN_PROGRESS' ? 'bg-violet-600 text-white border-violet-500' :
+                                            ticket.status === 'RESOLVED' ? 'bg-emerald-600 text-white border-emerald-500' :
+                                                ticket.status === 'REJECTED' ? 'bg-rose-600 text-white border-rose-500' :
+                                                    'bg-slate-700 text-white border-slate-600'
+                                    }`}>
+                                    {ticket.status.replace('_', ' ')}
+                                </span>
+                            </div>
 
-                                                <div className={`px-5 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] border-2 transition-all duration-500 flex items-center space-x-3 shadow-lg ${ticket.status === 'RESOLVED' || ticket.status === 'CLOSED' ? 'text-emerald-800 bg-emerald-50 border-emerald-200 shadow-emerald-50' :
-                                                    ticket.status === 'REJECTED' ? 'text-rose-800 bg-rose-50 border-rose-100 shadow-rose-50' :
-                                                        ticket.status === 'IN_PROGRESS' ? 'text-violet-800 bg-violet-50 border-violet-100 shadow-violet-50' :
-                                                            'text-indigo-800 bg-indigo-50 border-indigo-100 shadow-indigo-50'
-                                                    }`}>
-                                                    <div className="relative flex items-center justify-center">
-                                                        <div className={`w-3 h-3 rounded-full animate-ping absolute ${ticket.status === 'RESOLVED' || ticket.status === 'CLOSED' ? 'bg-emerald-400' :
-                                                            ticket.status === 'REJECTED' ? 'bg-rose-400' :
-                                                                ticket.status === 'IN_PROGRESS' ? 'bg-violet-400' :
-                                                                    'bg-indigo-400'
-                                                            }`} />
-                                                        <div className={`w-2.5 h-2.5 rounded-full relative z-10 ${ticket.status === 'RESOLVED' || ticket.status === 'CLOSED' ? 'bg-emerald-500' :
-                                                            ticket.status === 'REJECTED' ? 'bg-rose-500' :
-                                                                ticket.status === 'IN_PROGRESS' ? 'bg-violet-500' :
-                                                                    'bg-indigo-500'
-                                                            }`} />
-                                                    </div>
-                                                    <span>{ticket.status.replace('_', ' ')}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div className="relative z-10">
+                                <h2 className="text-3xl font-black text-slate-800 tracking-tight leading-tight mb-6 pr-40 uppercase">
+                                    {ticket.category.replace('_', ' ')} ISSUE
+                                </h2>
 
-                                {/* Stepper Implementation */}
-                                {!isRejected && (
-                                    <div className="relative pt-10 mb-6 px-4">
-                                        <div className="absolute top-[3.25rem] left-8 right-8 h-1 bg-slate-100 rounded-full" />
-                                        <div className="absolute top-[3.25rem] left-8 h-1 bg-indigo-600 transition-all duration-1000 rounded-full"
-                                            style={{ width: `calc(${(currentStepIndex / (statusSteps.length - 1)) * 100}% - 4rem)` }}
-                                        />
+                                {/* Stepper Implementation Integrated */}
+                                <div className="mb-10 py-6 border-b border-slate-50">
+                                    {!isRejected && (
+                                        <div className="relative px-2">
+                                            <div className="absolute top-[1.25rem] left-6 right-6 h-1 bg-slate-100 rounded-full" />
+                                            <div className="absolute top-[1.25rem] left-6 h-1 bg-indigo-600 transition-all duration-1000 rounded-full shadow-[0_0_10px_rgba(79,70,229,0.3)]"
+                                                style={{ width: `calc(${(currentStepIndex / (statusSteps.length - 1)) * 100}% - 3rem)` }}
+                                            />
 
-                                        <div className="relative flex justify-between items-center">
-                                            {statusSteps.map((step, idx) => {
-                                                const isActive = idx <= currentStepIndex;
-                                                const isCurrent = idx === currentStepIndex;
-                                                return (
-                                                    <div key={idx} className="flex flex-col items-center">
-                                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-500 z-10 ${isCurrent ? 'bg-indigo-600 border-indigo-400 shadow-[0_0_15px_rgba(79,70,229,0.3)]' :
-                                                            isActive ? 'bg-emerald-500 border-emerald-400' :
-                                                                'bg-white border-slate-200'
-                                                            }`}>
-                                                            {isActive ? <CheckCircle2 className="w-5 h-5 text-white" /> : <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />}
+                                            <div className="relative flex justify-between items-center">
+                                                {statusSteps.map((step, idx) => {
+                                                    const isActive = idx <= currentStepIndex;
+                                                    const isCurrent = idx === currentStepIndex;
+                                                    return (
+                                                        <div key={idx} className="flex flex-col items-center">
+                                                            <div className={`w-6 h-6 rounded-full flex items-center justify-center border transition-all duration-500 z-10 ${isCurrent ? 'bg-indigo-600 border-indigo-400 shadow-[0_0_12px_rgba(79,70,229,0.4)]' :
+                                                                isActive ? 'bg-emerald-500 border-emerald-400' :
+                                                                    'bg-white border-slate-200'
+                                                                }`}>
+                                                                {isActive ? <CheckCircle2 className="w-3 h-3 text-white" /> : <div className="w-1 h-1 rounded-full bg-slate-100" />}
+                                                            </div>
+                                                            <span className={`mt-3 text-[8px] font-black uppercase tracking-widest transition-colors ${isActive ? 'text-slate-800' : 'text-slate-400'
+                                                                }`}>
+                                                                {step.replace('_', ' ')}
+                                                            </span>
                                                         </div>
-                                                        <span className={`mt-4 text-[10px] font-black uppercase tracking-tighter transition-colors ${isActive ? 'text-slate-800' : 'text-slate-400'
-                                                            }`}>
-                                                            {step.replace('_', ' ')}
-                                                        </span>
-                                                    </div>
-                                                );
-                                            })}
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
-                                {isRejected && (
-                                    <div className="bg-rose-50 border border-rose-100 p-6 rounded-[2rem] flex items-center space-x-4 mb-8">
-                                        <ShieldAlert className="text-rose-500 w-8 h-8" />
+                                    )}
+
+                                    {isRejected && (
+                                        <div className="flex items-center space-x-3 px-5 py-2.5 bg-rose-50 border border-rose-100 rounded-2xl w-fit mx-auto">
+                                            <ShieldAlert className="text-rose-500 w-4 h-4" />
+                                            <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest">Protocol Terminated</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 mb-10">
+                                    {/* Column 1: Time & Priority */}
+                                    <div className="flex items-center">
+                                        <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
+                                            <Calendar className="w-5 h-5 text-slate-400" />
+                                        </div>
                                         <div>
-                                            <h4 className="font-black text-rose-500 uppercase tracking-widest text-xs">Report Rejected</h4>
-                                            <p className="text-sm text-slate-500 mt-1">{ticket.rejectionReason || "This report does not align with our campus guidelines."}</p>
+                                            <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Reported On</p>
+                                            <p className="text-sm font-bold text-slate-700 leading-none">
+                                                {new Date(ticket.createdAt).toLocaleDateString()} · {new Date(ticket.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center">
+                                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mr-4 ${ticket.priority === 'HIGH' ? 'bg-rose-50' :
+                                                ticket.priority === 'MEDIUM' ? 'bg-amber-50' : 'bg-sky-50'
+                                            }`}>
+                                            <Tag className={`w-5 h-5 ${ticket.priority === 'HIGH' ? 'text-rose-600' :
+                                                    ticket.priority === 'MEDIUM' ? 'text-amber-600' : 'text-sky-600'
+                                                }`} />
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Priority Flag</p>
+                                            <p className={`text-sm font-black uppercase tracking-tight leading-none ${ticket.priority === 'HIGH' ? 'text-rose-600' :
+                                                    ticket.priority === 'MEDIUM' ? 'text-amber-600' : 'text-sky-600'
+                                                }`}>{ticket.priority}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Column 2: Department & Resource Type */}
+                                    <div className="flex items-center border-t border-slate-50 pt-6 md:border-none md:pt-0">
+                                        <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
+                                            <Building2 className="w-5 h-5 text-slate-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Department</p>
+                                            <p className="text-sm font-bold text-slate-700 leading-none">
+                                                {ticket.department
+                                                    ? ticket.department.replace(/_/g, ' ')
+                                                    : 'General Operations'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center border-t border-slate-50 pt-6 md:border-none md:pt-0">
+                                        <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
+                                            <Box className="w-5 h-5 text-slate-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Resource Type</p>
+                                            <p className="text-sm font-bold text-slate-700 leading-none">
+                                                {ticket.resourceType ? ticket.resourceType.replace(/_/g, ' ') : 'Infrastructure'}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Resources Row */}
+                                    <div className="flex items-center border-t border-slate-50 pt-6 md:col-span-2">
+                                        <div className="w-10 h-10 rounded-2xl bg-indigo-50/50 flex items-center justify-center mr-4">
+                                            <MapPin className="w-5 h-5 text-indigo-500" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Resource Description</p>
+                                            <p className="text-sm font-black text-slate-800 leading-none uppercase tracking-tight">{ticket.resourceName || 'Common Infrastructure'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100/50 mb-10 overflow-hidden relative">
+                                    <div className="absolute top-0 right-0 p-4 opacity-5">
+                                        <FileText className="w-20 h-20" />
+                                    </div>
+                                    <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-2 flex items-center relative z-10">
+                                        <FileText className="w-3.5 h-3.5 mr-2" /> Incident Analysis
+                                    </p>
+                                    <p className="text-sm font-bold text-slate-700 leading-relaxed italic relative z-10">
+                                        "{ticket.description}"
+                                    </p>
+                                </div>
+
+                                {isRejected && ticket.rejectionReason && (
+                                    <div className="mb-10 p-8 bg-rose-50 rounded-[2.5rem] border border-rose-100 flex items-start animate-in fade-in slide-in-from-top-4 duration-500">
+                                        <ShieldAlert className="w-6 h-6 text-rose-500 mr-5 mt-1" />
+                                        <div>
+                                            <p className="text-[9px] font-black uppercase text-rose-600 tracking-widest mb-1.5 text-center sm:text-left">Administrative Rejection Reason</p>
+                                            <p className="text-sm font-bold text-rose-800 leading-relaxed">{ticket.rejectionReason}</p>
                                         </div>
                                     </div>
                                 )}
 
-                                {/* Merged Quick Meta Info */}
-                                <div className="flex flex-wrap gap-4 py-5 border-y border-slate-50 my-6">
-                                    <div className="flex-[1.5] min-w-[200px] space-y-2">
-                                        <p className="text-[10px] font-black uppercase text-slate-800 tracking-widest pl-1">Department</p>
-                                        <div className="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-100 text-slate-700 rounded-2xl h-[46px]">
-                                            <ShieldAlert className="w-4 h-4 shrink-0 text-indigo-500" />
-                                            <span className="text-xs font-black uppercase tracking-tight leading-tight">
-                                                {ticket.department ? ticket.department.replace(/_/g, ' ') : "Campus"}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex-1 min-w-[180px] space-y-2">
-                                        <p className="text-[10px] font-black uppercase text-slate-800 tracking-widest pl-1">Resource Type</p>
-                                        <div className="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-100 text-slate-700 rounded-2xl h-[46px]">
-                                            <Box className="w-4 h-4 shrink-0 text-indigo-500" />
-                                            <span className="text-xs font-black uppercase tracking-tight leading-tight">
-                                                {ticket.resourceType ? ticket.resourceType.replace(/_/g, ' ') : "Uncategorized"}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex-1 min-w-[180px] space-y-2">
-                                        <p className="text-[10px] font-black uppercase text-slate-800 tracking-widest pl-1">Resource</p>
-                                        <div className="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-100 text-slate-700 rounded-2xl h-[46px]">
-                                            <MapPin className="w-4 h-4 shrink-0 text-indigo-500" />
-                                            <span className="text-xs font-black uppercase tracking-tight leading-tight">{ticket.resourceName || "General"}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex-1 min-w-[140px] space-y-2">
-                                        <p className="text-[10px] font-black uppercase text-slate-800 tracking-widest pl-1">Reported On</p>
-                                        <div className="flex items-center space-x-3 p-3 bg-slate-50 border border-slate-100 text-slate-700 rounded-2xl">
-                                            <Calendar className="w-4 h-4 shrink-0 text-indigo-500" />
-                                            <span className="text-xs font-black uppercase tracking-tight whitespace-nowrap text-slate-600">
-                                                {new Date(ticket.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="mt-0">
-                                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 mb-2 ml-1 flex items-center">
-                                        <FileText className="w-4 h-4 mr-2 text-indigo-500" /> Incident Analysis & Description
-                                    </h3>
-                                    <div className="text-slate-600 leading-relaxed text-sm bg-slate-50 p-4 rounded-[1.5rem] border border-slate-100">
-                                        {ticket.description}
-                                    </div>
-                                </div>
-
-                                {/* Evidence Images Section */}
                                 {ticket.imageUrls && ticket.imageUrls.length > 0 && (
-                                    <div className="mt-2 pt-2 border-t border-slate-50">
-                                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 mb-2 ml-1 flex items-center">
-                                            <Camera className="w-4 h-4 mr-2 text-indigo-500" /> Visual Evidence
-                                        </h3>
-                                        <div className="flex flex-wrap gap-4 px-1">
-                                            {ticket.imageUrls.map((url, index) => (
-                                                <div
-                                                    key={index}
-                                                    onClick={() => setSelectedImage(url)}
-                                                    className="relative group cursor-zoom-in overflow-hidden rounded-[1.2rem] border-2 border-white shadow-sm hover:shadow-md transition-all duration-300"
+                                    <div className="mt-6 pt-6 border-t border-slate-50">
+                                        <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-5 flex items-center">
+                                            <Camera className="w-3.5 h-3.5 mr-2" /> Visual Assets & Evidence
+                                        </p>
+                                        <div className="flex flex-wrap gap-5">
+                                            {ticket.imageUrls.map((img, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => setSelectedImage(img)}
+                                                    className="relative group overflow-hidden rounded-[1.8rem] border-2 border-slate-100 shadow-sm hover:border-indigo-200 hover:shadow-md transition-all focus:outline-none focus:ring-4 focus:ring-indigo-500/10"
                                                 >
                                                     <img
-                                                        src={url}
-                                                        alt={`Evidence ${index + 1}`}
-                                                        className="w-28 h-28 object-cover group-hover:scale-110 transition-transform duration-500"
+                                                        src={img}
+                                                        alt={`Evidence ${idx + 1}`}
+                                                        className="w-28 h-28 object-cover group-hover:scale-110 transition-transform duration-700"
                                                     />
-                                                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                        <div className="bg-white/90 p-1.5 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300">
-                                                            <Camera className="w-3.5 h-3.5 text-indigo-600" />
-                                                        </div>
+                                                    <div className="absolute inset-0 bg-indigo-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <Activity className="w-6 h-6 text-white drop-shadow-md animate-pulse" />
                                                     </div>
-                                                </div>
+                                                </button>
                                             ))}
                                         </div>
                                     </div>
                                 )}
                             </div>
                         </div>
-
                     </div>
 
                     {/* Sidebar Column */}
