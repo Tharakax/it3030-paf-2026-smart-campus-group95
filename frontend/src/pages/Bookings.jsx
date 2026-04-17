@@ -32,13 +32,13 @@ const Bookings = () => {
     const [loadingAvailability, setLoadingAvailability] = useState(false);
     const [resourceDetails, setResourceDetails] = useState(null);
 
-    // Time slots generator (8:00 to 18:00 by default, or wider if needed)
+    // Time slots generator (8:00 to 18:00)
     const generateTimeSlots = () => {
         const slots = [];
-        for (let hour = 8; hour <= 20; hour++) {
+        for (let hour = 8; hour <= 18; hour++) {
             const h = hour.toString().padStart(2, '0');
             slots.push(`${h}:00`);
-            if (hour < 20) slots.push(`${h}:30`);
+            if (hour < 18) slots.push(`${h}:30`);
         }
         return slots;
     };
@@ -115,6 +115,13 @@ const Bookings = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Validate time sequence
+        if (formData.startTime >= formData.endTime) {
+            toast.error('Booking end time must be after the start time');
+            return;
+        }
+
         setSubmitting(true);
         try {
             await bookingService.createBooking({

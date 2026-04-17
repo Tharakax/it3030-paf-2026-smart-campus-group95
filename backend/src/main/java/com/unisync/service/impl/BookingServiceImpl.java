@@ -43,8 +43,13 @@ public class BookingServiceImpl implements BookingService {
             throw new RuntimeException("This resource is not available for booking.");
         }
 
+        // Validate start/end sequence
+        if (!request.getStartTime().isBefore(request.getEndTime())) {
+            throw new RuntimeException("Booking end time must be after the start time.");
+        }
+
         // Check for conflicts (Overlapping Approved or Pending bookings)
-        List<Booking> conflicts = bookingRepository.findOverlappingApprovedBookings(
+        List<Booking> conflicts = bookingRepository.findOverlappingActiveBookings(
                 request.getResourceId(), request.getDate(), request.getStartTime(), request.getEndTime());
         
         if (!conflicts.isEmpty()) {

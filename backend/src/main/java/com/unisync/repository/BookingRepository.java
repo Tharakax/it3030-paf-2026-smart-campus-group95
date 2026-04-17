@@ -19,7 +19,7 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
 
     List<Booking> findByResourceIdAndDate(String resourceId, LocalDate date);
 
-    @Query("{ 'resourceId': ?0, 'date': ?1, 'status': 'APPROVED', " +
+    @Query("{ 'resourceId': ?0, 'date': ?1, 'status': { '$in': ['APPROVED', 'PENDING'] }, " +
            "'$or': [ { 'startTime': { '$lt': ?3 }, 'endTime': { '$gt': ?2 } } ] }")
-    List<Booking> findOverlappingApprovedBookings(String resourceId, LocalDate date, LocalTime startTime, LocalTime endTime);
+    List<Booking> findOverlappingActiveBookings(String resourceId, LocalDate date, LocalTime startTime, LocalTime endTime);
 }
