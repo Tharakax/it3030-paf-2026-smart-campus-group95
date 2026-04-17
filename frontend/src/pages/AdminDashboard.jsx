@@ -6,6 +6,7 @@ import ResourceCatalogue from './ResourceCatalogue';
 import CreateResource from './CreateResource';
 import EditResource from './EditResource';
 import AdminTickets from '../components/Dashboard/Views/AdminTickets';
+import AdminBookingManagement from '../components/Booking/AdminBookingManagement';
 
 const AdminDashboard = () => {
     const { user, logout } = useContext(AuthContext);
@@ -63,6 +64,8 @@ const AdminDashboard = () => {
                             )}
 
                             {activeTab === 'tickets' && <AdminTickets />}
+
+                            {activeTab === 'bookings' && <AdminBookingManagement />}
 
                             {activeTab === 'users' && (
                                 <div className="space-y-6">

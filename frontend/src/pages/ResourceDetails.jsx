@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-    ArrowLeft, 
-    Clock, 
-    Users, 
-    Info, 
-    Box, 
-    Edit, 
+import {
+    ArrowLeft,
+    Clock,
+    Users,
+    Info,
+    Box,
+    Edit,
     Trash2,
     Sparkles,
     Calendar,
@@ -144,7 +144,7 @@ const ResourceDetails = ({ resourceId, onClose }) => {
             </div>
 
             <div style={{ position: 'relative', zIndex: 1, maxWidth: 1200, margin: '0 auto', padding: '40px 24px 80px' }}>
-                
+
                 {/* ── Navigation ────────────────────────────────────── */}
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-10 anim-0">
                     <button 
@@ -157,7 +157,7 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    
+
                     {/* ── Left Column: Media ──────────────────────────── */}
                     <div className="lg:col-span-12 xl:col-span-7 space-y-6 anim-1">
                         <div style={glass} className="overflow-hidden border-slate-200/50 shadow-xl bg-white/50">
@@ -165,8 +165,8 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                             <div className="relative aspect-video bg-slate-100 flex items-center justify-center overflow-hidden">
                                 {resource.imageUrls && resource.imageUrls.length > 0 ? (
                                     <>
-                                        <img 
-                                            src={resource.imageUrls[activeImage]} 
+                                        <img
+                                            src={resource.imageUrls[activeImage]}
                                             alt={resource.name}
                                             className="w-full h-full object-cover"
                                         />
@@ -219,7 +219,7 @@ const ResourceDetails = ({ resourceId, onClose }) => {
 
                     {/* ── Right Column: Info & Booking ─────────────────── */}
                     <div className="lg:col-span-12 xl:col-span-5 space-y-6 anim-2">
-                        
+
                         {/* Status & Identity Card */}
                         <div style={glass} className="p-8 border-slate-200/50 bg-white/60">
                             <div className="flex flex-wrap items-center gap-3 mb-6">

@@ -43,7 +43,8 @@ const TicketForm = ({ onSubmit, onClose, submitting }) => {
         'FACULTY_OF_ENGINEERING',
         'FACULTY_OF_BUSINESS',
         'FACULTY_OF_HUMANITIES',
-        'FACULTY_OF_SCIENCE'
+        'FACULTY_OF_SCIENCE',
+        'COMMON_AREA'
     ];
 
     const resourceTypeEnums = [
