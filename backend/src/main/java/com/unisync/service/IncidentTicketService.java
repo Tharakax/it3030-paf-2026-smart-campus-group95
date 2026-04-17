@@ -68,7 +68,7 @@ public class IncidentTicketService {
         if (currentUser.getRole() == Role.ADMIN) {
             tickets = ticketRepository.findAll();
         } else if (currentUser.getRole() == Role.TECHNICIAN) {
-            tickets = ticketRepository.findAll();
+            tickets = ticketRepository.findByAssignedTo(currentUser.getId());
         } else {
             tickets = ticketRepository.findByCreatedBy(currentUser.getId());
         }
@@ -82,6 +82,10 @@ public class IncidentTicketService {
 
         if (currentUser.getRole() == Role.USER && !ticket.getCreatedBy().equals(currentUser.getId())) {
             throw new UnauthorizedException("You don't have permission to view this ticket");
+        }
+
+        if (currentUser.getRole() == Role.TECHNICIAN && (ticket.getAssignedTo() == null || !ticket.getAssignedTo().equals(currentUser.getId()))) {
+            throw new UnauthorizedException("You are not authorized to access this incident report");
         }
 
         return convertToResponseDTO(ticket);
@@ -103,6 +107,10 @@ public class IncidentTicketService {
                 throw new UnauthorizedException("Users can only close resolved tickets");
             }
         } else if (currentUser.getRole() == Role.TECHNICIAN) {
+            if (ticket.getAssignedTo() == null || !ticket.getAssignedTo().equals(currentUser.getId())) {
+                throw new UnauthorizedException("You can only update tickets assigned to you");
+            }
+
             if (newStatus == TicketStatus.IN_PROGRESS || newStatus == TicketStatus.RESOLVED) {
                 ticket.setStatus(newStatus);
                 if (newStatus == TicketStatus.RESOLVED && update.getResolutionNotes() != null) {
@@ -166,6 +174,10 @@ public class IncidentTicketService {
 
         if (technician.getRole() != Role.TECHNICIAN) {
             throw new IllegalArgumentException("User is not a technician");
+        }
+
+        if (ticket.getStatus() != TicketStatus.OPEN) {
+            throw new IllegalStateException("Protocol Violation: Cannot reassign technician once the incident transition has reached " + ticket.getStatus());
         }
 
         ticket.setAssignedTo(technicianId);

@@ -57,10 +57,8 @@ const TechnicianTickets = () => {
     // Filter tickets based on technician's role
     const filteredTickets = useMemo(() => {
         return tickets.filter(ticket => {
-            // Only show tickets that are either:
-            // 1. Assigned to me
-            // 2. Unassigned and OPEN
-            const isRelevant = ticket.assignedTo === user?.id || (!ticket.assignedTo && ticket.status === 'OPEN');
+            // ONLY show tickets assigned to me
+            const isRelevant = ticket.assignedTo === user?.id;
 
             if (!isRelevant && statusFilter === 'ALL') return false;
 
@@ -77,11 +75,11 @@ const TechnicianTickets = () => {
     }, [tickets, statusFilter, priorityFilter, searchQuery, user?.id]);
 
     const stats = useMemo(() => ({
-        total: tickets.filter(t => t.assignedTo === user?.id).length,
-        myActive: tickets.filter(t => t.assignedTo === user?.id && t.status === 'IN_PROGRESS').length,
-        unassigned: tickets.filter(t => !t.assignedTo && t.status === 'OPEN').length,
-        resolved: tickets.filter(t => t.assignedTo === user?.id && t.status === 'RESOLVED').length
-    }), [tickets, user?.id]);
+        total: tickets.length,
+        myActive: tickets.filter(t => t.status === 'IN_PROGRESS').length,
+        pendingAcceptance: tickets.filter(t => t.status === 'OPEN').length,
+        resolved: tickets.filter(t => t.status === 'RESOLVED').length
+    }), [tickets]);
 
     const handleClearFilters = () => {
         setStatusFilter('ALL');
@@ -139,8 +137,8 @@ const TechnicianTickets = () => {
                         <Clock className={`w-4 h-4 ${statusFilter === 'OPEN' ? 'text-white' : 'text-amber-500'}`} />
                     </div>
                     <div className="text-left">
-                        <p className={`text-[9px] font-black uppercase tracking-wider ${statusFilter === 'OPEN' ? 'text-amber-200' : 'text-slate-400'}`}>Dispatch Queue</p>
-                        <p className={`text-xl font-black ${statusFilter === 'OPEN' ? 'text-white' : 'text-slate-800'}`}>{stats.unassigned}</p>
+                        <p className={`text-[9px] font-black uppercase tracking-wider ${statusFilter === 'OPEN' ? 'text-amber-200' : 'text-slate-400'}`}>Assigned Pending</p>
+                        <p className={`text-xl font-black ${statusFilter === 'OPEN' ? 'text-white' : 'text-slate-800'}`}>{stats.pendingAcceptance}</p>
                     </div>
                 </button>
 
