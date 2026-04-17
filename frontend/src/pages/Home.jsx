@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useRef } from 'react';
+import React, { useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import {
     Calendar,
@@ -61,28 +61,39 @@ const css = `
   @keyframes tickerSlide { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
   .home-root *{box-sizing:border-box;font-family:'Outfit',sans-serif}
   .home-root h1,.home-root h2,.home-root h3{font-family:'Sora',sans-serif}
-  .anim-0{animation:fadeSlideUp .7s ease both}
-  .anim-1{animation:fadeSlideUp .7s .15s ease both}
-  .anim-2{animation:fadeSlideUp .7s .3s ease both}
-  .anim-3{animation:fadeSlideUp .7s .45s ease both}
-  .anim-4{animation:fadeSlideUp .7s .6s ease both}
-  .anim-5{animation:fadeSlideUp .7s .75s ease both}
+  
+  /* Scroll reveal base (hidden until visible) */
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  }
+  .scroll-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Individual delays for child elements (optional) */
+  .reveal-delay-1 { transition-delay: 0.05s; }
+  .reveal-delay-2 { transition-delay: 0.1s; }
+  .reveal-delay-3 { transition-delay: 0.15s; }
+  .reveal-delay-4 { transition-delay: 0.2s; }
+  
   .service-card{transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s ease,border-color .35s ease}
-  .service-card:hover{transform:translateY(-8px) scale(1.015);box-shadow:0 32px 64px rgba(0,0,0,.45),0 0 0 1px rgba(99,179,237,.35)!important;border-color:rgba(99,179,237,.35)!important}
+  .service-card:hover{transform:translateY(-8px) scale(1.015);box-shadow:0 32px 64px rgba(0,0,0,.08),0 0 0 1px rgba(59,130,246,.2)!important;border-color:rgba(59,130,246,.2)!important}
   .service-card:hover .card-icon-wrap{transform:scale(1.1) rotate(4deg)}
   .service-card:hover .card-arrow{transform:translateX(5px)}
   .service-card:hover .card-line{animation:lineGrow .4s ease forwards}
   .card-icon-wrap{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
   .card-arrow{transition:transform .3s ease}
   .card-line{transform-origin:left;transform:scaleX(0)}
-  .stat-mini:hover{border-color:rgba(99,179,237,.4)!important;background:rgba(99,179,237,.06)!important}
-  .quick-btn:hover{background:rgba(255,255,255,.18)!important;transform:scale(1.04)}
-  .activity-row:hover{background:rgba(99,179,237,.07)!important}
-  .activity-row:hover .act-chevron{transform:translateX(4px);color:#63b3ed!important}
+  .stat-mini:hover{border-color:rgba(59,130,246,.3)!important;background:rgba(59,130,246,.04)!important}
+  .quick-btn:hover{background:rgba(59,130,246,.08)!important;transform:scale(1.02)}
+  .activity-row:hover{background:rgba(59,130,246,.05)!important}
+  .activity-row:hover .act-chevron{transform:translateX(4px);color:#3b82f6!important}
   .act-chevron{transition:transform .25s ease,color .25s ease}
-  .hero-btn-primary:hover{background:rgba(255,255,255,.95)!important;box-shadow:0 12px 40px rgba(0,0,0,.35)!important;transform:translateY(-1px)}
-  .hero-btn-secondary:hover{background:rgba(255,255,255,.12)!important}
-  .footer-stat:hover{border-color:rgba(99,179,237,.3)!important;background:rgba(99,179,237,.05)!important}
+  .hero-btn-primary:hover{background:#0f172a!important;box-shadow:0 12px 28px rgba(0,0,0,.08)!important;transform:translateY(-2px)}
+  .hero-btn-secondary:hover{background:rgba(59,130,246,.08)!important;border-color:rgba(59,130,246,.2)!important;color:#1e40af}
+  .footer-stat:hover{border-color:rgba(59,130,246,.2)!important;background:rgba(59,130,246,.02)!important}
   .ticker-item{animation:tickerSlide .4s ease}
 `;
 
@@ -91,6 +102,17 @@ const Home = () => {
     const { user } = useContext(AuthContext);
     const [isVisible, setIsVisible] = useState(false);
     const [activeFeature, setActiveFeature] = useState(0);
+    
+    // Refs for scroll‑reveal sections
+    const headerRef = useRef(null);
+    const heroRef = useRef(null);
+    const servicesRef = useRef(null);
+    const footerRef = useRef(null);
+    
+    const [headerVisible, setHeaderVisible] = useState(false);
+    const [heroVisible, setHeroVisible] = useState(false);
+    const [servicesVisible, setServicesVisible] = useState(false);
+    const [footerVisible, setFooterVisible] = useState(false);
 
     useEffect(() => {
         setIsVisible(true);
@@ -100,6 +122,44 @@ const Home = () => {
         return () => clearInterval(interval);
     }, []);
 
+    // Intersection Observer for scroll animations
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        switch (entry.target) {
+                            case headerRef.current:
+                                setHeaderVisible(true);
+                                break;
+                            case heroRef.current:
+                                setHeroVisible(true);
+                                break;
+                            case servicesRef.current:
+                                setServicesVisible(true);
+                                break;
+                            case footerRef.current:
+                                setFooterVisible(true);
+                                break;
+                            default:
+                                break;
+                        }
+                        // Unobserve after becoming visible for performance
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+        );
+
+        if (headerRef.current) observer.observe(headerRef.current);
+        if (heroRef.current) observer.observe(heroRef.current);
+        if (servicesRef.current) observer.observe(servicesRef.current);
+        if (footerRef.current) observer.observe(footerRef.current);
+
+        return () => observer.disconnect();
+    }, []);
+
     /* ── unchanged data ── */
     const services = [
         {
@@ -107,7 +167,7 @@ const Home = () => {
             icon: <Calendar className="w-7 h-7" style={{ color: '#fff' }} />,
             description: 'Effortlessly reserve facilities, study rooms, and campus resources.',
             gradient: 'linear-gradient(135deg,#3b82f6,#2563eb)',
-            glow: 'rgba(59,130,246,.45)',
+            glow: 'rgba(59,130,246,.35)',
             accent: '#3b82f6',
             stats: '12 active',
             bgIcon: Calendar,
@@ -118,7 +178,7 @@ const Home = () => {
             icon: <Ticket className="w-7 h-7" style={{ color: '#fff' }} />,
             description: 'Streamlined IT and maintenance support with priority tracking.',
             gradient: 'linear-gradient(135deg,#6366f1,#4f46e5)',
-            glow: 'rgba(99,102,241,.45)',
+            glow: 'rgba(99,102,241,.35)',
             accent: '#6366f1',
             stats: '3 pending',
             bgIcon: Ticket,
@@ -129,7 +189,7 @@ const Home = () => {
             icon: <Bell className="w-7 h-7" style={{ color: '#fff' }} />,
             description: 'Real-time campus updates, events, and important notifications.',
             gradient: 'linear-gradient(135deg,#06b6d4,#0891b2)',
-            glow: 'rgba(6,182,212,.45)',
+            glow: 'rgba(6,182,212,.35)',
             accent: '#06b6d4',
             stats: '5 new',
             bgIcon: Bell,
@@ -138,9 +198,9 @@ const Home = () => {
     ];
 
     const quickStats = [
-        { icon: Clock, label: 'Upcoming', value: '3 bookings', color: '#3b82f6', bg: 'rgba(59,130,246,.15)' },
-        { icon: CheckCircle, label: 'Completed', value: '28 tasks', color: '#10b981', bg: 'rgba(16,185,129,.15)' },
-        { icon: TrendingUp, label: 'Activity', value: '+12%', color: '#a78bfa', bg: 'rgba(167,139,250,.15)' }
+        { icon: Clock, label: 'Upcoming', value: '3 bookings', color: '#3b82f6', bg: 'rgba(59,130,246,.12)' },
+        { icon: CheckCircle, label: 'Completed', value: '28 tasks', color: '#10b981', bg: 'rgba(16,185,129,.12)' },
+        { icon: TrendingUp, label: 'Activity', value: '+12%', color: '#a78bfa', bg: 'rgba(167,139,250,.12)' }
     ];
 
     const campusHighlights = [
@@ -156,13 +216,14 @@ const Home = () => {
         { icon: Star, label: 'Satisfaction', value: '4.8/5', change: 'rating', changeColor: '#f59e0b' }
     ];
 
-    /* ── shared token ── */
+    /* ── shared light glass style ── */
     const glass = {
-        background: 'rgba(15,23,42,.55)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255,255,255,.08)',
-        borderRadius: 20
+        background: 'rgba(255,255,255,.85)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(0,0,0,.05)',
+        borderRadius: 20,
+        boxShadow: '0 8px 24px rgba(0,0,0,.02)'
     };
 
     return (
@@ -170,39 +231,38 @@ const Home = () => {
             className="home-root"
             style={{
                 minHeight: '100vh',
-                background: 'linear-gradient(135deg,#050b1a 0%,#0a1628 40%,#0d1f3c 70%,#071020 100%)',
+                background: 'linear-gradient(145deg, #f9fafc 0%, #f1f4f9 100%)',
                 position: 'relative',
                 overflowX: 'hidden'
             }}
         >
             <style>{css}</style>
 
-            {/* ── Animated Orbs ─────────────────────────────────── */}
+            {/* ── Animated Orbs (lighter, softer) ────────────────── */}
             <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
                 <div style={{
                     position: 'absolute', top: '8%', left: '5%',
                     width: 520, height: 520,
-                    background: 'radial-gradient(circle,rgba(59,130,246,.18) 0%,transparent 70%)',
+                    background: 'radial-gradient(circle,rgba(59,130,246,.04) 0%,transparent 70%)',
                     borderRadius: '50%', animation: 'orb1 18s ease-in-out infinite'
                 }} />
                 <div style={{
                     position: 'absolute', top: '30%', right: '3%',
                     width: 420, height: 420,
-                    background: 'radial-gradient(circle,rgba(99,102,241,.16) 0%,transparent 70%)',
+                    background: 'radial-gradient(circle,rgba(99,102,241,.04) 0%,transparent 70%)',
                     borderRadius: '50%', animation: 'orb2 22s ease-in-out infinite'
                 }} />
                 <div style={{
                     position: 'absolute', bottom: '10%', left: '35%',
                     width: 360, height: 360,
-                    background: 'radial-gradient(circle,rgba(6,182,212,.13) 0%,transparent 70%)',
+                    background: 'radial-gradient(circle,rgba(6,182,212,.03) 0%,transparent 70%)',
                     borderRadius: '50%', animation: 'orb3 15s ease-in-out infinite'
                 }} />
-                {/* Subtle grid */}
                 <div style={{
                     position: 'absolute', inset: 0,
                     backgroundImage: `
-                      linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
-                      linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px)`,
+                      linear-gradient(rgba(0,0,0,.02) 1px,transparent 1px),
+                      linear-gradient(90deg,rgba(0,0,0,.02) 1px,transparent 1px)`,
                     backgroundSize: '60px 60px'
                 }} />
             </div>
@@ -210,26 +270,30 @@ const Home = () => {
             {/* ── Main Content ──────────────────────────────────── */}
             <div style={{ position: 'relative', zIndex: 1, maxWidth: 1280, margin: '0 auto', padding: '40px 24px 80px' }}>
 
-                {/* ── Header ──────────────────────────────────────── */}
-                <div className="anim-0" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, marginBottom: 52 }}>
-                    <div>
+                {/* ── Header (scroll reveal) ──────────────────────── */}
+                <div
+                    ref={headerRef}
+                    className={`scroll-reveal ${headerVisible ? 'visible' : ''}`}
+                    style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, marginBottom: 52 }}
+                >
+                    <div className="reveal-delay-1" style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                             <div style={{
                                 padding: '4px 14px', borderRadius: 999,
-                                background: 'rgba(59,130,246,.12)',
-                                border: '1px solid rgba(59,130,246,.3)',
+                                background: 'rgba(59,130,246,.08)',
+                                border: '1px solid rgba(59,130,246,.15)',
                                 display: 'flex', alignItems: 'center', gap: 6
                             }}>
-                                <Sparkles size={13} style={{ color: '#63b3ed' }} />
-                                <span style={{ fontSize: 11, fontWeight: 600, color: '#63b3ed', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'Outfit,sans-serif' }}>
+                                <Sparkles size={13} style={{ color: '#3b82f6' }} />
+                                <span style={{ fontSize: 11, fontWeight: 600, color: '#3b82f6', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'Outfit,sans-serif' }}>
                                     Smart Campus Dashboard
                                 </span>
                             </div>
                         </div>
-                        <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', fontWeight: 800, color: '#f0f6ff', lineHeight: 1.1, margin: '0 0 10px', letterSpacing: '-0.02em' }}>
+                        <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', fontWeight: 800, color: '#1e293b', lineHeight: 1.1, margin: '0 0 10px', letterSpacing: '-0.02em' }}>
                             Welcome back,{' '}
                             <span style={{
-                                background: 'linear-gradient(90deg,#63b3ed,#a78bfa,#67e8f9)',
+                                background: 'linear-gradient(90deg,#3b82f6,#8b5cf6,#06b6d4)',
                                 backgroundSize: '200% auto',
                                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                                 animation: 'shimmer 4s linear infinite'
@@ -237,13 +301,13 @@ const Home = () => {
                                 {user?.name?.split(' ')[0] || 'Student'}
                             </span>
                         </h1>
-                        <p style={{ fontSize: 16, color: 'rgba(148,163,184,.8)', margin: 0, fontWeight: 400, maxWidth: 460 }}>
+                        <p style={{ fontSize: 16, color: '#5b6e8c', margin: 0, fontWeight: 400, maxWidth: 460 }}>
                             Your centralized hub for campus operations and resources
                         </p>
                     </div>
 
                     {/* Quick stats row */}
-                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                    <div className="reveal-delay-2" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                         {quickStats.map((stat, i) => {
                             const Icon = stat.icon;
                             return (
@@ -253,14 +317,15 @@ const Home = () => {
                                     display: 'flex', alignItems: 'center', gap: 12,
                                     cursor: 'default',
                                     transition: 'border-color .25s,background .25s',
-                                    borderRadius: 14
+                                    borderRadius: 14,
+                                    background: 'white'
                                 }}>
                                     <div style={{ padding: 8, borderRadius: 10, background: stat.bg }}>
                                         <Icon size={16} style={{ color: stat.color, display: 'block' }} />
                                     </div>
                                     <div>
-                                        <p style={{ margin: 0, fontSize: 11, color: 'rgba(148,163,184,.7)', fontWeight: 500 }}>{stat.label}</p>
-                                        <p style={{ margin: 0, fontSize: 14, color: '#e2e8f0', fontWeight: 600 }}>{stat.value}</p>
+                                        <p style={{ margin: 0, fontSize: 11, color: '#6c7a91', fontWeight: 500 }}>{stat.label}</p>
+                                        <p style={{ margin: 0, fontSize: 14, color: '#1e293b', fontWeight: 600 }}>{stat.value}</p>
                                     </div>
                                 </div>
                             );
@@ -268,58 +333,61 @@ const Home = () => {
                     </div>
                 </div>
 
-                {/* ── Hero 2-col ───────────────────────────────────── */}
-                <div className="anim-1" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.15fr) minmax(0,.85fr)', gap: 24, marginBottom: 56, alignItems: 'stretch' }}>
-
-                    {/* Left — Main hero card */}
-                    <div style={{
-                        background: 'linear-gradient(135deg,#1a3a6b 0%,#1e3a8a 40%,#1e2d70 100%)',
+                {/* ── Hero 2-col (scroll reveal) ───────────────────── */}
+                <div
+                    ref={heroRef}
+                    className={`scroll-reveal ${heroVisible ? 'visible' : ''}`}
+                    style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.15fr) minmax(0,.85fr)', gap: 24, marginBottom: 56, alignItems: 'stretch' }}
+                >
+                    {/* Left — Main hero card (Light, modern, no dark) */}
+                    <div className="reveal-delay-1" style={{
+                        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
                         borderRadius: 28,
                         padding: '44px 48px',
                         position: 'relative',
                         overflow: 'hidden',
-                        border: '1px solid rgba(99,179,237,.2)'
+                        border: '1px solid rgba(0,0,0,.04)',
+                        boxShadow: '0 20px 35px -12px rgba(0,0,0,.08)'
                     }}>
-                        {/* inner glow */}
-                        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 80% 10%,rgba(99,179,237,.15) 0%,transparent 60%)', pointerEvents: 'none' }} />
-                        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 10% 90%,rgba(167,139,250,.12) 0%,transparent 55%)', pointerEvents: 'none' }} />
+                        {/* inner glow (subtle) */}
+                        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 80% 10%,rgba(59,130,246,.06) 0%,transparent 60%)', pointerEvents: 'none' }} />
 
                         <div style={{ position: 'relative', zIndex: 1 }}>
                             {/* Status pill */}
                             <div style={{
                                 display: 'inline-flex', alignItems: 'center', gap: 8,
                                 padding: '6px 16px', borderRadius: 999, marginBottom: 28,
-                                background: 'rgba(16,185,129,.12)',
-                                border: '1px solid rgba(16,185,129,.25)'
+                                background: 'rgba(16,185,129,.1)',
+                                border: '1px solid rgba(16,185,129,.15)'
                             }}>
                                 <span style={{ position: 'relative', display: 'inline-block', width: 8, height: 8 }}>
                                     <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981', animation: 'pulse-ring 1.8s ease-out infinite' }} />
                                     <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981' }} />
                                 </span>
-                                <Activity size={13} style={{ color: '#34d399' }} />
-                                <span style={{ fontSize: 12, fontWeight: 600, color: '#34d399', letterSpacing: '.06em' }}>System Status: Optimal</span>
+                                <Activity size={13} style={{ color: '#10b981' }} />
+                                <span style={{ fontSize: 12, fontWeight: 600, color: '#2c7a4d', letterSpacing: '.06em' }}>System Status: Optimal</span>
                             </div>
 
-                            <h2 style={{ fontSize: 'clamp(26px,2.8vw,38px)', fontWeight: 700, color: '#f0f9ff', lineHeight: 1.2, margin: '0 0 16px', letterSpacing: '-0.015em' }}>
+                            <h2 style={{ fontSize: 'clamp(26px,2.8vw,38px)', fontWeight: 700, color: '#1e293b', lineHeight: 1.2, margin: '0 0 16px', letterSpacing: '-0.015em' }}>
                                 Everything you need,{' '}
-                                <span style={{ color: '#93c5fd' }}>one platform</span>
+                                <span style={{ color: '#5b6e8c' }}>one platform</span>
                             </h2>
 
-                            <p style={{ fontSize: 15, color: 'rgba(186,230,253,.75)', lineHeight: 1.75, margin: '0 0 32px', maxWidth: 460, fontWeight: 400 }}>
+                            <p style={{ fontSize: 15, color: '#5b6e8c', lineHeight: 1.65, margin: '0 0 32px', maxWidth: 460, fontWeight: 400 }}>
                                 Access bookings, track tickets, and stay informed with real-time
                                 campus updates. Your seamless campus experience starts here.
                             </p>
 
                             {/* Rotating feature ticker */}
                             <div style={{
-                                background: 'rgba(0,0,0,.25)',
+                                background: 'rgba(59,130,246,.03)',
                                 borderRadius: 16, padding: '18px 22px',
-                                border: '1px solid rgba(255,255,255,.07)',
+                                border: '1px solid rgba(59,130,246,.1)',
                                 marginBottom: 32
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                                    <Zap size={14} style={{ color: '#fbbf24' }} />
-                                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(186,230,253,.55)', letterSpacing: '.12em', textTransform: 'uppercase' }}>
+                                    <Zap size={14} style={{ color: '#eab308' }} />
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: '#7e8b9f', letterSpacing: '.12em', textTransform: 'uppercase' }}>
                                         Featured Service
                                     </span>
                                 </div>
@@ -332,18 +400,17 @@ const Home = () => {
                                             transform: activeFeature === i ? 'translateY(0)' : 'translateY(10px)',
                                             pointerEvents: activeFeature === i ? 'auto' : 'none'
                                         }}>
-                                            <p style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 700, color: '#f0f9ff', fontFamily: 'Sora,sans-serif' }}>{svc.title}</p>
-                                            <p style={{ margin: 0, fontSize: 13, color: 'rgba(186,230,253,.6)' }}>{svc.features[0]}</p>
+                                            <p style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 700, color: '#1e293b', fontFamily: 'Sora,sans-serif' }}>{svc.title}</p>
+                                            <p style={{ margin: 0, fontSize: 13, color: '#6c7a91' }}>{svc.features[0]}</p>
                                         </div>
                                     ))}
                                 </div>
-                                {/* ticker dots */}
                                 <div style={{ display: 'flex', gap: 6, marginTop: 14 }}>
                                     {services.map((_, i) => (
                                         <div key={i} style={{
                                             height: 3, borderRadius: 99,
                                             width: activeFeature === i ? 24 : 8,
-                                            background: activeFeature === i ? '#63b3ed' : 'rgba(255,255,255,.18)',
+                                            background: activeFeature === i ? '#3b82f6' : 'rgba(59,130,246,.2)',
                                             transition: 'width .4s ease, background .4s ease'
                                         }} />
                                     ))}
@@ -354,9 +421,9 @@ const Home = () => {
                                 <button className="hero-btn-primary" style={{
                                     display: 'inline-flex', alignItems: 'center', gap: 8,
                                     padding: '14px 28px', borderRadius: 12, border: 'none',
-                                    background: '#fff', color: '#1e3a8a',
+                                    background: '#1e293b', color: '#ffffff',
                                     fontWeight: 700, fontSize: 14, cursor: 'pointer',
-                                    boxShadow: '0 8px 24px rgba(0,0,0,.25)',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,.05)',
                                     transition: 'all .25s ease', fontFamily: 'Outfit,sans-serif'
                                 }}>
                                     Quick Booking
@@ -365,10 +432,10 @@ const Home = () => {
                                 <button className="hero-btn-secondary" style={{
                                     display: 'inline-flex', alignItems: 'center', gap: 8,
                                     padding: '14px 28px', borderRadius: 12,
-                                    background: 'rgba(255,255,255,.07)',
-                                    border: '1px solid rgba(255,255,255,.15)',
-                                    color: '#e0f2fe', fontWeight: 600, fontSize: 14,
-                                    cursor: 'pointer', transition: 'background .25s', fontFamily: 'Outfit,sans-serif'
+                                    background: 'transparent',
+                                    border: '1px solid #cbd5e1',
+                                    color: '#475569', fontWeight: 600, fontSize: 14,
+                                    cursor: 'pointer', transition: 'all .25s', fontFamily: 'Outfit,sans-serif'
                                 }}>
                                     View Schedule
                                 </button>
@@ -376,22 +443,21 @@ const Home = () => {
                         </div>
 
                         {/* decorative */}
-                        <Layers style={{ position: 'absolute', right: -24, bottom: -20, width: 180, height: 180, color: 'rgba(255,255,255,.03)', transform: 'rotate(15deg)' }} />
+                        <Layers style={{ position: 'absolute', right: -24, bottom: -20, width: 180, height: 180, color: 'rgba(0,0,0,.02)', transform: 'rotate(15deg)' }} />
                     </div>
 
                     {/* Right — Activity + Quick actions */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-
                         {/* Live Activity */}
-                        <div style={{ ...glass, padding: '24px 26px', flex: 1 }}>
+                        <div className="reveal-delay-2" style={{ ...glass, padding: '24px 26px', flex: 1, background: 'white' }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
-                                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#e2e8f0' }}>Live Activity</h3>
+                                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#1e293b' }}>Live Activity</h3>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                     <span style={{ position: 'relative', width: 8, height: 8, display: 'inline-block' }}>
                                         <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981', animation: 'pulse-ring 1.8s ease-out infinite' }} />
                                         <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981' }} />
                                     </span>
-                                    <span style={{ fontSize: 11, color: '#34d399', fontWeight: 600 }}>Live</span>
+                                    <span style={{ fontSize: 11, color: '#10b981', fontWeight: 600 }}>Live</span>
                                 </div>
                             </div>
 
@@ -406,17 +472,17 @@ const Home = () => {
                                         }}>
                                             <div style={{
                                                 padding: 9, borderRadius: 10,
-                                                background: `${item.color}18`,
-                                                border: `1px solid ${item.color}25`,
+                                                background: `${item.color}10`,
+                                                border: `1px solid ${item.color}15`,
                                                 flexShrink: 0
                                             }}>
                                                 <Icon size={14} style={{ color: item.color, display: 'block' }} />
                                             </div>
                                             <div style={{ flex: 1, minWidth: 0 }}>
-                                                <p style={{ margin: 0, fontSize: 13, color: '#cbd5e1', lineHeight: 1.4, fontWeight: 400 }}>{item.text}</p>
-                                                <p style={{ margin: 0, fontSize: 11, color: 'rgba(148,163,184,.5)', marginTop: 2 }}>{item.time}</p>
+                                                <p style={{ margin: 0, fontSize: 13, color: '#334155', lineHeight: 1.4, fontWeight: 400 }}>{item.text}</p>
+                                                <p style={{ margin: 0, fontSize: 11, color: '#6c7a91', marginTop: 2 }}>{item.time}</p>
                                             </div>
-                                            <ChevronRight size={14} className="act-chevron" style={{ color: 'rgba(148,163,184,.3)', flexShrink: 0 }} />
+                                            <ChevronRight size={14} className="act-chevron" style={{ color: '#94a3b8', flexShrink: 0 }} />
                                         </div>
                                     );
                                 })}
@@ -424,20 +490,20 @@ const Home = () => {
                         </div>
 
                         {/* Quick Actions */}
-                        <div style={{
+                        <div className="reveal-delay-3" style={{
                             borderRadius: 20, padding: '22px 24px',
-                            background: 'linear-gradient(135deg,rgba(59,130,246,.2),rgba(99,102,241,.2))',
-                            border: '1px solid rgba(99,179,237,.2)',
-                            backdropFilter: 'blur(20px)'
+                            background: 'white',
+                            border: '1px solid rgba(59,130,246,.1)',
+                            boxShadow: '0 10px 25px -8px rgba(59,130,246,.1)'
                         }}>
-                            <h3 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 700, color: '#bae6fd', letterSpacing: '.02em' }}>Quick Actions</h3>
+                            <h3 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 700, color: '#3b82f6', letterSpacing: '.02em' }}>Quick Actions</h3>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                                 {['Book Room', 'Raise Ticket', 'Check Events', 'View Map'].map((action, i) => (
                                     <button key={i} className="quick-btn" style={{
                                         padding: '11px 14px', borderRadius: 12,
-                                        background: 'rgba(255,255,255,.08)',
-                                        border: '1px solid rgba(255,255,255,.12)',
-                                        color: '#e0f2fe', fontSize: 13, fontWeight: 500,
+                                        background: '#f8fafc',
+                                        border: '1px solid #e2e8f0',
+                                        color: '#334155', fontSize: 13, fontWeight: 500,
                                         cursor: 'pointer', transition: 'all .2s ease',
                                         fontFamily: 'Outfit,sans-serif', textAlign: 'center'
                                     }}>
@@ -449,38 +515,45 @@ const Home = () => {
                     </div>
                 </div>
 
-                {/* ── Service Cards ──────────────────────────────────── */}
-                <div className="anim-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 24, marginBottom: 56 }}>
+                {/* ── Service Cards (scroll reveal) ───────────────────── */}
+                <div
+                    ref={servicesRef}
+                    className={`scroll-reveal ${servicesVisible ? 'visible' : ''}`}
+                    style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 24, marginBottom: 56 }}
+                >
                     {services.map((svc, i) => {
                         const BgIcon = svc.bgIcon;
                         return (
-                            <div key={i} className="service-card" style={{
-                                ...glass,
-                                padding: '32px 28px',
-                                cursor: 'pointer',
-                                position: 'relative',
-                                overflow: 'hidden',
-                                animationDelay: `${i * 120}ms`
-                            }}>
-                                {/* bg watermark icon */}
+                            <div
+                                key={i}
+                                className={`service-card reveal-delay-${(i % 3) + 1}`}
+                                style={{
+                                    ...glass,
+                                    background: 'white',
+                                    padding: '32px 28px',
+                                    cursor: 'pointer',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    boxShadow: '0 8px 20px rgba(0,0,0,.02)'
+                                }}
+                            >
                                 <BgIcon style={{
                                     position: 'absolute', right: -18, bottom: -18,
                                     width: 110, height: 110,
-                                    color: 'rgba(255,255,255,.03)'
+                                    color: 'rgba(59,130,246,.03)'
                                 }} />
 
-                                {/* Glow on card */}
                                 <div style={{
                                     position: 'absolute', top: 0, left: 0,
                                     width: '100%', height: 2,
                                     background: svc.gradient, borderRadius: '20px 20px 0 0'
                                 }} />
 
-                                {/* Icon */}
                                 <div style={{ position: 'relative', display: 'inline-block', marginBottom: 22 }}>
                                     <div style={{
                                         position: 'absolute', inset: -4, borderRadius: 18,
-                                        background: svc.glow, filter: 'blur(14px)'
+                                        background: svc.glow, filter: 'blur(12px)',
+                                        opacity: 0.4
                                     }} />
                                     <div className="card-icon-wrap" style={{
                                         position: 'relative',
@@ -492,35 +565,31 @@ const Home = () => {
                                     </div>
                                 </div>
 
-                                {/* Stats badge */}
                                 <span style={{
                                     position: 'absolute', top: 26, right: 24,
-                                    background: 'rgba(255,255,255,.06)',
-                                    border: '1px solid rgba(255,255,255,.1)',
-                                    color: '#93c5fd', fontSize: 11, fontWeight: 600,
+                                    background: 'rgba(59,130,246,.08)',
+                                    border: '1px solid rgba(59,130,246,.1)',
+                                    color: '#3b82f6', fontSize: 11, fontWeight: 600,
                                     padding: '4px 12px', borderRadius: 999
                                 }}>{svc.stats}</span>
 
-                                <h3 style={{ margin: '0 0 10px', fontSize: 20, fontWeight: 700, color: '#f0f6ff' }}>{svc.title}</h3>
-                                <p style={{ margin: '0 0 20px', fontSize: 14, color: 'rgba(148,163,184,.75)', lineHeight: 1.7, fontWeight: 400 }}>{svc.description}</p>
+                                <h3 style={{ margin: '0 0 10px', fontSize: 20, fontWeight: 700, color: '#1e293b' }}>{svc.title}</h3>
+                                <p style={{ margin: '0 0 20px', fontSize: 14, color: '#5b6e8c', lineHeight: 1.6, fontWeight: 400 }}>{svc.description}</p>
 
-                                {/* Features */}
                                 <div style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
                                     {svc.features.map((f, fi) => (
                                         <div key={fi} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                             <div style={{ width: 5, height: 5, borderRadius: '50%', background: svc.accent, flexShrink: 0 }} />
-                                            <span style={{ fontSize: 13, color: 'rgba(148,163,184,.65)', fontWeight: 400 }}>{f}</span>
+                                            <span style={{ fontSize: 13, color: '#475569', fontWeight: 400 }}>{f}</span>
                                         </div>
                                     ))}
                                 </div>
 
-                                {/* CTA */}
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <span style={{ fontSize: 14, fontWeight: 600, color: svc.accent }}>Access Portal</span>
                                     <ChevronRight size={16} className="card-arrow" style={{ color: svc.accent }} />
                                 </div>
 
-                                {/* Bottom line */}
                                 <div className="card-line" style={{
                                     position: 'absolute', bottom: 0, left: 0,
                                     width: '100%', height: 2,
@@ -531,28 +600,38 @@ const Home = () => {
                     })}
                 </div>
 
-                {/* ── Footer Stats ───────────────────────────────────── */}
-                <div className="anim-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16 }}>
+                {/* ── Footer Stats (scroll reveal) ───────────────────── */}
+                <div
+                    ref={footerRef}
+                    className={`scroll-reveal ${footerVisible ? 'visible' : ''}`}
+                    style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16 }}
+                >
                     {footerStats.map((stat, i) => {
                         const Icon = stat.icon;
                         return (
-                            <div key={i} className="footer-stat" style={{
-                                ...glass,
-                                padding: '22px 24px',
-                                cursor: 'default',
-                                transition: 'border-color .25s,background .25s',
-                                borderRadius: 16
-                            }}>
+                            <div
+                                key={i}
+                                className={`footer-stat reveal-delay-${(i % 3) + 1}`}
+                                style={{
+                                    ...glass,
+                                    background: 'white',
+                                    padding: '22px 24px',
+                                    cursor: 'default',
+                                    transition: 'border-color .25s,background .25s',
+                                    borderRadius: 16,
+                                    boxShadow: '0 4px 12px rgba(0,0,0,.02)'
+                                }}
+                            >
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                                    <Icon size={18} style={{ color: '#60a5fa' }} />
-                                    <span style={{ fontSize: 11, fontWeight: 600, color: stat.changeColor, background: `${stat.changeColor}18`, padding: '3px 10px', borderRadius: 999 }}>
+                                    <Icon size={18} style={{ color: '#3b82f6' }} />
+                                    <span style={{ fontSize: 11, fontWeight: 600, color: stat.changeColor, background: `${stat.changeColor}10`, padding: '3px 10px', borderRadius: 999 }}>
                                         {stat.change}
                                     </span>
                                 </div>
-                                <p style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 700, color: '#f0f6ff', fontFamily: 'Sora,sans-serif', letterSpacing: '-0.02em' }}>
+                                <p style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 700, color: '#1e293b', fontFamily: 'Sora,sans-serif', letterSpacing: '-0.02em' }}>
                                     {stat.value}
                                 </p>
-                                <p style={{ margin: 0, fontSize: 13, color: 'rgba(148,163,184,.6)', fontWeight: 400 }}>{stat.label}</p>
+                                <p style={{ margin: 0, fontSize: 13, color: '#6c7a91', fontWeight: 400 }}>{stat.label}</p>
                             </div>
                         );
                     })}

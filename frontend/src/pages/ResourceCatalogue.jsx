@@ -104,7 +104,7 @@ const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick, onRowClick
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-3xl font-black text-slate-800 tracking-tighter">Facilities Management</h1>
-                    <p className="text-sm text-slate-500 font-bold italic tracking-tighter uppercase">Administrative Control Panel</p>
+                    <p className="text-sm text-slate-500 font-bold tracking-tighter uppercase">Administrative Control Panel</p>
                 </div>
                 
                 <div className="flex items-center space-x-3">
@@ -188,11 +188,11 @@ const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick, onRowClick
             {loading ? (
                 <div className="py-20 text-center">
                     <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mb-4"></div>
-                    <p className="text-slate-400 font-bold italic tracking-tighter">Updating catalogue...</p>
+                    <p className="text-slate-400 font-bold tracking-tighter">Updating catalogue...</p>
                 </div>
             ) : filteredResources.length === 0 ? (
                 <div className="text-center bg-slate-50 border border-slate-100 p-12 rounded-3xl">
-                    <p className="text-slate-400 font-black italic tracking-tighter uppercase mb-4">
+                    <p className="text-slate-400 font-black tracking-tighter uppercase mb-4">
                         {searchTerm || Object.values(filters).some(v => v !== '') 
                             ? "No matching facilities found" 
                             : "No resources registered in the system"}
@@ -215,7 +215,7 @@ const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick, onRowClick
                                 <th className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase tracking-widest">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 italic font-medium text-slate-600">
+                        <tbody className="divide-y divide-slate-100 font-medium text-slate-600">
                             {filteredResources.map((resource) => (
                                 <tr 
                                     key={resource.id} 
@@ -227,7 +227,7 @@ const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick, onRowClick
                                                 <Building2 size={20} />
                                             </div>
                                             <div className="ml-4">
-                                                <div className="text-sm font-black text-slate-900 not-italic group-hover:text-blue-600">{resource.name}</div>
+                                                <div className="text-sm font-black text-slate-900 group-hover:text-blue-600">{resource.name}</div>
                                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{resource.resourceCode}</div>
                                             </div>
                                         </div>
