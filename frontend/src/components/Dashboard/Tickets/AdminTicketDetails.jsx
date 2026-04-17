@@ -21,7 +21,10 @@ import {
     MessageCircle,
     Wrench,
     Box,
-    Save
+    Save,
+    Lock,
+    ShieldCheck,
+    History
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../../api/axiosConfig';
@@ -40,6 +43,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
     const [isRejecting, setIsRejecting] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
     const [isAssigning, setIsAssigning] = useState(false);
+    const [showCloseModal, setShowCloseModal] = useState(false);
     const [selectedTechnicianId, setSelectedTechnicianId] = useState('');
     const [selectedPreviewImage, setSelectedPreviewImage] = useState(null);
     const [activeMenuId, setActiveMenuId] = useState(null);
@@ -122,15 +126,6 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                             try {
                                 await api.put(`/tickets/${ticketId}/assign`, { technicianId: selectedTechnicianId });
                                 
-                                try {
-                                    await api.put(`/tickets/${ticketId}/status`, { 
-                                        status: 'IN_PROGRESS', 
-                                        notes: `Protocol: Deployed tech ${tech?.name} to incident` 
-                                    });
-                                } catch (statusErr) {
-                                    console.error('Deployment sync failed', statusErr);
-                                }
-
                                 toast.success('Technician Deployed Successfully', { id: loadingToast });
                                 fetchTicketDetails();
                                 onUpdate();
@@ -212,10 +207,10 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
             <div className="flex items-center justify-between mb-8 group">
                 <button
                     onClick={onClose}
-                    className="flex items-center px-5 py-2.5 bg-white border border-slate-100 rounded-2xl text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all shadow-sm"
+                    className="flex items-center px-5 py-2.5 bg-white border border-slate-100 rounded-2xl text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                    Back to Command Center
+                    Back to Ticket Management
                 </button>
             </div>
 
@@ -286,6 +281,18 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                             {ticket.department
                                                 ? ticket.department.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
                                                 : 'General'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center border-t border-slate-50 pt-6 md:border-none md:pt-0">
+                                    <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
+                                        <Tag className="w-5 h-5 text-slate-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Resource Type</p>
+                                        <p className="text-sm font-bold text-slate-700 leading-none">
+                                            {ticket.resourceType ? ticket.resourceType.replace(/_/g, ' ') : 'Uncategorized'}
                                         </p>
                                     </div>
                                 </div>
@@ -398,34 +405,54 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 <p className="text-[11px] font-black uppercase text-slate-600 mb-3 flex items-center">
                                     <UserPlus className="w-3.5 h-3.5 mr-2 text-indigo-500" />
                                     Security & Tech Assignment
-                                </p>
+                                </p>                                        {ticket.assignedTo ? (
+                                            <div className="space-y-4">
+                                                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex items-start group animate-in fade-in duration-500">
+                                                    <div className="w-11 h-11 rounded-xl bg-white border border-slate-100 flex items-center justify-center mr-4 font-black text-indigo-500 text-sm shadow-sm flex-shrink-0">
+                                                        {ticket.assignedToName?.substring(0, 1) || 'T'}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className="mb-3">
+                                                            <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Assigned Technician</p>
+                                                            <p className="text-xs font-bold text-slate-700">{ticket.assignedToName || 'Technician'}</p>
+                                                        </div>
 
-                                {['CLOSED', 'REJECTED'].includes(ticket.status) ? (
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            {['CLOSED', 'REJECTED'].includes(ticket.status) ? (
+                                                                <div className="p-1 px-3 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg text-[8px] font-black uppercase tracking-widest flex items-center shadow-sm">
+                                                                    <Lock className="w-2.5 h-2.5 mr-1.5" /> Accepted
+                                                                </div>
+                                                            ) : ticket.status === 'OPEN' ? (
+                                                                <div className="p-1 px-3 bg-amber-50 text-amber-600 border border-amber-100 rounded-lg text-[8px] font-black uppercase tracking-widest flex items-center shadow-sm animate-pulse">
+                                                                    <Clock className="w-2.5 h-2.5 mr-1.5" /> Awaiting Acceptance
+                                                                </div>
+                                                            ) : (
+                                                                <div className="p-1 px-3 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg text-[8px] font-black uppercase tracking-widest flex items-center shadow-sm">
+                                                                    <ShieldCheck className="w-2.5 h-2.5 mr-1.5" /> Active Protocol
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {ticket.status === 'OPEN' && (
+                                                    <button
+                                                        onClick={() => setIsAssigning(true)}
+                                                        className="w-full flex items-center justify-center space-x-2 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 hover:border-indigo-300 hover:text-indigo-600 transition-all shadow-sm group cursor-pointer"
+                                                    >
+                                                        <Edit2 className="w-3.5 h-3.5" />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">Reassign Technician</span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ) : ['CLOSED', 'REJECTED'].includes(ticket.status) ? (
                                     <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 border-dashed flex flex-col items-center justify-center text-center animate-in fade-in duration-500">
                                         <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center mb-3 shadow-sm border border-slate-100">
                                             <ShieldAlert className="w-5 h-5 text-slate-300" />
                                         </div>
                                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 max-w-[150px] leading-relaxed">
-                                            Assignment Locked for {ticket.status} ticket
+                                            Incident finalized without technician assignment
                                         </p>
-                                    </div>
-                                ) : ticket.assignedTo ? (
-                                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between group">
-                                        <div className="flex items-center">
-                                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center mr-3 font-black text-indigo-500 text-xs shadow-sm">
-                                                {ticket.assignedToName?.substring(0, 1) || 'T'}
-                                            </div>
-                                            <div>
-                                                <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Assigned Resolver</p>
-                                                <p className="text-xs font-bold text-slate-700">{ticket.assignedToName || 'Technician'}</p>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={() => setIsAssigning(true)}
-                                            className="p-1 px-3 bg-white text-slate-400 border border-slate-100 rounded-lg text-[9px] font-black uppercase tracking-widest hover:text-indigo-600 transition-colors opacity-0 group-hover:opacity-100"
-                                        >
-                                            Change
-                                        </button>
                                     </div>
                                 ) : (
                                     <button
@@ -492,11 +519,11 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
 
                                     {ticket.status === 'RESOLVED' && (
                                         <button
-                                            onClick={() => handleStatusUpdate('CLOSED')}
-                                            className="w-full p-4 flex items-center justify-between bg-slate-800 text-white rounded-2xl hover:bg-slate-900 transition-all shadow-lg shadow-slate-200"
+                                            onClick={() => setShowCloseModal(true)}
+                                            className="w-full p-4 flex items-center justify-between bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-100 cursor-pointer"
                                         >
-                                            <span className="text-[10px] font-black uppercase tracking-widest">Close Incident</span>
-                                            <ArrowLeft className="w-4 h-4 rotate-180" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest">Close Ticket</span>
+                                            <CheckCircle2 className="w-4 h-4" />
                                         </button>
                                     )}
                                 </div>
@@ -555,7 +582,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                                         comment.authorRole === 'TECHNICIAN' ? 'bg-amber-500 text-white border-amber-400' :
                                                             'bg-slate-400 text-white border-slate-300'
                                                     }`}>
-                                                    {comment.authorRole === 'USER' ? 'Staff/Student' : comment.authorRole}
+                                                    {comment.authorRole === 'USER' ? 'User' : comment.authorRole}
                                                 </span>
                                             ) : comment.userId !== user?.id && (
                                                 <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 uppercase tracking-widest border border-slate-200">
@@ -692,6 +719,43 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Close Confirmation Modal */}
+            <Modal 
+                isOpen={showCloseModal} 
+                onClose={() => setShowCloseModal(false)} 
+                title="Confirm Ticket Closure"
+            >
+                <div className="p-2">
+                    <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                        <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+                    </div>
+                    <div className="text-center space-y-3 mb-8">
+                        <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight">Close this Ticket?</h4>
+                        <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                            Closing this ticket will move it to the **History** section. No further updates or technician assignments will be possible. The reported user will receive a final completion notification.
+                        </p>
+                    </div>
+                    
+                    <div className="flex flex-col space-y-3">
+                        <button
+                            onClick={() => {
+                                handleStatusUpdate('CLOSED');
+                                setShowCloseModal(false);
+                            }}
+                            className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-emerald-100 cursor-pointer"
+                        >
+                            Yes, Close Ticket
+                        </button>
+                        <button
+                            onClick={() => setShowCloseModal(false)}
+                            className="w-full py-4 bg-slate-50 text-slate-400 hover:text-slate-600 rounded-2xl font-black uppercase tracking-widest text-xs transition-all border border-slate-100 cursor-pointer"
+                        >
+                            Back to Review
+                        </button>
+                    </div>
+                </div>
+            </Modal>
 
             {/* Image Preview Modal */}
             <Modal

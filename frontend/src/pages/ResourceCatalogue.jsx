@@ -219,8 +219,7 @@ const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick, onRowClick
                             {filteredResources.map((resource) => (
                                 <tr 
                                     key={resource.id} 
-                                    onClick={() => onRowClick ? onRowClick(resource.id) : navigate(`/resources/${resource.id}`)}
-                                    className="hover:bg-blue-50/50 cursor-pointer transition-colors group"
+                                    className="hover:bg-blue-50/50 transition-colors group"
                                 >
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">
