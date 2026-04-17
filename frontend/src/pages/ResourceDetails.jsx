@@ -199,7 +199,7 @@ const ResourceDetails = ({ resourceId, onClose, onEdit }) => {
                         {user?.role === 'USER' && resource.bookable && (
                             <div className="shrink-0">
                                 <button
-                                    onClick={() => navigate('/bookings', { state: { resourceId: id, resourceName: resource.name } })}
+                                    onClick={() => navigate('/bookings', { state: { resourceId: id, resourceName: resource.name, resourceType: resource.type } })}
                                     className="w-full md:w-auto px-8 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-lg shadow-blue-500/20 active:scale-95"
                                 >
                                     Book Now

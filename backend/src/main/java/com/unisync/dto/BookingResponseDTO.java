@@ -1,6 +1,7 @@
 package com.unisync.dto;
 
 import com.unisync.enums.BookingStatus;
+import com.unisync.enums.ResourceType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class BookingResponseDTO {
     private LocalTime endTime;
     private String purpose;
     private Integer attendees;
+    private ResourceType resourceType;
     private BookingStatus status;
     private String rejectionReason;
     private LocalDateTime createdAt;

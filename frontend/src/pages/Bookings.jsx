@@ -14,6 +14,7 @@ const Bookings = () => {
     const [formData, setFormData] = useState({
         resourceId: location.state?.resourceId || '',
         resourceName: location.state?.resourceName || '',
+        resourceType: location.state?.resourceType || '',
         date: '',
         startTime: '',
         endTime: '',
@@ -185,7 +186,9 @@ const Bookings = () => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-bold text-slate-700 uppercase tracking-wider mb-2">Expected Attendees</label>
+                                            <label className="block text-sm font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                                {formData.resourceType === 'EQUIPMENT' ? 'Quantity / Count' : 'Expected Attendees'}
+                                            </label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                                     <Users className="h-5 w-5 text-slate-400" />
@@ -197,6 +200,7 @@ const Bookings = () => {
                                                     required
                                                     value={formData.attendees}
                                                     onChange={handleInputChange}
+                                                    placeholder={formData.resourceType === 'EQUIPMENT' ? 'Enter quantity' : 'Number of attendees'}
                                                     className="block w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                                 />
                                             </div>

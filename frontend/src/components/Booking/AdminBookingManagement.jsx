@@ -10,6 +10,8 @@ const AdminBookingManagement = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
+    const [typeFilter, setTypeFilter] = useState('ALL');
+    const [sortBy, setSortBy] = useState('PENDING_FIRST');
 
     useEffect(() => {
         fetchBookings();
@@ -17,7 +19,7 @@ const AdminBookingManagement = () => {
 
     useEffect(() => {
         applyFilters();
-    }, [bookings, searchTerm, statusFilter]);
+    }, [bookings, searchTerm, statusFilter, typeFilter, sortBy]);
 
     const fetchBookings = async () => {
         try {
@@ -48,6 +50,27 @@ const AdminBookingManagement = () => {
         if (statusFilter !== 'ALL') {
             result = result.filter(b => b.status === statusFilter);
         }
+
+        // Type Filter
+        if (typeFilter !== 'ALL') {
+            result = result.filter(b => b.resourceType === typeFilter);
+        }
+
+        // Sorting
+        result.sort((a, b) => {
+            if (sortBy === 'PENDING_FIRST') {
+                if (a.status === 'PENDING' && b.status !== 'PENDING') return -1;
+                if (a.status !== 'PENDING' && b.status === 'PENDING') return 1;
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            } else if (sortBy === 'NEWEST') {
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            } else if (sortBy === 'OLDEST') {
+                return new Date(a.createdAt) - new Date(b.createdAt);
+            } else if (sortBy === 'BOOKING_DATE') {
+                return new Date(a.date) - new Date(b.date);
+            }
+            return 0;
+        });
 
         setFilteredBookings(result);
     };
@@ -137,12 +160,12 @@ const AdminBookingManagement = () => {
                         />
                     </div>
 
-                    <div className="flex items-center space-x-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
                         {['ALL', 'PENDING', 'APPROVED', 'REJECTED'].map((filter) => (
                             <button
                                 key={filter}
                                 onClick={() => setStatusFilter(filter)}
-                                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
                                     statusFilter === filter ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
                                 }`}
                             >
@@ -150,6 +173,29 @@ const AdminBookingManagement = () => {
                             </button>
                         ))}
                     </div>
+
+                    <select 
+                        value={typeFilter}
+                        onChange={(e) => setTypeFilter(e.target.value)}
+                        className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none transition shadow-sm"
+                    >
+                        <option value="ALL">All Types</option>
+                        <option value="LECTURE_HALL">Lecture Halls</option>
+                        <option value="LAB">Laboratories</option>
+                        <option value="EQUIPMENT">Equipment</option>
+                        <option value="MEETING_ROOM">Meeting Rooms</option>
+                    </select>
+
+                    <select 
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-blue-500 outline-none transition shadow-sm"
+                    >
+                        <option value="PENDING_FIRST">Priority: Pending</option>
+                        <option value="NEWEST">Latest Submitted</option>
+                        <option value="OLDEST">Oldest Submitted</option>
+                        <option value="BOOKING_DATE">Booking Date</option>
+                    </select>
                 </div>
             </div>
 
@@ -165,90 +211,93 @@ const AdminBookingManagement = () => {
                     <p className="text-slate-500 font-medium mt-2">Adjust your filters or check back later for new requests.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-12">
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 pb-12">
                     {filteredBookings.map((booking) => (
-                        <div key={booking.id} className="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all group overflow-hidden relative">
+                        <div key={booking.id} className="bg-white rounded-[1.5rem] border border-slate-100 p-5 shadow-sm hover:shadow-lg hover:shadow-blue-500/5 transition-all group overflow-hidden relative flex flex-col">
                             {/* Status Accent Bar */}
-                            <div className={`absolute left-0 top-0 bottom-0 w-2 ${
+                            <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${
                                 booking.status === 'APPROVED' ? 'bg-emerald-500' : 
                                 booking.status === 'REJECTED' ? 'bg-rose-500' : 
                                 booking.status === 'CANCELLED' ? 'bg-slate-400' : 'bg-amber-400'
                             }`} />
 
-                            <div className="flex items-start justify-between mb-8">
-                                <div className="space-y-1">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded">
-                                            Request ID: {booking.id.substring(0, 8)}
-                                        </span>
-                                        <span className={`px-3 py-1 rounded-full border text-[10px] font-black uppercase flex items-center ${getStatusBadge(booking.status)}`}>
-                                            <Circle className="w-2 h-2 mr-2 fill-current" />
+                            <div className="flex items-start justify-between mb-5">
+                                <div className="space-y-0.5">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <span className={`px-2 py-0.5 rounded-full border text-[9px] font-black uppercase flex items-center ${getStatusBadge(booking.status)}`}>
+                                            <Circle className="w-1.5 h-1.5 mr-1.5 fill-current" />
                                             {booking.status}
                                         </span>
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded">
+                                            {booking.resourceType?.replace(/_/g, ' ')}
+                                        </span>
                                     </div>
-                                    <h3 className="text-2xl font-black text-slate-800 group-hover:text-blue-600 transition-colors">
+                                    <h3 className="text-lg font-black text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-1">
                                         {booking.resourceName}
                                     </h3>
-                                    <div className="flex items-center text-slate-500 text-sm font-bold">
-                                        <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center mr-2 text-[10px] text-slate-400">
+                                    <div className="flex items-center text-slate-500 text-[11px] font-bold">
+                                        <div className="w-5 h-5 bg-slate-100 rounded-full flex items-center justify-center mr-2 text-[9px] text-slate-400 font-black">
                                             {booking.userName.charAt(0)}
                                         </div>
-                                        Requested by {booking.userName}
+                                        {booking.userName}
                                     </div>
-                                </div>
-                                <div className="hidden md:block text-right">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Submitted On</p>
-                                    <p className="font-extrabold text-slate-700">{new Date(booking.createdAt).toLocaleDateString()}</p>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <div className="flex items-center text-slate-400 mb-1">
-                                        <Calendar className="w-3.5 h-3.5 mr-2" />
-                                        <span className="text-[10px] font-bold uppercase tracking-widest">Date</span>
+                            <div className="grid grid-cols-2 gap-3 mb-5">
+                                <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-100/50">
+                                    <div className="flex items-center text-slate-400 mb-0.5">
+                                        <Calendar className="w-3 h-3 mr-1.5" />
+                                        <span className="text-[8px] font-bold uppercase tracking-widest">Date</span>
                                     </div>
-                                    <p className="font-black text-slate-700">{new Date(booking.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                                    <p className="font-extrabold text-slate-700 text-xs">{new Date(booking.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
                                 </div>
-                                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <div className="flex items-center text-slate-400 mb-1">
-                                        <Clock className="w-3.5 h-3.5 mr-2" />
-                                        <span className="text-[10px] font-bold uppercase tracking-widest">Time Slot</span>
+                                <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-100/50">
+                                    <div className="flex items-center text-slate-400 mb-0.5">
+                                        <Clock className="w-3 h-3 mr-1.5" />
+                                        <span className="text-[8px] font-bold uppercase tracking-widest">Time</span>
                                     </div>
-                                    <p className="font-black text-slate-700">{booking.startTime} - {booking.endTime}</p>
+                                    <p className="font-extrabold text-slate-700 text-xs">{booking.startTime}</p>
                                 </div>
                             </div>
 
-                            <div className="flex items-start gap-4 mb-8 p-4 border-l-4 border-slate-200 bg-slate-50/50 rounded-r-2xl">
-                                <MessageSquare className="w-5 h-5 text-slate-400 shrink-0 mt-1" />
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Booking Purpose</p>
-                                    <p className="text-slate-600 text-sm italic font-medium">"{booking.purpose}"</p>
+                            <div className="mb-5 flex-1">
+                                <div className="flex items-center gap-2 mb-1.5">
+                                    <MessageSquare className="w-3.5 h-3.5 text-slate-300" />
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Purpose</span>
+                                </div>
+                                <p className="text-slate-600 text-xs italic font-medium line-clamp-2 leading-relaxed">"{booking.purpose}"</p>
+                                
+                                <div className="mt-3 flex items-center gap-2">
+                                    <Users className="w-3.5 h-3.5 text-slate-300" />
+                                    <span className="text-[10px] font-bold text-slate-500">
+                                        {booking.resourceType === 'EQUIPMENT' ? 'Quantity:' : 'Attendees:'} 
+                                        <span className="text-slate-800 ml-1">{booking.attendees}</span>
+                                    </span>
                                 </div>
                             </div>
 
                             {booking.status === 'PENDING' && (
-                                <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
+                                <div className="flex items-center gap-2 pt-4 border-t border-slate-100">
                                     <button
                                         onClick={() => handleUpdateStatus(booking.id, 'APPROVED')}
-                                        className="flex-1 flex items-center justify-center py-4 px-6 bg-emerald-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-1 active:scale-95"
+                                        className="flex-1 flex items-center justify-center py-2.5 bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-wider hover:bg-emerald-700 shadow-md shadow-emerald-500/10 transition-all hover:-translate-y-0.5"
                                     >
-                                        <CheckCircle2 className="w-4 h-4 mr-2" /> Approve Request
+                                        Approve
                                     </button>
                                     <button
                                         onClick={() => handleUpdateStatus(booking.id, 'REJECTED')}
-                                        className="flex-1 flex items-center justify-center py-4 px-6 bg-white text-rose-600 border-2 border-rose-50 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-rose-50 transition-all active:scale-95"
+                                        className="flex-1 flex items-center justify-center py-2.5 bg-white text-rose-600 border border-rose-100 rounded-xl font-black text-[10px] uppercase tracking-wider hover:bg-rose-50 transition-all"
                                     >
-                                        <XCircle className="w-4 h-4 mr-2" /> Reject
+                                        Reject
                                     </button>
                                 </div>
                             )}
 
-                            {booking.status === 'REJECTED' && booking.rejectionReason && (
-                                <div className="pt-4 border-t border-slate-100">
-                                    <div className="p-4 bg-rose-50 rounded-2xl border border-rose-100">
-                                        <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-1">Rejection Reason</p>
-                                        <p className="text-rose-700 text-sm font-bold italic">"{booking.rejectionReason}"</p>
+                            {booking.status === 'REJECTED' && (
+                                <div className="pt-3 border-t border-slate-100 mt-auto">
+                                    <div className="flex items-center text-rose-500 text-[9px] font-black uppercase tracking-widest italic justify-center">
+                                        Request Declined
                                     </div>
                                 </div>
                             )}

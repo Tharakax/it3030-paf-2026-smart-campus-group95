@@ -141,6 +141,7 @@ public class BookingServiceImpl implements BookingService {
                 .endTime(booking.getEndTime())
                 .purpose(booking.getPurpose())
                 .attendees(booking.getAttendees())
+                .resourceType(resource != null ? resource.getType() : null)
                 .status(booking.getStatus())
                 .rejectionReason(booking.getRejectionReason())
                 .createdAt(booking.getCreatedAt())
