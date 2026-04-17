@@ -3,6 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import DashboardSidebar from '../components/Dashboard/DashboardSidebar';
+import { useLocation } from 'react-router-dom';
 
 // Import View Components
 import Overview from '../components/Dashboard/Views/Overview';
@@ -13,10 +14,17 @@ import Profile from '../components/Dashboard/Views/Profile';
 const Dashboard = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
     const [message, setMessage] = useState('');
     const [activeTab, setActiveTab] = useState('overview');
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (location.state && location.state.activeTab) {
+            setActiveTab(location.state.activeTab);
+        }
+    }, [location]);
 
     useEffect(() => {
         const fetchDashboard = async () => {
