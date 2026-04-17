@@ -23,7 +23,8 @@ import {
     Box,
     Save,
     Lock,
-    ShieldCheck
+    ShieldCheck,
+    History
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../../api/axiosConfig';
@@ -42,6 +43,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
     const [isRejecting, setIsRejecting] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
     const [isAssigning, setIsAssigning] = useState(false);
+    const [showCloseModal, setShowCloseModal] = useState(false);
     const [selectedTechnicianId, setSelectedTechnicianId] = useState('');
     const [selectedPreviewImage, setSelectedPreviewImage] = useState(null);
     const [activeMenuId, setActiveMenuId] = useState(null);
@@ -208,7 +210,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                     className="flex items-center px-5 py-2.5 bg-white border border-slate-100 rounded-2xl text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                    Back to Command Center
+                    Back to Ticket Management
                 </button>
             </div>
 
@@ -517,11 +519,11 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
 
                                     {ticket.status === 'RESOLVED' && (
                                         <button
-                                            onClick={() => handleStatusUpdate('CLOSED')}
-                                            className="w-full p-4 flex items-center justify-between bg-slate-800 text-white rounded-2xl hover:bg-slate-900 transition-all shadow-lg shadow-slate-200"
+                                            onClick={() => setShowCloseModal(true)}
+                                            className="w-full p-4 flex items-center justify-between bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-100 cursor-pointer"
                                         >
-                                            <span className="text-[10px] font-black uppercase tracking-widest">Close Incident</span>
-                                            <ArrowLeft className="w-4 h-4 rotate-180" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest">Close Ticket</span>
+                                            <CheckCircle2 className="w-4 h-4" />
                                         </button>
                                     )}
                                 </div>
@@ -717,6 +719,43 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Close Confirmation Modal */}
+            <Modal 
+                isOpen={showCloseModal} 
+                onClose={() => setShowCloseModal(false)} 
+                title="Confirm Ticket Closure"
+            >
+                <div className="p-2">
+                    <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                        <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+                    </div>
+                    <div className="text-center space-y-3 mb-8">
+                        <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight">Close this Ticket?</h4>
+                        <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                            Closing this ticket will move it to the **History** section. No further updates or technician assignments will be possible. The reported user will receive a final completion notification.
+                        </p>
+                    </div>
+                    
+                    <div className="flex flex-col space-y-3">
+                        <button
+                            onClick={() => {
+                                handleStatusUpdate('CLOSED');
+                                setShowCloseModal(false);
+                            }}
+                            className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-emerald-100 cursor-pointer"
+                        >
+                            Yes, Close Ticket
+                        </button>
+                        <button
+                            onClick={() => setShowCloseModal(false)}
+                            className="w-full py-4 bg-slate-50 text-slate-400 hover:text-slate-600 rounded-2xl font-black uppercase tracking-widest text-xs transition-all border border-slate-100 cursor-pointer"
+                        >
+                            Back to Review
+                        </button>
+                    </div>
+                </div>
+            </Modal>
 
             {/* Image Preview Modal */}
             <Modal
