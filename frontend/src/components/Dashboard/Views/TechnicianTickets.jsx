@@ -57,10 +57,8 @@ const TechnicianTickets = () => {
     // Filter tickets based on technician's role
     const filteredTickets = useMemo(() => {
         return tickets.filter(ticket => {
-            // Only show tickets that are either:
-            // 1. Assigned to me
-            // 2. Unassigned and OPEN
-            const isRelevant = ticket.assignedTo === user?.id || (!ticket.assignedTo && ticket.status === 'OPEN');
+            // ONLY show tickets assigned to me
+            const isRelevant = ticket.assignedTo === user?.id;
 
             if (!isRelevant && statusFilter === 'ALL') return false;
 
@@ -77,11 +75,11 @@ const TechnicianTickets = () => {
     }, [tickets, statusFilter, priorityFilter, searchQuery, user?.id]);
 
     const stats = useMemo(() => ({
-        total: tickets.filter(t => t.assignedTo === user?.id).length,
-        myActive: tickets.filter(t => t.assignedTo === user?.id && t.status === 'IN_PROGRESS').length,
-        unassigned: tickets.filter(t => !t.assignedTo && t.status === 'OPEN').length,
-        resolved: tickets.filter(t => t.assignedTo === user?.id && t.status === 'RESOLVED').length
-    }), [tickets, user?.id]);
+        total: tickets.length,
+        myActive: tickets.filter(t => t.status === 'IN_PROGRESS').length,
+        pendingAcceptance: tickets.filter(t => t.status === 'OPEN').length,
+        resolved: tickets.filter(t => t.status === 'RESOLVED').length
+    }), [tickets]);
 
     const handleClearFilters = () => {
         setStatusFilter('ALL');
@@ -139,8 +137,8 @@ const TechnicianTickets = () => {
                         <Clock className={`w-4 h-4 ${statusFilter === 'OPEN' ? 'text-white' : 'text-amber-500'}`} />
                     </div>
                     <div className="text-left">
-                        <p className={`text-[9px] font-black uppercase tracking-wider ${statusFilter === 'OPEN' ? 'text-amber-200' : 'text-slate-400'}`}>Dispatch Queue</p>
-                        <p className={`text-xl font-black ${statusFilter === 'OPEN' ? 'text-white' : 'text-slate-800'}`}>{stats.unassigned}</p>
+                        <p className={`text-[9px] font-black uppercase tracking-wider ${statusFilter === 'OPEN' ? 'text-amber-200' : 'text-slate-400'}`}>Assigned Pending</p>
+                        <p className={`text-xl font-black ${statusFilter === 'OPEN' ? 'text-white' : 'text-slate-800'}`}>{stats.pendingAcceptance}</p>
                     </div>
                 </button>
 
@@ -234,20 +232,25 @@ const TechnicianTickets = () => {
                             <tr className="bg-slate-50 border-b border-slate-100">
                                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Ticket Id</th>
                                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Type</th>
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden lg:table-cell">Resource</th>
                                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden xl:table-cell">Department</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden lg:table-cell">Resource Type</th>
+                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden lg:table-cell">Resource</th>
                                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell">Date</th>
                                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
                                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell text-center">Priority</th>
                                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
-                            {filteredTickets.map((tkt) => (
+                        <tbody className="divide-y divide-slate-200">
+                            {filteredTickets.map((tkt, index) => (
                                 <tr
                                     key={tkt.id}
                                     onClick={() => openTicket(tkt.id)}
-                                    className="hover:bg-slate-50/50 cursor-pointer transition-colors group"
+                                    className={`
+                                        cursor-pointer transition-all duration-200 group relative
+                                        ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}
+                                        hover:bg-indigo-50/50 hover:translate-x-1
+                                    `}
                                 >
                                     <td className="px-6 py-5 font-mono">
                                         <span className="text-sm font-bold text-slate-700 uppercase tracking-tighter">
@@ -259,16 +262,21 @@ const TechnicianTickets = () => {
                                             {tkt.category.replace('_', ' ')}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-5 hidden lg:table-cell">
-                                        <span className="text-sm font-bold text-slate-700 uppercase tracking-tighter">
-                                            {tkt.resourceName || 'Campus General'}
-                                        </span>
-                                    </td>
                                     <td className="px-6 py-5 hidden xl:table-cell">
                                         <span className="text-sm font-bold text-slate-700 tracking-tighter">
                                             {tkt.department 
                                                 ? tkt.department.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
                                                 : 'General'}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-5 hidden lg:table-cell">
+                                        <span className="text-sm font-bold text-slate-700 uppercase tracking-tighter">
+                                            {tkt.resourceType ? tkt.resourceType.replace(/_/g, ' ') : 'Uncategorized'}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-5 hidden lg:table-cell">
+                                        <span className="text-sm font-bold text-slate-700 uppercase tracking-tighter">
+                                            {tkt.resourceName || 'Campus General'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-5 hidden md:table-cell">

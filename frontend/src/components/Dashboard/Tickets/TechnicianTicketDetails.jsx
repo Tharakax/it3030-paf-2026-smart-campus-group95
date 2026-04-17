@@ -21,7 +21,10 @@ import {
     Wrench,
     MapPin,
     Box,
-    Save
+    Save,
+    PlayCircle,
+    FileText,
+    Camera
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../../api/axiosConfig';
@@ -38,6 +41,7 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
     const [editingCommentContent, setEditingCommentContent] = useState('');
     const [activeMenuId, setActiveMenuId] = useState(null);
     const [selectedPreviewImage, setSelectedPreviewImage] = useState(null);
+    const [showAcceptModal, setShowAcceptModal] = useState(false);
 
     // Resolution state
     const [isResolving, setIsResolving] = useState(false);
@@ -104,20 +108,19 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
         }
     };
 
-    const handleTakeAssignment = async () => {
+    const handleConfirmAccept = async () => {
         setActionLoading(true);
         try {
-            await api.put(`/tickets/${ticketId}/assign`, { technicianId: user.id });
-            // Automatically move to IN_PROGRESS upon taking assignment
             await api.put(`/tickets/${ticketId}/status`, { 
                 status: 'IN_PROGRESS', 
-                notes: `Technician ${user.name} took the assignment.` 
+                notes: `Technician ${user.name} accepted the assignment and began work.` 
             });
-            toast.success('You have been assigned to this ticket.');
+            toast.success('Incidents status updated: IN PROGRESS');
+            setShowAcceptModal(false);
             fetchTicketDetails();
             onUpdate();
         } catch (err) {
-            toast.error('Failed to take assignment.');
+            toast.error('Failed to accept assignment.');
         } finally {
             setActionLoading(false);
         }
@@ -173,8 +176,8 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
     }
 
     const isAssignedToMe = ticket.assignedTo === user?.id;
+    const canAccept = isAssignedToMe && ticket.status === 'OPEN';
     const canResolve = isAssignedToMe && ticket.status === 'IN_PROGRESS';
-    const isUnassigned = !ticket.assignedTo && ticket.status === 'OPEN';
 
     return (
         <div className="max-w-7xl mx-auto pb-12 font-sans">
@@ -182,25 +185,11 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
             <div className="flex items-center justify-between mb-8 group">
                 <button 
                     onClick={onClose}
-                    className="flex items-center px-5 py-2.5 bg-white border border-slate-100 rounded-2xl text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all shadow-sm"
+                    className="flex items-center px-5 py-2.5 bg-white border border-slate-100 rounded-2xl text-slate-600 font-bold text-xs hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
                     Back to Hub
                 </button>
-                <div className="flex items-center space-x-2">
-                    <span className="text-[10px] font-black uppercase text-blue-500 bg-blue-50 px-3 py-1 rounded-xl border border-blue-100">
-                        REF: {ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
-                    </span>
-                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border ${
-                        ticket.status === 'OPEN' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                        ticket.status === 'IN_PROGRESS' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                        ticket.status === 'RESOLVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                        ticket.status === 'REJECTED' ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                        'bg-slate-50 text-slate-600 border-slate-100'
-                    }`}>
-                        {ticket.status.replace('_', ' ')}
-                    </span>
-                </div>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
@@ -280,6 +269,18 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
 
                                 <div className="flex items-center border-t border-slate-50 pt-6 md:border-none md:pt-0">
                                     <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
+                                        <Tag className="w-5 h-5 text-slate-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Resource Type</p>
+                                        <p className="text-sm font-bold text-slate-700 leading-none">
+                                            {ticket.resourceType ? ticket.resourceType.replace(/_/g, ' ') : 'Uncategorized'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center border-t border-slate-50 pt-6 md:border-none md:pt-0">
+                                    <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
                                         <Box className="w-5 h-5 text-slate-400" />
                                     </div>
                                     <div>
@@ -333,20 +334,20 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
 
                                 {/* Relocated Action Buttons */}
                                 <div className="flex items-center space-x-3 ml-auto pt-4">
-                                    {isUnassigned && !actionLoading && (
+                                    {canAccept && (
                                         <button 
-                                            onClick={handleTakeAssignment}
-                                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl transition-all shadow-xl shadow-indigo-100 flex items-center justify-center space-x-3 group"
+                                            onClick={() => setShowAcceptModal(true)}
+                                            className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl transition-all shadow-xl shadow-indigo-100 flex items-center justify-center space-x-3 group animate-in zoom-in-95 cursor-pointer"
                                         >
-                                            <UserPlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                            <span className="text-xs font-black uppercase tracking-widest">Take Assignment</span>
+                                            <PlayCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                            <span className="text-xs font-black uppercase tracking-widest">Accept Task</span>
                                         </button>
                                     )}
 
                                     {canResolve && !isResolving && (
                                         <button 
                                             onClick={() => setIsResolving(true)}
-                                            className="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl transition-all shadow-xl shadow-emerald-100 flex items-center justify-center space-x-3 group animate-in slide-in-from-right-4"
+                                            className="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl transition-all shadow-xl shadow-emerald-100 flex items-center justify-center space-x-3 group animate-in slide-in-from-right-4 cursor-pointer"
                                         >
                                             <CheckCircle2 className="w-5 h-5" />
                                             <span className="text-xs font-black uppercase tracking-widest">Resolve Incident</span>
@@ -456,7 +457,7 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                                         comment.authorRole === 'TECHNICIAN' ? 'bg-amber-500 text-white border-amber-400' :
                                                             'bg-slate-400 text-white border-slate-300'
                                                     }`}>
-                                                    {comment.authorRole === 'USER' ? 'Staff/Student' : comment.authorRole}
+                                                    {comment.authorRole === 'USER' ? 'User' : comment.authorRole}
                                                 </span>
                                             ) : comment.userId !== user?.id && (
                                                 <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 uppercase tracking-widest border border-slate-200">
@@ -593,6 +594,45 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Accept Confirmation Modal */}
+            <Modal 
+                isOpen={showAcceptModal} 
+                onClose={() => setShowAcceptModal(false)} 
+                title="Confirm Assignment Acceptance"
+            >
+                <div className="p-2">
+                    <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                        <PlayCircle className="w-8 h-8 text-indigo-600" />
+                    </div>
+                    <div className="text-center space-y-3 mb-8">
+                        <h4 className="text-xl font-black text-slate-800 uppercase tracking-tight">Begin Work Protocol?</h4>
+                        <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                            By accepting this task, you are formally acknowledging the assignment. The incident status will transition to <span className="text-indigo-600 font-bold">IN PROGRESS</span> and the user will be notified of your deployment.
+                        </p>
+                    </div>
+                    
+                    <div className="flex flex-col space-y-3">
+                        <button
+                            onClick={handleConfirmAccept}
+                            disabled={actionLoading}
+                            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-indigo-100 flex items-center justify-center disabled:opacity-50 cursor-pointer"
+                        >
+                            {actionLoading ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                                "Yes, Accept Assignment"
+                            )}
+                        </button>
+                        <button
+                            onClick={() => setShowAcceptModal(false)}
+                            className="w-full py-4 bg-slate-50 text-slate-400 hover:text-slate-600 rounded-2xl font-black uppercase tracking-widest text-xs transition-all border border-slate-100 cursor-pointer"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </Modal>
 
             {/* Image Preview Modal */}
             <Modal isOpen={!!selectedPreviewImage} onClose={() => setSelectedPreviewImage(null)} title="Asset Documentation">

@@ -17,7 +17,7 @@ import Swal from 'sweetalert2';
 const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed, setIsCollapsed }) => {
     const adminMenu = [
         { id: 'overview', label: 'Admin Overview', icon: BarChart3 },
-        { id: 'tickets', label: 'Incident Management', icon: AlertCircle },
+        { id: 'tickets', label: 'Ticket Management', icon: AlertCircle },
         { id: 'users', label: 'User Management', icon: Users },
         { id: 'campus', label: 'Campus Infrastructure', icon: Building2 },
         { id: 'security', label: 'System Security', icon: ShieldCheck },

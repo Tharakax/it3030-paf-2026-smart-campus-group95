@@ -85,9 +85,19 @@ const TicketCard = ({ ticket, onClick }) => {
 
             {/* Body: Category + Description */}
             <div className="mb-6">
-                <p className="text-xs font-bold text-blue-600 uppercase tracking-tighter mb-1 opacity-70">
-                    {categoryLabels[ticket.category] || ticket.category}
-                </p>
+                <div className="flex items-center space-x-2 mb-1">
+                    <p className="text-xs font-bold text-blue-600 uppercase tracking-tighter opacity-70">
+                        {categoryLabels[ticket.category] || ticket.category}
+                    </p>
+                    {ticket.resourceType && (
+                        <>
+                            <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                            <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none">
+                                {ticket.resourceType.replace(/_/g, ' ')}
+                            </p>
+                        </>
+                    )}
+                </div>
                 <h4 className="font-bold text-slate-800 text-lg leading-tight group-hover:text-indigo-600 transition-colors">
                     {ticket.description.length > 40 ? ticket.description.substring(0, 40) + '...' : ticket.description}
                 </h4>
