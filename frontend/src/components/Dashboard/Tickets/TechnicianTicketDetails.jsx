@@ -280,16 +280,6 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
 
                                 <div className="flex items-center border-t border-slate-50 pt-6 md:border-none md:pt-0">
                                     <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
-                                        <Box className="w-5 h-5 text-slate-400" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Resource Name</p>
-                                        <p className="text-sm font-bold text-slate-700 leading-none">{ticket.resourceName || 'Campus General'}</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center border-t border-slate-50 pt-6 md:border-none md:pt-0">
-                                    <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
                                         <Tag className="w-5 h-5 text-slate-400" />
                                     </div>
                                     <div>
@@ -297,6 +287,16 @@ const TechnicianTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                         <p className="text-sm font-bold text-slate-700 leading-none">
                                             {ticket.resourceType ? ticket.resourceType.replace(/_/g, ' ') : 'Uncategorized'}
                                         </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center border-t border-slate-50 pt-6 md:border-none md:pt-0">
+                                    <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
+                                        <Box className="w-5 h-5 text-slate-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Resource Name</p>
+                                        <p className="text-sm font-bold text-slate-700 leading-none">{ticket.resourceName || 'Campus General'}</p>
                                     </div>
                                 </div>
                             </div>
