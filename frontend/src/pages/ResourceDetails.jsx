@@ -35,10 +35,10 @@ const css = `
   .anim-2{animation:fadeSlideUp .7s .3s ease both}
   
   .glass-panel{
-    background: rgba(15, 23, 42, 0.55);
+    background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 24px;
   }
 `;
@@ -54,10 +54,10 @@ const ResourceDetails = ({ resourceId, onClose }) => {
     const [error, setError] = useState(null);
 
     const glass = {
-        background: 'rgba(15,23,42,.55)',
+        background: 'rgba(255,255,255,.75)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255,255,255,.08)',
+        border: '1px solid rgba(0,0,0,.08)',
         borderRadius: 24
     };
 
@@ -80,25 +80,25 @@ const ResourceDetails = ({ resourceId, onClose }) => {
 
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen" style={{ background: '#050b1a' }}>
-                <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-6"></div>
-                <p className="text-slate-400 font-bold tracking-widest uppercase text-xs">Synchronizing Details...</p>
+            <div className="flex flex-col items-center justify-center min-h-screen" style={{ background: '#f8fafc' }}>
+                <div className="w-16 h-16 border-4 border-blue-500/10 border-t-blue-500 rounded-full animate-spin mb-6"></div>
+                <p className="text-slate-500 font-bold tracking-widest uppercase text-xs">Synchronizing Details...</p>
             </div>
         );
     }
 
     if (error || !resource) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#050b1a' }}>
-                <div style={glass} className="max-w-md w-full p-8 text-center border-rose-500/20">
-                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
+            <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#f8fafc' }}>
+                <div style={glass} className="max-w-md w-full p-8 text-center border-rose-500/10 bg-white">
+                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-rose-500/5 flex items-center justify-center border border-rose-500/10">
                         <XCircle className="w-10 h-10 text-rose-500" />
                     </div>
-                    <h3 className="text-2xl font-bold text-slate-100 mb-2">Resource Missing</h3>
-                    <p className="text-slate-400 mb-6">{error || 'Resource not found'}</p>
-                    <button
+                    <h3 className="text-2xl font-bold text-slate-800 mb-2">Resource Missing</h3>
+                    <p className="text-slate-500 mb-6">{error || 'Resource not found'}</p>
+                    <button 
                         onClick={() => onClose ? onClose() : navigate('/resources')}
-                        className="inline-flex items-center gap-2 bg-white text-slate-900 px-8 py-3 rounded-xl font-bold hover:bg-slate-100 transition-all"
+                        className="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg"
                     >
                         <Compass className="w-4 h-4" /> Back to Catalogue
                     </button>
@@ -110,7 +110,7 @@ const ResourceDetails = ({ resourceId, onClose }) => {
     return (
         <div className="details-root" style={{
             minHeight: '100vh',
-            background: 'linear-gradient(135deg,#050b1a 0%,#0a1628 40%,#0d1f3c 70%,#071020 100%)',
+            background: 'linear-gradient(135deg,#f8fafc 0%,#f1f5f9 40%,#e2e8f0 70%,#f8fafc 100%)',
             position: 'relative',
             overflowX: 'hidden'
         }}>
@@ -121,20 +121,25 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                 <div style={{
                     position: 'absolute', top: '8%', left: '5%',
                     width: 520, height: 520,
-                    background: 'radial-gradient(circle,rgba(59,130,246,.18) 0%,transparent 70%)',
+                    background: 'radial-gradient(circle,rgba(59,130,246,.06) 0%,transparent 70%)',
                     borderRadius: '50%', animation: 'orb1 18s ease-in-out infinite'
                 }} />
                 <div style={{
                     position: 'absolute', top: '30%', right: '3%',
                     width: 420, height: 420,
-                    background: 'radial-gradient(circle,rgba(99,102,241,.16) 0%,transparent 70%)',
+                    background: 'radial-gradient(circle,rgba(99,102,241,.05) 0%,transparent 70%)',
                     borderRadius: '50%', animation: 'orb2 22s ease-in-out infinite'
                 }} />
                 <div style={{
                     position: 'absolute', bottom: '10%', left: '35%',
                     width: 360, height: 360,
-                    background: 'radial-gradient(circle,rgba(6,182,212,.13) 0%,transparent 70%)',
+                    background: 'radial-gradient(circle,rgba(6,182,212,.04) 0%,transparent 70%)',
                     borderRadius: '50%', animation: 'orb3 15s ease-in-out infinite'
+                }} />
+                <div style={{
+                    position: 'absolute', inset: 0,
+                    backgroundImage: 'linear-gradient(rgba(0,0,0,.01) 1px,transparent 1px), linear-gradient(90deg,rgba(0,0,0,.01) 1px,transparent 1px)',
+                    backgroundSize: '60px 60px'
                 }} />
             </div>
 
@@ -142,9 +147,9 @@ const ResourceDetails = ({ resourceId, onClose }) => {
 
                 {/* ── Navigation ────────────────────────────────────── */}
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-10 anim-0">
-                    <button
-                        onClick={() => onClose ? onClose() : navigate('/catalogue')}
-                        className="group flex items-center px-4 py-2 bg-white/5 border border-white/10 hover:border-white/20 text-slate-300 rounded-xl transition-all font-semibold"
+                    <button 
+                        onClick={() => onClose ? onClose() : navigate('/resources')}
+                        className="group flex items-center px-4 py-2 bg-white/50 border border-slate-200 hover:border-slate-300 text-slate-600 rounded-xl transition-all font-semibold shadow-sm"
                     >
                         <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
                         Back to Catalogue
@@ -155,9 +160,9 @@ const ResourceDetails = ({ resourceId, onClose }) => {
 
                     {/* ── Left Column: Media ──────────────────────────── */}
                     <div className="lg:col-span-12 xl:col-span-7 space-y-6 anim-1">
-                        <div style={glass} className="overflow-hidden border-white/5 shadow-2xl">
+                        <div style={glass} className="overflow-hidden border-slate-200/50 shadow-xl bg-white/50">
                             {/* Main Gallery */}
-                            <div className="relative aspect-video bg-slate-900/50 flex items-center justify-center overflow-hidden">
+                            <div className="relative aspect-video bg-slate-100 flex items-center justify-center overflow-hidden">
                                 {resource.imageUrls && resource.imageUrls.length > 0 ? (
                                     <>
                                         <img
@@ -165,32 +170,33 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                                             alt={resource.name}
                                             className="w-full h-full object-cover"
                                         />
-                                        <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-transparent to-transparent opacity-60" />
-
+                                        <div className="absolute inset-0 bg-linear-to-t from-slate-900/40 via-transparent to-transparent opacity-60" />
+                                        
                                         {/* Image Counter Badge */}
-                                        <div className="absolute top-6 left-6 px-4 py-1.5 bg-black/40 backdrop-blur-xl rounded-full border border-white/10 text-[10px] font-black text-white uppercase tracking-[0.2em]">
+                                        <div className="absolute top-6 left-6 px-4 py-1.5 bg-white/80 backdrop-blur-xl rounded-full border border-slate-200/50 text-[10px] font-black text-slate-700 uppercase tracking-[0.2em] shadow-sm">
                                             REF: {resource.resourceCode} • IMG {activeImage + 1}/{resource.imageUrls.length}
                                         </div>
                                     </>
                                 ) : (
                                     <div className="text-center p-20">
-                                        <Box size={60} className="text-slate-700 mx-auto mb-4" />
-                                        <p className="text-slate-500 font-semibold">No media available</p>
+                                        <Box size={60} className="text-slate-300 mx-auto mb-4" />
+                                        <p className="text-slate-400 font-semibold">No media available</p>
                                     </div>
                                 )}
                             </div>
 
                             {/* Thumbnails */}
                             {resource.imageUrls?.length > 1 && (
-                                <div className="p-4 bg-slate-950/40 border-t border-white/5 flex gap-3 overflow-x-auto no-scrollbar">
+                                <div className="p-4 bg-white/30 border-t border-slate-100 flex gap-3 overflow-x-auto no-scrollbar">
                                     {resource.imageUrls.map((url, index) => (
                                         <button
                                             key={index}
                                             onClick={() => setActiveImage(index)}
-                                            className={`relative shrink-0 w-24 h-16 rounded-xl overflow-hidden border-2 transition-all duration-300 ${activeImage === index
-                                                    ? 'border-blue-500 scale-105 ring-4 ring-blue-500/20'
-                                                    : 'border-white/5 opacity-40 hover:opacity-100 hover:scale-105'
-                                                }`}
+                                            className={`relative shrink-0 w-24 h-16 rounded-xl overflow-hidden border-2 transition-all duration-300 ${
+                                                activeImage === index 
+                                                ? 'border-blue-500 scale-105 ring-4 ring-blue-500/10'
+                                                : 'border-white opacity-60 hover:opacity-100 hover:scale-105 shadow-sm'
+                                            }`}
                                         >
                                             <img src={url} alt="Thumb" className="w-full h-full object-cover" />
                                         </button>
@@ -200,12 +206,12 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                         </div>
 
                         {/* Description Panel */}
-                        <div style={glass} className="p-8 border-white/5">
+                        <div style={glass} className="p-8 border-slate-200/50 bg-white/50">
                             <div className="flex items-center gap-3 mb-6">
-                                <Info className="text-blue-400" size={20} />
-                                <h2 className="text-lg font-bold text-slate-100 uppercase tracking-wider">Facility Overview</h2>
+                                <Info className="text-blue-500" size={20} />
+                                <h2 className="text-lg font-bold text-slate-800 uppercase tracking-wider">Facility Overview</h2>
                             </div>
-                            <p className="text-slate-400 text-lg leading-relaxed font-['Outfit']">
+                            <p className="text-slate-600 text-lg leading-relaxed font-['Outfit']">
                                 {resource.description || 'No detailed description provided for this campus resource.'}
                             </p>
                         </div>
@@ -215,40 +221,41 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                     <div className="lg:col-span-12 xl:col-span-5 space-y-6 anim-2">
 
                         {/* Status & Identity Card */}
-                        <div style={glass} className="p-8 border-white/5 bg-linear-to-br from-white/5 to-transparent">
+                        <div style={glass} className="p-8 border-slate-200/50 bg-white/60">
                             <div className="flex flex-wrap items-center gap-3 mb-6">
-                                <div className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black rounded-lg uppercase tracking-widest">
+                                <div className="px-3 py-1 bg-blue-500/5 border border-blue-500/10 text-blue-600 text-[10px] font-black rounded-lg uppercase tracking-widest">
                                     {resource.type.replace(/_/g, ' ')}
                                 </div>
-                                <div className={`px-3 py-1 text-[10px] font-black rounded-lg uppercase tracking-widest border ${resource.status === 'ACTIVE'
-                                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                                        : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-                                    }`}>
+                                <div className={`px-3 py-1 text-[10px] font-black rounded-lg uppercase tracking-widest border ${
+                                    resource.status === 'ACTIVE' 
+                                    ? 'bg-emerald-500/5 border-emerald-500/10 text-emerald-600' 
+                                    : 'bg-rose-500/5 border-rose-500/10 text-rose-600'
+                                }`}>
                                     • {resource.status.replace(/_/g, ' ')}
                                 </div>
                             </div>
-
-                            <h1 className="text-4xl font-black text-slate-100 mb-6 leading-tight tracking-tight">
+                            
+                            <h1 className="text-4xl font-black text-slate-800 mb-6 leading-tight tracking-tight">
                                 {resource.name}
                             </h1>
 
-                            <div className="space-y-4 pt-6 border-t border-white/5">
-                                <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                            <div className="space-y-4 pt-6 border-t border-slate-100">
+                                <div className="flex items-center justify-between p-4 bg-white/40 rounded-2xl border border-slate-100">
                                     <div className="flex items-center gap-3">
-                                        <MapPin size={18} className="text-slate-500" />
-                                        <span className="text-slate-400 font-semibold text-sm">Target Faculty</span>
+                                        <MapPin size={18} className="text-slate-400" />
+                                        <span className="text-slate-500 font-semibold text-sm">Target Faculty</span>
                                     </div>
-                                    <span className="text-slate-100 font-bold text-sm tracking-tight">
+                                    <span className="text-slate-700 font-bold text-sm tracking-tight">
                                         {resource.department?.replace(/_/g, ' ') || 'General Campus'}
                                     </span>
                                 </div>
 
-                                <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                                <div className="flex items-center justify-between p-4 bg-white/40 rounded-2xl border border-slate-100">
                                     <div className="flex items-center gap-3">
-                                        <Users size={18} className="text-slate-500" />
-                                        <span className="text-slate-400 font-semibold text-sm">Capacity</span>
+                                        <Users size={18} className="text-slate-400" />
+                                        <span className="text-slate-500 font-semibold text-sm">Capacity</span>
                                     </div>
-                                    <span className="text-slate-100 font-bold text-sm">
+                                    <span className="text-slate-700 font-bold text-sm">
                                         {resource.capacity} Students
                                     </span>
                                 </div>
@@ -256,21 +263,21 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                         </div>
 
                         {/* Availability & Booking */}
-                        <div style={glass} className="p-8 border-blue-500/10 bg-linear-to-br from-blue-600/10 to-transparent relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl pointer-events-none" />
-
+                        <div style={glass} className="p-8 border-blue-500/10 bg-linear-to-br from-blue-500/5 to-white/50 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl pointer-events-none" />
+                            
                             <div className="flex items-center gap-3 mb-8">
-                                <Clock className="text-blue-400" size={20} />
-                                <h2 className="text-lg font-bold text-slate-100 uppercase tracking-wider">Operational Hours</h2>
+                                <Clock className="text-blue-500" size={20} />
+                                <h2 className="text-lg font-bold text-slate-800 uppercase tracking-wider">Operational Hours</h2>
                             </div>
 
                             <div className="space-y-4 mb-10">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-slate-400 font-medium">Daily Availability</span>
-                                    <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/5">
-                                        <span className="text-slate-100 font-black text-lg">{resource.availabilityStartTime}</span>
-                                        <span className="text-slate-600 font-bold">to</span>
-                                        <span className="text-slate-100 font-black text-lg">{resource.availabilityEndTime}</span>
+                                    <span className="text-slate-500 font-medium">Daily Availability</span>
+                                    <div className="flex items-center gap-2 bg-white/80 px-4 py-2 rounded-xl border border-slate-200/50 shadow-sm">
+                                        <span className="text-slate-800 font-black text-lg">{resource.availabilityStartTime}</span>
+                                        <span className="text-slate-400 font-bold text-sm">to</span>
+                                        <span className="text-slate-800 font-black text-lg">{resource.availabilityEndTime}</span>
                                     </div>
                                 </div>
                             </div>
@@ -279,15 +286,15 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                                 resource.bookable ? (
                                     <button
                                         onClick={() => navigate('/bookings', { state: { resourceId: id, resourceName: resource.name } })}
-                                        className="w-full py-5 bg-white text-slate-950 rounded-2xl font-black text-lg hover:bg-slate-100 transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98] flex items-center justify-center gap-3 group"
+                                        className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98] flex items-center justify-center gap-3 group"
                                     >
                                         <Calendar size={20} />
-                                        Complete Booking
+                                        Book Now
                                         <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
                                     </button>
                                 ) : (
                                     <div className="p-5 bg-rose-500/5 border border-rose-500/10 rounded-2xl text-center">
-                                        <span className="text-rose-400 font-bold text-sm tracking-tight flex items-center justify-center gap-2">
+                                        <span className="text-rose-500 font-bold text-sm tracking-tight flex items-center justify-center gap-2">
                                             <XCircle size={16} /> Facility is for reference only
                                         </span>
                                     </div>
