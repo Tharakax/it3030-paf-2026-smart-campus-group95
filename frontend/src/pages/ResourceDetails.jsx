@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-    ArrowLeft, 
-    Clock, 
-    Users, 
-    Info, 
-    Box, 
-    Edit, 
+import {
+    ArrowLeft,
+    Clock,
+    Users,
+    Info,
+    Box,
+    Edit,
     Trash2,
     Sparkles,
     Calendar,
@@ -96,7 +96,7 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                     </div>
                     <h3 className="text-2xl font-bold text-slate-100 mb-2">Resource Missing</h3>
                     <p className="text-slate-400 mb-6">{error || 'Resource not found'}</p>
-                    <button 
+                    <button
                         onClick={() => onClose ? onClose() : navigate('/resources')}
                         className="inline-flex items-center gap-2 bg-white text-slate-900 px-8 py-3 rounded-xl font-bold hover:bg-slate-100 transition-all"
                     >
@@ -139,10 +139,10 @@ const ResourceDetails = ({ resourceId, onClose }) => {
             </div>
 
             <div style={{ position: 'relative', zIndex: 1, maxWidth: 1200, margin: '0 auto', padding: '40px 24px 80px' }}>
-                
+
                 {/* ── Navigation ────────────────────────────────────── */}
                 <div className="flex flex-wrap items-center justify-between gap-4 mb-10 anim-0">
-                    <button 
+                    <button
                         onClick={() => onClose ? onClose() : navigate('/catalogue')}
                         className="group flex items-center px-4 py-2 bg-white/5 border border-white/10 hover:border-white/20 text-slate-300 rounded-xl transition-all font-semibold"
                     >
@@ -152,7 +152,7 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    
+
                     {/* ── Left Column: Media ──────────────────────────── */}
                     <div className="lg:col-span-12 xl:col-span-7 space-y-6 anim-1">
                         <div style={glass} className="overflow-hidden border-white/5 shadow-2xl">
@@ -160,13 +160,13 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                             <div className="relative aspect-video bg-slate-900/50 flex items-center justify-center overflow-hidden">
                                 {resource.imageUrls && resource.imageUrls.length > 0 ? (
                                     <>
-                                        <img 
-                                            src={resource.imageUrls[activeImage]} 
+                                        <img
+                                            src={resource.imageUrls[activeImage]}
                                             alt={resource.name}
                                             className="w-full h-full object-cover"
                                         />
                                         <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-transparent to-transparent opacity-60" />
-                                        
+
                                         {/* Image Counter Badge */}
                                         <div className="absolute top-6 left-6 px-4 py-1.5 bg-black/40 backdrop-blur-xl rounded-full border border-white/10 text-[10px] font-black text-white uppercase tracking-[0.2em]">
                                             REF: {resource.resourceCode} • IMG {activeImage + 1}/{resource.imageUrls.length}
@@ -187,11 +187,10 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                                         <button
                                             key={index}
                                             onClick={() => setActiveImage(index)}
-                                            className={`relative shrink-0 w-24 h-16 rounded-xl overflow-hidden border-2 transition-all duration-300 ${
-                                                activeImage === index 
-                                                ? 'border-blue-500 scale-105 ring-4 ring-blue-500/20'
-                                                : 'border-white/5 opacity-40 hover:opacity-100 hover:scale-105'
-                                            }`}
+                                            className={`relative shrink-0 w-24 h-16 rounded-xl overflow-hidden border-2 transition-all duration-300 ${activeImage === index
+                                                    ? 'border-blue-500 scale-105 ring-4 ring-blue-500/20'
+                                                    : 'border-white/5 opacity-40 hover:opacity-100 hover:scale-105'
+                                                }`}
                                         >
                                             <img src={url} alt="Thumb" className="w-full h-full object-cover" />
                                         </button>
@@ -214,22 +213,21 @@ const ResourceDetails = ({ resourceId, onClose }) => {
 
                     {/* ── Right Column: Info & Booking ─────────────────── */}
                     <div className="lg:col-span-12 xl:col-span-5 space-y-6 anim-2">
-                        
+
                         {/* Status & Identity Card */}
                         <div style={glass} className="p-8 border-white/5 bg-linear-to-br from-white/5 to-transparent">
                             <div className="flex flex-wrap items-center gap-3 mb-6">
                                 <div className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black rounded-lg uppercase tracking-widest">
                                     {resource.type.replace(/_/g, ' ')}
                                 </div>
-                                <div className={`px-3 py-1 text-[10px] font-black rounded-lg uppercase tracking-widest border ${
-                                    resource.status === 'ACTIVE' 
-                                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                                    : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-                                }`}>
+                                <div className={`px-3 py-1 text-[10px] font-black rounded-lg uppercase tracking-widest border ${resource.status === 'ACTIVE'
+                                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                        : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                                    }`}>
                                     • {resource.status.replace(/_/g, ' ')}
                                 </div>
                             </div>
-                            
+
                             <h1 className="text-4xl font-black text-slate-100 mb-6 leading-tight tracking-tight">
                                 {resource.name}
                             </h1>
@@ -260,7 +258,7 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                         {/* Availability & Booking */}
                         <div style={glass} className="p-8 border-blue-500/10 bg-linear-to-br from-blue-600/10 to-transparent relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl pointer-events-none" />
-                            
+
                             <div className="flex items-center gap-3 mb-8">
                                 <Clock className="text-blue-400" size={20} />
                                 <h2 className="text-lg font-bold text-slate-100 uppercase tracking-wider">Operational Hours</h2>
