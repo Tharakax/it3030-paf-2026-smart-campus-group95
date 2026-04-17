@@ -45,6 +45,14 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getBookingById(id));
     }
 
+    @GetMapping("/availability")
+    public ResponseEntity<List<BookingResponseDTO>> getResourceAvailability(
+            @RequestParam String resourceId,
+            @RequestParam String date) {
+        java.time.LocalDate localDate = java.time.LocalDate.parse(date);
+        return ResponseEntity.ok(bookingService.getResourceBookingsByDate(resourceId, localDate));
+    }
+
     @PatchMapping("/{id}/status")
     public ResponseEntity<BookingResponseDTO> updateBookingStatus(
             @PathVariable String id,

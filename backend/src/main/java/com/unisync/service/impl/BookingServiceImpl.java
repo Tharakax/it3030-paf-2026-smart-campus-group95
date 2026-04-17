@@ -43,12 +43,27 @@ public class BookingServiceImpl implements BookingService {
             throw new RuntimeException("This resource is not available for booking.");
         }
 
-        // Check for conflicts
+        // Check for conflicts (Overlapping Approved or Pending bookings)
         List<Booking> conflicts = bookingRepository.findOverlappingApprovedBookings(
                 request.getResourceId(), request.getDate(), request.getStartTime(), request.getEndTime());
         
         if (!conflicts.isEmpty()) {
             throw new BookingConflictException("The resource is already booked for the selected time range.");
+        }
+
+        // Validate operational hours
+        if (resource.getAvailabilityStartTime() != null && request.getStartTime().isBefore(resource.getAvailabilityStartTime())) {
+            throw new RuntimeException("Selected start time is before the resource's operating hours (" + resource.getAvailabilityStartTime() + ")");
+        }
+
+        if (resource.getAvailabilityEndTime() != null && request.getEndTime().isAfter(resource.getAvailabilityEndTime())) {
+            throw new RuntimeException("Selected end time is after the resource's operating hours (" + resource.getAvailabilityEndTime() + ")");
+        }
+
+        // Validate capacity
+        if (resource.getCapacity() != null && request.getAttendees() != null && request.getAttendees() > resource.getCapacity()) {
+            throw new RuntimeException("Number of " + (resource.getType() == com.unisync.enums.ResourceType.EQUIPMENT ? "items" : "attendees") + 
+                " exceeds the resource capacity (" + resource.getCapacity() + ")");
         }
 
         Booking booking = Booking.builder()
@@ -116,6 +131,14 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
         return mapToResponseDTO(booking);
+    }
+
+    @Override
+    public List<BookingResponseDTO> getResourceBookingsByDate(String resourceId, java.time.LocalDate date) {
+        return bookingRepository.findByResourceIdAndDate(resourceId, date).stream()
+                .filter(b -> b.getStatus() != BookingStatus.CANCELLED && b.getStatus() != BookingStatus.REJECTED)
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
     }
 
     @Override

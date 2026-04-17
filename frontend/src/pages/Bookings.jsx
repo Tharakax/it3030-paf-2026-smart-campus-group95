@@ -22,11 +22,28 @@ const Bookings = () => {
         attendees: 1
     });
 
-    // My Bookings State
     const [myBookings, setMyBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [activeTab, setActiveTab] = useState(location.state?.resourceId ? 'create' : 'my');
+    
+    // Availability state
+    const [busySlots, setBusySlots] = useState([]);
+    const [loadingAvailability, setLoadingAvailability] = useState(false);
+    const [resourceDetails, setResourceDetails] = useState(null);
+
+    // Time slots generator (8:00 to 18:00 by default, or wider if needed)
+    const generateTimeSlots = () => {
+        const slots = [];
+        for (let hour = 8; hour <= 20; hour++) {
+            const h = hour.toString().padStart(2, '0');
+            slots.push(`${h}:00`);
+            if (hour < 20) slots.push(`${h}:30`);
+        }
+        return slots;
+    };
+
+    const timeSlots = generateTimeSlots();
 
     useEffect(() => {
         fetchMyBookings();
@@ -35,7 +52,15 @@ const Bookings = () => {
     const fetchMyBookings = async () => {
         try {
             const data = await bookingService.getMyBookings();
-            setMyBookings(data);
+            // Sort: PENDING first, then APPROVED, then date descending
+            const sortedData = [...data].sort((a, b) => {
+                const statusOrder = { 'PENDING': 0, 'APPROVED': 1, 'REJECTED': 2, 'CANCELLED': 3 };
+                if (statusOrder[a.status] !== statusOrder[b.status]) {
+                    return statusOrder[a.status] - statusOrder[b.status];
+                }
+                return new Date(b.date + 'T' + b.startTime) - new Date(a.date + 'T' + a.startTime);
+            });
+            setMyBookings(sortedData);
         } catch (error) {
             console.error('Error fetching bookings:', error);
             toast.error('Failed to load your bookings');
@@ -43,6 +68,45 @@ const Bookings = () => {
             setLoading(false);
         }
     };
+
+    const fetchAvailability = async (resourceId, date) => {
+        if (!resourceId || !date) return;
+        setLoadingAvailability(true);
+        try {
+            const data = await bookingService.getAvailability(resourceId, date);
+            setBusySlots(data);
+        } catch (error) {
+            console.error('Error fetching availability:', error);
+        } finally {
+            setLoadingAvailability(false);
+        }
+    };
+
+    useEffect(() => {
+        if (formData.date && formData.resourceId) {
+            fetchAvailability(formData.resourceId, formData.date);
+        }
+    }, [formData.date, formData.resourceId]);
+
+    useEffect(() => {
+        const fetchResource = async () => {
+            if (formData.resourceId) {
+                try {
+                    // Assuming we have a getResourceById in a resourceService, 
+                    // but for now I'll check if I can fetch it or if I should add it.
+                    // Actually, let's use a generic fetch since I don't want to break if service is missing.
+                    const response = await fetch(`/api/resources/${formData.resourceId}`, {
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    });
+                    const data = await response.json();
+                    setResourceDetails(data);
+                } catch (error) {
+                    console.error('Error fetching resource details:', error);
+                }
+            }
+        };
+        fetchResource();
+    }, [formData.resourceId]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -234,14 +298,18 @@ const Bookings = () => {
                                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                                         <Clock className="h-5 w-5 text-slate-400" />
                                                     </div>
-                                                    <input
-                                                        type="time"
+                                                    <select
                                                         name="startTime"
                                                         required
                                                         value={formData.startTime}
                                                         onChange={handleInputChange}
-                                                        className="block w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                                                    />
+                                                        className="block w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none"
+                                                    >
+                                                        <option value="">Select</option>
+                                                        {timeSlots.map(slot => (
+                                                            <option key={slot} value={slot}>{slot}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div>
@@ -250,17 +318,57 @@ const Bookings = () => {
                                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                                         <Clock className="h-5 w-5 text-slate-400" />
                                                     </div>
-                                                    <input
-                                                        type="time"
+                                                    <select
                                                         name="endTime"
                                                         required
                                                         value={formData.endTime}
                                                         onChange={handleInputChange}
-                                                        className="block w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                                                    />
+                                                        className="block w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none"
+                                                    >
+                                                        <option value="">Select</option>
+                                                        {timeSlots.map(slot => (
+                                                            <option key={slot} value={slot}>{slot}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {/* Availability / Busy Slots Indicator */}
+                                        {formData.date && (
+                                            <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 flex items-center">
+                                                    <Clock4 className="w-3 h-3 mr-2 text-blue-500" />
+                                                    Busy Slots for this Day
+                                                </h4>
+                                                {loadingAvailability ? (
+                                                    <div className="flex items-center text-[10px] text-slate-400 font-bold italic">
+                                                        Checking availability...
+                                                    </div>
+                                                ) : busySlots.length > 0 ? (
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {busySlots.map((slot, i) => (
+                                                            <span key={i} className="px-2 py-1 bg-rose-50 text-rose-600 border border-rose-100 rounded text-[10px] font-bold">
+                                                                {slot.startTime} - {slot.endTime}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-[10px] text-emerald-600 font-bold italic">
+                                                        No bookings yet. Entire day is available!
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Operational Hours Hint */}
+                                        {resourceDetails && (
+                                            <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-slate-500">
+                                                <Box className="w-3 h-3 text-slate-300" />
+                                                Operational Hours: {resourceDetails.availabilityStartTime} - {resourceDetails.availabilityEndTime} 
+                                                | Max {formData.resourceType === 'EQUIPMENT' ? 'Count' : 'Capacity'}: {resourceDetails.capacity}
+                                            </div>
+                                        )}
 
                                         <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100 mt-8">
                                             <div className="flex items-start">

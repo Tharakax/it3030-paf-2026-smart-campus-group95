@@ -13,5 +13,6 @@ public interface BookingService {
     BookingResponseDTO updateBookingStatus(String bookingId, BookingStatus status, String rejectionReason);
     BookingResponseDTO cancelBooking(String bookingId, String userId);
     BookingResponseDTO getBookingById(String bookingId);
+    List<BookingResponseDTO> getResourceBookingsByDate(String resourceId, java.time.LocalDate date);
     void deleteBooking(String bookingId);
 }

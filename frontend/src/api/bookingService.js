@@ -15,6 +15,11 @@ const bookingService = {
     const response = await api.get('/bookings');
     return response.data;
   },
+  
+  getAvailability: async (resourceId, date) => {
+    const response = await api.get(`/bookings/availability?resourceId=${resourceId}&date=${date}`);
+    return response.data;
+  },
 
   getBookingById: async (id) => {
     const response = await api.get(`/bookings/${id}`);
