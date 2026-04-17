@@ -38,6 +38,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(DuplicateTicketException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateTicketException(DuplicateTicketException ex,
+            WebRequest request) {
+        ErrorResponse errorDetails = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", ""),
+                LocalDateTime.now());
+        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(InvalidResourceAvailabilityException.class)
     public ResponseEntity<ErrorResponse> handleInvalidResourceAvailabilityException(InvalidResourceAvailabilityException ex,
             WebRequest request) {
