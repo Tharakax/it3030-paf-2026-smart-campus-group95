@@ -12,6 +12,7 @@ import {
     ShieldAlert,
     Activity,
     Send,
+    Mail,
     MoreVertical,
     Edit2,
     Trash2,
@@ -250,6 +251,30 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                         <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Reported On</p>
                                         <p className="text-sm font-bold text-slate-700 leading-none">
                                             {new Date(ticket.createdAt).toLocaleDateString()} · {new Date(ticket.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex items-center">
+                                    <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
+                                        <User className="w-5 h-5 text-slate-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Reporter Name</p>
+                                        <p className="text-sm font-bold text-slate-700 leading-none">
+                                            {ticket.createdByName || 'Anonymous User'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center">
+                                    <div className="w-10 h-10 rounded-2xl bg-slate-50/50 flex items-center justify-center mr-4">
+                                        <Mail className="w-5 h-5 text-slate-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[11px] font-black uppercase text-slate-400 tracking-widest mb-0.5">Reported By</p>
+                                        <p className="text-sm font-bold text-slate-700 leading-none">
+                                            {ticket.createdByEmail || 'N/A'}
                                         </p>
                                     </div>
                                 </div>

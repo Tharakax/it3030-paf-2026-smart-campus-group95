@@ -198,8 +198,10 @@ public class IncidentTicketService {
     }
 
     private IncidentTicketResponseDTO convertToResponseDTO(IncidentTicket ticket) {
-        String createdByName = userRepository.findById(ticket.getCreatedBy())
-                .map(User::getName).orElse("Unknown");
+        User creator = userRepository.findById(ticket.getCreatedBy()).orElse(null);
+        String createdByName = creator != null ? creator.getName() : "Unknown";
+        String createdByEmail = creator != null ? creator.getEmail() : "Unknown";
+        
         String assignedToName = ticket.getAssignedTo() != null ?
                 userRepository.findById(ticket.getAssignedTo()).map(User::getName).orElse("Unknown") : null;
         
@@ -222,6 +224,7 @@ public class IncidentTicketService {
                 .status(ticket.getStatus())
                 .createdBy(ticket.getCreatedBy())
                 .createdByName(createdByName)
+                .createdByEmail(createdByEmail)
                 .assignedTo(ticket.getAssignedTo())
                 .assignedToName(assignedToName)
                 .rejectionReason(ticket.getRejectionReason())
