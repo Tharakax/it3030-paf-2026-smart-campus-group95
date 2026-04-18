@@ -150,17 +150,7 @@ const Bookings = () => {
                 attendees: parseInt(formData.attendees)
             });
             toast.success('Booking request submitted successfully!');
-            setActiveTab('my');
-            fetchMyBookings();
-            // Reset form but keep resource info if needed
-            setFormData(prev => ({
-                ...prev,
-                date: '',
-                startTime: '',
-                endTime: '',
-                purpose: '',
-                attendees: 1
-            }));
+            navigate('/dashboard', { state: { activeTab: 'bookings' } });
         } catch (error) {
             console.error('Booking error:', error);
             const message = error.response?.data?.message || 'Failed to submit booking request';
