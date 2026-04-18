@@ -113,20 +113,28 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
         if (!selectedTechnicianId) return;
 
         const tech = technicians.find(t => t.id === selectedTechnicianId);
-        setActionLoading(true);
 
-        try {
-            await api.put(`/tickets/${ticketId}/assign`, { technicianId: selectedTechnicianId });
-            toast.success(`Technician ${tech?.name} assigned successfully`);
-            fetchTicketDetails();
-            onUpdate();
-            setIsAssigning(false);
-            setSelectedTechnicianId('');
-        } catch (err) {
-            toast.error('Assignment failed. Please try again.');
-        } finally {
-            setActionLoading(false);
-        }
+        showConfirmToast({
+            title: 'Confirm Assignment',
+            message: `Are you sure you want to assign ${tech?.name} to this incident? They will be notified to start the resolution process immediately.`,
+            confirmText: 'Confirm Assignment',
+            cancelText: 'Cancel',
+            onConfirm: async () => {
+                setActionLoading(true);
+                try {
+                    await api.put(`/tickets/${ticketId}/assign`, { technicianId: selectedTechnicianId });
+                    toast.success(`Technician ${tech?.name} assigned successfully`);
+                    fetchTicketDetails();
+                    onUpdate();
+                    setIsAssigning(false);
+                    setSelectedTechnicianId('');
+                } catch (err) {
+                    toast.error('Assignment failed. Please try again.');
+                } finally {
+                    setActionLoading(false);
+                }
+            }
+        });
     };
 
     const handleAddComment = async (e) => {
@@ -228,7 +236,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                     </button>
                     <div className="flex items-center gap-3">
                         <span className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-500">
-                            #{ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
+                            {ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
                         </span>
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${getStatusConfig(ticket.status).color}`}>
                             <StatusIcon className="w-3.5 h-3.5" />

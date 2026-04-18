@@ -14,20 +14,26 @@ const categoryLabels = {
     'OTHER': 'Other'
 };
 
-// Status enum → display label mapping
-const statusLabels = {
-    'OPEN': 'Open',
-    'IN_PROGRESS': 'In Progress',
-    'RESOLVED': 'Resolved',
-    'CLOSED': 'Closed',
-    'REJECTED': 'Rejected'
+// Status enum → display label and config
+const statusConfig = {
+    'OPEN': { label: 'Open', color: 'bg-blue-50 text-blue-700 border-blue-200', dotColor: 'bg-blue-500' },
+    'IN_PROGRESS': { label: 'In Progress', color: 'bg-amber-50 text-amber-700 border-amber-200', dotColor: 'bg-amber-500' },
+    'RESOLVED': { label: 'Resolved', color: 'bg-emerald-50 text-emerald-700 border-emerald-200', dotColor: 'bg-emerald-500' },
+    'CLOSED': { label: 'Closed', color: 'bg-slate-100 text-slate-600 border-slate-200', dotColor: 'bg-slate-400' },
+    'REJECTED': { label: 'Rejected', color: 'bg-rose-50 text-rose-700 border-rose-200', dotColor: 'bg-rose-500' }
 };
 
 // Priority badge color styles
 const priorityStyles = {
-    'HIGH': 'bg-red-50 text-red-500 border-red-100',
-    'MEDIUM': 'bg-amber-50 text-amber-500 border-amber-100',
-    'LOW': 'bg-sky-50 text-sky-500 border-sky-100'
+    'HIGH': 'bg-rose-50 text-rose-700 border-rose-200',
+    'MEDIUM': 'bg-amber-50 text-amber-700 border-amber-200',
+    'LOW': 'bg-sky-50 text-sky-700 border-sky-200'
+};
+
+const priorityIcons = {
+    'HIGH': '🔴',
+    'MEDIUM': '🟡',
+    'LOW': '🟢'
 };
 
 /**
@@ -44,85 +50,76 @@ const formatDate = (dateStr) => {
 
     if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins} min ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hr${diffHours > 1 ? 's' : ''} ago`;
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-    return date.toLocaleDateString();
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 };
 
 /**
  * Reusable TicketCard component.
  * 
  * Props:
- *  - ticket: { id, priority, category, description, status, createdAt }
+ *  - ticket: { id, priority, category, description, status, createdAt, resourceType, ticketId }
  *  - onClick: optional click handler
  */
 const TicketCard = ({ ticket, onClick }) => {
-    const displayStatus = statusLabels[ticket.status] || ticket.status;
+    const status = statusConfig[ticket.status] || statusConfig['OPEN'];
     const isResolved = ticket.status === 'RESOLVED' || ticket.status === 'CLOSED';
     const isRejected = ticket.status === 'REJECTED';
-
-    const glassStyle = {
-        background: 'rgba(255,255,255,.85)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        border: '1px solid rgba(0,0,0,.05)',
-        borderRadius: 32,
-        boxShadow: '0 8px 24px rgba(0,0,0,.02)'
-    };
+    const ticketNumber = ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW');
 
     return (
         <div
             onClick={onClick}
-            style={glassStyle}
-            className="bg-white/80 p-8 border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 group cursor-pointer relative overflow-hidden active:scale-[0.98] hover:-translate-y-1"
+            className="group relative bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 cursor-pointer overflow-hidden"
         >
             {/* Status Accent Bar */}
-            <div className={`absolute top-0 left-0 w-full h-1.5 transition-all duration-500 group-hover:h-2 ${isResolved ? 'bg-emerald-400'
-                    : isRejected ? 'bg-rose-400'
-                        : 'bg-blue-500'
-                }`} />
+            <div className={`absolute top-0 left-0 right-0 h-1 ${isResolved ? 'bg-emerald-500' : isRejected ? 'bg-rose-500' : 'bg-blue-500'}`} />
 
-            {/* Header: ID + Priority Badge */}
-            <div className="flex justify-between items-start mb-6">
-                <span className="text-[10px] font-black font-mono text-slate-400 bg-slate-50/50 px-3 py-1.5 rounded-xl tracking-[0.15em] border border-slate-100/50 group-hover:bg-white transition-colors">
-                    #{ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
-                </span>
-                <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm ${priorityStyles[ticket.priority] || priorityStyles['LOW']
-                    }`}>
-                    {ticket.priority}
-                </span>
-            </div>
+            <div className="p-5">
+                {/* Header: ID + Priority */}
+                <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-mono font-semibold text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
+                        {ticketNumber}
+                    </span>
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wide border ${priorityStyles[ticket.priority] || priorityStyles['LOW']}`}>
+                        <span>{priorityIcons[ticket.priority] || '🟢'}</span>
+                        {ticket.priority}
+                    </span>
+                </div>
 
-            {/* Body: Category + Description */}
-            <div className="mb-8">
-                <div className="flex items-center space-x-2 mb-2">
-                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest opacity-80 group-hover:opacity-100 transition-opacity">
+                {/* Category Badge */}
+                <div className="mb-3">
+                    <span className="inline-block px-2 py-0.5 bg-slate-100 rounded-md text-[10px] font-medium text-slate-500 uppercase tracking-wide">
                         {categoryLabels[ticket.category] || ticket.category}
-                    </p>
+                    </span>
                     {ticket.resourceType && (
                         <>
-                            <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                            <p className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.2em] leading-none">
+                            <span className="mx-1.5 text-slate-300">•</span>
+                            <span className="text-[10px] text-slate-400 uppercase tracking-wide">
                                 {ticket.resourceType.replace(/_/g, ' ')}
-                            </p>
+                            </span>
                         </>
                     )}
                 </div>
-                <h4 className="font-bold text-slate-800 text-lg leading-tight group-hover:text-indigo-600 transition-colors">
-                    {ticket.description.length > 40 ? ticket.description.substring(0, 40) + '...' : ticket.description}
-                </h4>
-            </div>
 
-            {/* Footer: Status + Date */}
-            <div className="flex items-center justify-between mt-10 pt-6 border-t border-slate-50">
-                <div className="flex items-center space-x-2">
-                    <div className={`w-2 h-2 rounded-full ${isResolved ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
-                            : isRejected ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'
-                                : 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)] animate-pulse'
-                        }`} />
-                    <span className="text-sm font-bold text-slate-500">{displayStatus}</span>
+                {/* Description */}
+                <p className="text-sm font-medium text-slate-700 leading-relaxed line-clamp-2 mb-4">
+                    {ticket.description.length > 80 ? ticket.description.substring(0, 80) + '...' : ticket.description}
+                </p>
+
+                {/* Footer: Status + Date */}
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                    <div className="flex items-center gap-2">
+                        <div className={`w-1.5 h-1.5 rounded-full ${status.dotColor}`} />
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${status.color}`}>
+                            {status.label}
+                        </span>
+                    </div>
+                    <span className="text-xs text-slate-400">
+                        {formatDate(ticket.createdAt)}
+                    </span>
                 </div>
-                <span className="text-xs text-slate-400 font-bold">{formatDate(ticket.createdAt)}</span>
             </div>
         </div>
     );
