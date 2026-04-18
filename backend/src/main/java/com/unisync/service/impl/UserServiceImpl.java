@@ -1,11 +1,14 @@
 package com.unisync.service.impl;
 
+import com.unisync.dto.TechnicianCreateRequest;
 import com.unisync.dto.UserProfileDTO;
+import com.unisync.entity.Role;
 import com.unisync.entity.User;
 import com.unisync.exception.ResourceNotFoundException;
 import com.unisync.repository.UserRepository;
 import com.unisync.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<UserProfileDTO> getAllUsers() {
@@ -49,6 +53,24 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("User not found with id: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public UserProfileDTO createTechnician(TechnicianCreateRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email address already in use.");
+        }
+
+        User user = User.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.TECHNICIAN)
+                .specialization(request.getSpecialization())
+                .build();
+
+        User savedUser = userRepository.save(user);
+        return convertToDTO(savedUser);
     }
 
     private UserProfileDTO convertToDTO(User user) {

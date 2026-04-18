@@ -38,6 +38,15 @@ const UserManagement = () => {
         specialization: ''
     });
 
+    // Add Technician Modal State
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [addForm, setAddForm] = useState({
+        name: '',
+        email: '',
+        password: '',
+        specialization: ''
+    });
+
     const categories = [
         'ELECTRICAL', 'IT_NETWORK', 'PROJECTOR_AV', 'FURNITURE', 
         'PLUMBING', 'AC_VENTILATION', 'CLEANING', 'SAFETY_SECURITY', 
@@ -102,6 +111,27 @@ const UserManagement = () => {
         }
     };
 
+    const handleAddTechnician = async (e) => {
+        e.preventDefault();
+        
+        // Basic validation
+        if (addForm.password.length < 6) {
+            toast.error("Security Protocol: Password must be at least 6 characters.");
+            return;
+        }
+
+        try {
+            const res = await api.post('/admin/technicians', addForm);
+            setUsers([res.data, ...users]);
+            toast.success(`Technician ${addForm.name} provisioned successfully.`);
+            setIsAddModalOpen(false);
+            setAddForm({ name: '', email: '', password: '', specialization: '' });
+        } catch (err) {
+            const message = err.response?.data?.message || 'Failed to provision technician.';
+            toast.error(message);
+        }
+    };
+
     const handleDeleteUser = async (userToDelete) => {
         if (userToDelete.id === currentUser.id) {
             Swal.fire({
@@ -156,11 +186,19 @@ const UserManagement = () => {
                     <p className="text-slate-400 mt-2 font-bold uppercase tracking-widest text-[10px]">Security Node: Global Permission Control</p>
                 </div>
                 
-                <div className="flex items-center gap-3">
-                    <div className="h-12 w-[1px] bg-slate-200 hidden md:block mx-2" />
+                <div className="flex items-center gap-6">
+                    <button 
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="bg-blue-600 text-white px-6 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2.5 shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95"
+                    >
+                        <UserPlus size={16} /> Add Technician
+                    </button>
+                    
+                    <div className="h-10 w-[1.5px] bg-slate-100 hidden md:block" />
+                    
                     <div className="text-right hidden sm:block">
                         <p className="text-sm font-black text-slate-800">{users.length}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Total Entities Registered</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Total Entities</p>
                     </div>
                 </div>
             </div>
@@ -253,7 +291,7 @@ const UserManagement = () => {
                                     </td>
                                     <td className="px-8 py-6">
                                         {u.role === 'TECHNICIAN' ? (
-                                            <span className="text-xs font-bold text-slate-600 uppercase tracking-tight bg-slate-100 px-3 py-1 rounded-lg">
+                                            <span className="text-xs font-bold text-slate-600 uppercase tracking-tight bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 shadow-sm">
                                                 {u.specialization?.replace('_', ' ') || 'General Duty'}
                                             </span>
                                         ) : (
@@ -284,6 +322,109 @@ const UserManagement = () => {
                     </table>
                 </div>
             )}
+
+            {/* Add Technician Modal */}
+            <Modal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                title="Provision New Technician"
+            >
+                <form onSubmit={handleAddTechnician} className="space-y-6">
+                    <div className="bg-blue-50/50 p-6 rounded-[2rem] border border-blue-100 flex gap-5 mb-4">
+                        <div className="bg-blue-600 w-12 h-12 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-blue-200">
+                            <Wrench size={24} />
+                        </div>
+                        <div>
+                            <p className="font-black text-slate-800 uppercase tracking-widest text-[11px] mb-1">Authorization Layer</p>
+                            <p className="text-xs font-medium text-slate-500 leading-relaxed">
+                                Creating a technician provides elevated access to IT ticketing and maintenance modules.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="group">
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-2">Full Name</label>
+                            <div className="relative">
+                                <User className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-600 transition-colors" />
+                                <input 
+                                    type="text"
+                                    required
+                                    value={addForm.name}
+                                    onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+                                    placeholder="Enter Technician Name"
+                                    className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-100 transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="group">
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-2">Email Address</label>
+                            <div className="relative">
+                                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-600 transition-colors" />
+                                <input 
+                                    type="email"
+                                    required
+                                    value={addForm.email}
+                                    onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+                                    placeholder="tech@unisync.edu"
+                                    className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-100 transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="group">
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-2">Access Password</label>
+                            <div className="relative">
+                                <Shield className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-600 transition-colors" />
+                                <input 
+                                    type="password"
+                                    required
+                                    value={addForm.password}
+                                    onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                                    placeholder="Minimum 6 characters"
+                                    className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-100 transition-all"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="group">
+                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-2">Technical Specialization</label>
+                            <div className="relative">
+                                <Wrench className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-600 transition-colors" />
+                                <select
+                                    required
+                                    value={addForm.specialization}
+                                    onChange={(e) => setAddForm({ ...addForm, specialization: e.target.value })}
+                                    className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-100 transition-all appearance-none"
+                                >
+                                    <option value="">Select Domain...</option>
+                                    {categories.map(cat => (cat !== 'OTHER' && (
+                                        <option key={cat} value={cat}>{cat.replace('_', ' ')}</option>
+                                    )))}
+                                </select>
+                                <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-4 pt-4">
+                        <button
+                            type="button"
+                            onClick={() => setIsAddModalOpen(false)}
+                            className="flex-1 py-4 bg-slate-100 text-slate-600 font-black uppercase text-[11px] tracking-widest rounded-2xl hover:bg-slate-200 transition-all"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="flex-1 py-4 bg-blue-600 text-white font-black uppercase text-[11px] tracking-widest rounded-2xl hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all flex items-center justify-center gap-2"
+                        >
+                            <Check size={18} /> Create Technician
+                        </button>
+                    </div>
+                </form>
+            </Modal>
 
             {/* Edit Permissions Modal */}
             <Modal
