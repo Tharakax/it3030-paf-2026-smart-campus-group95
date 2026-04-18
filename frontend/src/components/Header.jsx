@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Bell, UserCircle, LogOut, Menu, X, Settings, Shield, Wrench, LayoutDashboard, Layers, Box } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 
 const Header = () => {
@@ -22,8 +23,29 @@ const Header = () => {
     }
 
     const handleLogout = () => {
-        logout();
-        navigate('/login');
+        Swal.fire({
+            title: 'Logout?',
+            text: "Are you sure you want to end your session?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#cbd5e1',
+            confirmButtonText: 'Yes, logout',
+            cancelButtonText: 'Cancel',
+            background: '#ffffff',
+            customClass: {
+                popup: 'rounded-[1.5rem] border-none shadow-2xl',
+                title: 'text-slate-800 font-bold',
+                htmlContainer: 'text-slate-600 font-medium',
+                confirmButton: 'rounded-xl font-bold px-6 py-3',
+                cancelButton: 'rounded-xl font-bold px-6 py-3 text-slate-500'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                logout();
+                navigate('/login');
+            }
+        });
     };
 
     if (!user) return null;
@@ -90,9 +112,9 @@ const Header = () => {
                                 className="flex items-center space-x-3 p-1 pr-3 rounded-full border border-slate-200 hover:bg-slate-50 hover:border-blue-200 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                             >
                                 <img
-                                    src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=eff6ff&color=2563eb`}
+                                    src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=eff6ff&color=2563eb`}
                                     alt="User Avatar"
-                                    className="w-8 h-8 rounded-full"
+                                    className="w-8 h-8 rounded-full object-cover border border-slate-100 shadow-sm"
                                 />
                                 <div className="text-left hidden lg:block">
                                     <p className="text-sm font-semibold text-slate-700 leading-tight">{user?.name?.split(' ')[0] || 'User'}</p>
@@ -167,7 +189,11 @@ const Header = () => {
 
                         <div className="border-t border-slate-100 mt-4 pt-4">
                             <div className="flex items-center px-3 mb-4">
-                                <img src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=eff6ff&color=2563eb`} alt="Avatar" className="w-10 h-10 rounded-full" />
+                                <img 
+                                    src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=eff6ff&color=2563eb`} 
+                                    alt="Avatar" 
+                                    className="w-10 h-10 rounded-full object-cover border border-slate-100 shadow-sm" 
+                                />
                                 <div className="ml-3">
                                     <p className="text-base font-medium text-slate-800">{user?.name || 'User'}</p>
                                     <p className="text-sm font-medium text-slate-500">{user?.email}</p>
