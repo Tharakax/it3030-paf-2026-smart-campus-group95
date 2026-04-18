@@ -116,7 +116,7 @@ const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick, onRowClick
             <div className="mb-10">
                 <div>
                     <h1 className="text-3xl font-black text-slate-800 tracking-tight">
-                        Facilities Management
+                        Infrastructure Management
                     </h1>
                     <p className="text-slate-500 mt-1 font-medium">
                         Administrative control panel for campus resources

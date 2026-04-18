@@ -1,5 +1,6 @@
 package com.unisync.service.impl;
 
+import com.unisync.dto.ResourceAnalyticsSummaryDTO;
 import com.unisync.entity.Resource;
 import com.unisync.enums.Department;
 import com.unisync.enums.ResourceStatus;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ResourceServiceImpl implements ResourceService {
@@ -32,6 +35,11 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public Resource createResource(Resource resource) {
         validateAvailabilityTimes(resource);
+
+        // Force capacity to 1 if type is EQUIPMENT
+        if (resource.getType() == ResourceType.EQUIPMENT) {
+            resource.setCapacity(1);
+        }
         
         // Auto-generate resourceCode
         String prefix = getPrefixForType(resource.getType());
@@ -137,7 +145,14 @@ public class ResourceServiceImpl implements ResourceService {
         existingResource.setName(resource.getName());
         existingResource.setDescription(resource.getDescription());
         existingResource.setType(resource.getType());
-        existingResource.setCapacity(resource.getCapacity());
+        
+        // Force capacity to 1 if type is EQUIPMENT
+        if (resource.getType() == ResourceType.EQUIPMENT) {
+            existingResource.setCapacity(1);
+        } else {
+            existingResource.setCapacity(resource.getCapacity());
+        }
+        
         existingResource.setDepartment(resource.getDepartment());
         existingResource.setAvailabilityStartTime(resource.getAvailabilityStartTime());
         existingResource.setAvailabilityEndTime(resource.getAvailabilityEndTime());
@@ -162,5 +177,45 @@ private void validateAvailabilityTimes(Resource resource) {
             throw new ResourceNotFoundException("Resource not found with id: " + id);
         }
         resourceRepository.deleteById(id);
+    }
+
+    @Override
+    public ResourceAnalyticsSummaryDTO getResourceAnalyticsSummary() {
+        List<Resource> allResources = resourceRepository.findAll();
+        
+        long totalResources = allResources.size();
+        long activeResources = allResources.stream()
+                .filter(r -> r.getStatus() == ResourceStatus.ACTIVE)
+                .count();
+        long outOfServiceResources = allResources.stream()
+                .filter(r -> r.getStatus() == ResourceStatus.OUT_OF_SERVICE)
+                .count();
+        long bookableResources = allResources.stream()
+                .filter(Resource::isBookable)
+                .count();
+        long nonBookableResources = totalResources - bookableResources;
+        
+        long resourcesWithImages = allResources.stream()
+                .filter(r -> r.getImageUrls() != null && !r.getImageUrls().isEmpty())
+                .count();
+        double imageCoveragePercentage = totalResources > 0 ? (double) resourcesWithImages / totalResources * 100 : 0;
+        
+        Map<ResourceType, Long> resourcesByType = allResources.stream()
+                .collect(Collectors.groupingBy(Resource::getType, Collectors.counting()));
+        
+        Map<Department, Long> resourcesByDepartment = allResources.stream()
+                .filter(r -> r.getDepartment() != null)
+                .collect(Collectors.groupingBy(Resource::getDepartment, Collectors.counting()));
+        
+        return ResourceAnalyticsSummaryDTO.builder()
+                .totalResources(totalResources)
+                .activeResources(activeResources)
+                .outOfServiceResources(outOfServiceResources)
+                .bookableResources(bookableResources)
+                .nonBookableResources(nonBookableResources)
+                .imageCoveragePercentage(imageCoveragePercentage)
+                .resourcesByType(resourcesByType)
+                .resourcesByDepartment(resourcesByDepartment)
+                .build();
     }
 }

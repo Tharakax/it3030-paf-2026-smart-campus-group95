@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
-import { ArrowLeft, Save, Loader2, AlertCircle, ImagePlus, X, Upload, ImageIcon, Plus } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertCircle, ImagePlus, X, Upload, ImageIcon, Plus, Info } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import MediaUpload from '../utils/supabaseClient';
 
@@ -113,10 +113,20 @@ const EditResource = ({ resourceId, onResourceUpdated }) => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+        
+        setFormData(prev => {
+            const nextData = {
+                ...prev,
+                [name]: type === 'checkbox' ? checked : value
+            };
+            
+            // If type changes to EQUIPMENT, set capacity to 1
+            if (name === 'type' && value === 'EQUIPMENT') {
+                nextData.capacity = '1';
+            }
+            
+            return nextData;
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -219,7 +229,7 @@ const EditResource = ({ resourceId, onResourceUpdated }) => {
                             />
                         </div>
 
-                        {/* <div className="space-y-1">
+                        <div className="space-y-1">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Type *</label>
                             <select
                                 name="type"
@@ -235,7 +245,7 @@ const EditResource = ({ resourceId, onResourceUpdated }) => {
                                 <option value="GROUND">Ground</option>
                                 <option value="EQUIPMENT">Equipment</option>
                             </select>
-                        </div> */}
+                        </div>
 
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Capacity *</label>
@@ -245,7 +255,10 @@ const EditResource = ({ resourceId, onResourceUpdated }) => {
                                 name="capacity"
                                 value={formData.capacity}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                disabled={formData.type === 'EQUIPMENT'}
+                                className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    formData.type === 'EQUIPMENT' ? 'bg-slate-50 text-slate-400 cursor-not-allowed' : ''
+                                }`}
                             />
                         </div>
 

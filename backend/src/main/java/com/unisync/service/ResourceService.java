@@ -1,5 +1,6 @@
 package com.unisync.service;
 
+import com.unisync.dto.ResourceAnalyticsSummaryDTO;
 import com.unisync.entity.Resource;
 import com.unisync.enums.Department;
 import com.unisync.enums.ResourceStatus;
@@ -14,4 +15,5 @@ public interface ResourceService {
     Resource getResourceById(String id);
     Resource updateResource(String id, Resource resource);
     void deleteResource(String id);
+    ResourceAnalyticsSummaryDTO getResourceAnalyticsSummary();
 }

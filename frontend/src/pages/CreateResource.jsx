@@ -68,10 +68,20 @@ const CreateResource = ({ onResourceCreated }) => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+        
+        setFormData(prev => {
+            const nextData = {
+                ...prev,
+                [name]: type === 'checkbox' ? checked : value
+            };
+            
+            // If type changes to EQUIPMENT, set capacity to 1
+            if (name === 'type' && value === 'EQUIPMENT') {
+                nextData.capacity = '1';
+            }
+            
+            return nextData;
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -186,8 +196,11 @@ const CreateResource = ({ onResourceCreated }) => {
                                 name="capacity"
                                 value={formData.capacity}
                                 onChange={handleChange}
+                                disabled={formData.type === 'EQUIPMENT'}
                                 placeholder="0"
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    formData.type === 'EQUIPMENT' ? 'bg-slate-50 text-slate-400 cursor-not-allowed' : ''
+                                }`}
                             />
                         </div>
 
@@ -250,21 +263,6 @@ const CreateResource = ({ onResourceCreated }) => {
                                 placeholder="18:00:00"
                                 className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
                             />
-                        </div>
-
-                        {/* Auto-Code Notice */}
-                        <div className="flex items-center space-x-2 bg-blue-50 p-3 rounded-lg border border-blue-100 md:col-span-2">
-                            <Info size={16} className="text-blue-600" />
-                            <p className="text-xs text-blue-700 font-medium italic">
-                                Resource Code will be generated automatically based on the selected type after creation (e.g., {
-                                    formData.type === 'LECTURE_HALL' ? 'LH' : 
-                                    formData.type === 'LAB' ? 'LAB' : 
-                                    formData.type === 'MEETING_ROOM' ? 'MR' : 
-                                    formData.type === 'AUDITORIUM' ? 'AUD' : 
-                                    formData.type === 'STUDY_ROOM' ? 'SR' : 
-                                    formData.type === 'GROUND' ? 'GRD' : 'EQ'
-                                }-XXX).
-                            </p>
                         </div>
                     </div>
 
