@@ -5,6 +5,7 @@ import RoleProtectedRoute from './components/RoleProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
@@ -32,6 +33,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
               <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
 
               <Route path="/dashboard" element={
