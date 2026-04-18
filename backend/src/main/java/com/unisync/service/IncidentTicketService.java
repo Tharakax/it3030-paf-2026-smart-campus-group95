@@ -13,6 +13,7 @@ import com.unisync.enums.TicketStatus;
 import com.unisync.enums.Department;
 import com.unisync.exception.ResourceNotFoundException;
 import com.unisync.exception.UnauthorizedException;
+import com.unisync.exception.DuplicateTicketException;
 import com.unisync.repository.IncidentTicketRepository;
 import com.unisync.repository.ResourceRepository;
 import com.unisync.repository.UserRepository;
@@ -38,6 +39,17 @@ public class IncidentTicketService {
         // Validate resource existence
         Resource resource = resourceRepository.findById(request.getResourceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id: " + request.getResourceId()));
+
+        // Prevention Protocol: Detect duplicate active tickets for this user and resource
+        boolean hasActiveTicket = ticketRepository.existsByCreatedByAndResourceIdAndStatusIn(
+                currentUser.getId(), 
+                request.getResourceId(), 
+                List.of(TicketStatus.OPEN, TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED)
+        );
+
+        if (hasActiveTicket) {
+            throw new DuplicateTicketException("You have already submitted a ticket for this resource.");
+        }
 
         IncidentTicket ticket = IncidentTicket.builder()
                 .ticketId("#TCK" + sequenceGenerator.generateSequence("incident_tickets_sequence"))

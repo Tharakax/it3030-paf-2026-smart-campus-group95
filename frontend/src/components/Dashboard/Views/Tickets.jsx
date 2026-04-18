@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Plus, 
-    AlertCircle, 
+import {
+    Plus,
+    AlertCircle,
     CheckCircle2,
     Calendar,
     Search,
@@ -15,7 +15,7 @@ import {
     History,
     ClipboardCheck
 } from 'lucide-react';
- import { useMemo } from 'react';
+import { useMemo } from 'react';
 import toast from 'react-hot-toast';
 import Modal from '../../Common/Modal';
 import TicketForm from '../Tickets/TicketForm';
@@ -41,7 +41,7 @@ const Tickets = () => {
 
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => setIsModalOpen(false);
-    
+
     const closeTicketDetails = () => setSelectedTicketId(null);
 
     const handleClearFilters = () => {
@@ -77,7 +77,7 @@ const Tickets = () => {
                 const matchesStatus = statusFilter === 'ALL' || ticket.status === statusFilter;
                 const matchesPriority = priorityFilter === 'ALL' || ticket.priority === priorityFilter;
                 const matchesCategory = categoryFilter === 'ALL' || ticket.category === categoryFilter;
-                
+
                 // Date filtering logic
                 const ticketDate = ticket.createdAt ? ticket.createdAt.split('T')[0] : '';
                 const matchesDateFrom = !dateFrom || ticketDate >= dateFrom;
@@ -91,7 +91,7 @@ const Tickets = () => {
                 return dateB - dateA; // Default to newest first
             });
     }, [tickets, statusFilter, priorityFilter, categoryFilter, dateFrom, dateTo]);
-    
+
     // Split filtered tickets into status-based pipeline sections
     const sections = useMemo(() => {
         const groups = {
@@ -154,19 +154,12 @@ const Tickets = () => {
             {!selectedTicketId && (
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
                     <div>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: 'rgba(59,130,246,.08)', border: '1px solid rgba(59,130,246,.12)', marginBottom: 12 }}>
-                            <Activity size={12} className="text-blue-600" />
-                            <span style={{ fontSize: 10, fontWeight: 700, color: '#3b82f6', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Incident Response</span>
-                        </div>
-                        <h2 className="text-4xl font-extrabold text-slate-800 tracking-tight leading-tight flex items-center">
-                            Support Tickets
-                            <span className="ml-4 px-3 py-1 bg-white border border-slate-100 shadow-sm text-blue-600 text-[10px] font-black uppercase rounded-xl tracking-widest">
-                                {filteredTickets.length} Found
-                            </span>
+                        <h2 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center">
+                            My Tickets
                         </h2>
                         <p className="text-slate-500 mt-2 font-medium tracking-tight">Report campus issues or track your active service requests.</p>
                     </div>
-                    <button 
+                    <button
                         onClick={handleOpenModal}
                         className="bg-slate-900 hover:bg-blue-600 text-white px-10 py-5 rounded-3xl font-black text-lg tracking-tight flex items-center shadow-2xl shadow-slate-200 transition-all hover:-translate-y-1 active:scale-95 group"
                     >
@@ -181,8 +174,8 @@ const Tickets = () => {
                 <div style={glassStyle} className="bg-white/70 p-5 border-slate-100 mb-12 flex flex-col xl:flex-row gap-5 items-center group/filters hover:border-blue-200 transition-colors duration-500">
                     <div className="flex flex-wrap gap-3 w-full">
                         {/* Status Filter */}
-                        <div className="relative flex-1 md:flex-none group/select">
-                            <select 
+                        <div className="relative flex-1 md:flex-none">
+                            <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
                                 className="appearance-none w-full md:w-44 px-5 py-3.5 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs font-black text-slate-600 cursor-pointer focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/20 transition-all pr-12 uppercase tracking-widest"
@@ -198,8 +191,8 @@ const Tickets = () => {
                         </div>
 
                         {/* Priority Filter */}
-                        <div className="relative flex-1 md:flex-none group/select">
-                            <select 
+                        <div className="relative flex-1 md:flex-none">
+                            <select
                                 value={priorityFilter}
                                 onChange={(e) => setPriorityFilter(e.target.value)}
                                 className="appearance-none w-full md:w-40 px-5 py-3.5 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs font-black text-slate-600 cursor-pointer focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/20 transition-all pr-12 uppercase tracking-widest"
@@ -213,8 +206,8 @@ const Tickets = () => {
                         </div>
 
                         {/* Category Filter */}
-                        <div className="relative flex-1 md:flex-none group/select">
-                            <select 
+                        <div className="relative flex-1 md:flex-none">
+                            <select
                                 value={categoryFilter}
                                 onChange={(e) => setCategoryFilter(e.target.value)}
                                 className="appearance-none w-full md:w-48 px-5 py-3.5 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs font-black text-slate-600 cursor-pointer focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/20 transition-all pr-12 uppercase tracking-widest"
@@ -235,10 +228,10 @@ const Tickets = () => {
                         </div>
 
                         {/* Date From */}
-                        <div className="flex-1 md:flex-none flex items-center bg-slate-50/50 border border-slate-100 rounded-2xl px-5 py-3.5 group/date focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/5 focus-within:border-blue-500/20 transition-all">
-                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest mr-3">From</span>
-                            <input 
-                                type="date" 
+                        <div className="flex-1 md:flex-none flex items-center bg-slate-50 rounded-2xl px-4 py-3 group focus-within:ring-4 focus-within:ring-blue-50 transition-all">
+                            <span className="text-[10px] font-black uppercase text-slate-400 mr-3">From</span>
+                            <input
+                                type="date"
                                 value={dateFrom}
                                 max={dateTo || today}
                                 onChange={(e) => {
@@ -251,10 +244,10 @@ const Tickets = () => {
                         </div>
 
                         {/* Date To */}
-                        <div className="flex-1 md:flex-none flex items-center bg-slate-50/50 border border-slate-100 rounded-2xl px-5 py-3.5 group/date focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-500/5 focus-within:border-blue-500/20 transition-all">
-                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest mr-3">To</span>
-                            <input 
-                                type="date" 
+                        <div className="flex-1 md:flex-none flex items-center bg-slate-50 rounded-2xl px-4 py-3 group focus-within:ring-4 focus-within:ring-blue-50 transition-all">
+                            <span className="text-[10px] font-black uppercase text-slate-400 mr-3">To</span>
+                            <input
+                                type="date"
                                 value={dateTo}
                                 min={dateFrom}
                                 max={today}
@@ -268,7 +261,7 @@ const Tickets = () => {
                         </div>
 
                         {/* Clear Filters */}
-                        <button 
+                        <button
                             onClick={handleClearFilters}
                             disabled={statusFilter === 'ALL' && priorityFilter === 'ALL' && categoryFilter === 'ALL' && !dateFrom && !dateTo}
                             className="flex-1 md:flex-none xl:ml-auto flex items-center justify-center px-6 py-3.5 bg-rose-50 border border-rose-100 rounded-2xl text-[11px] font-black text-rose-600 uppercase tracking-widest hover:bg-rose-100 transition-all disabled:opacity-0 disabled:pointer-events-none duration-500"
@@ -281,9 +274,20 @@ const Tickets = () => {
             )}
 
             {/* 3. Render View (List or Detail) */}
-            {selectedTicketId ? (
-                <TicketDetails 
-                    ticketId={selectedTicketId} 
+            {loading ? (
+                <div className="flex flex-col items-center justify-center min-h-[400px] bg-white rounded-[3rem] border border-slate-100 shadow-sm animate-in fade-in duration-700">
+                    <div className="relative">
+                        <div className="w-20 h-20 border-4 border-indigo-50 border-t-indigo-600 rounded-full animate-spin" />
+                        <Loader2 className="w-8 h-8 text-indigo-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+                    </div>
+                    <div className="mt-8 text-center space-y-2">
+                        <h3 className="text-xl font-black text-slate-800 uppercase tracking-tighter">Synchronizing Tickets</h3>
+                        <p className="text-sm text-slate-400 font-medium">Connecting to Servers...</p>
+                    </div>
+                </div>
+            ) : selectedTicketId ? (
+                <TicketDetails
+                    ticketId={selectedTicketId}
                     onClose={closeTicketDetails}
                     onUpdate={fetchTickets}
                 />
@@ -357,7 +361,7 @@ const Tickets = () => {
                 onClose={handleCloseModal}
                 title="Create Incident Ticket"
             >
-                <TicketForm 
+                <TicketForm
                     onSubmit={handleFormSubmit}
                     onClose={handleCloseModal}
                     submitting={submitting}
