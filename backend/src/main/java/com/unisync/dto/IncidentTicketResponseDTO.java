@@ -32,6 +32,7 @@ public class IncidentTicketResponseDTO {
     private TicketStatus status;
     private String createdBy;
     private String createdByName;
+    private String createdByEmail;
     private String assignedTo;
     private String assignedToName;
     private String rejectionReason;
