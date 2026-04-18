@@ -11,6 +11,7 @@ import com.unisync.entity.Role;
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByEmail(String email);
+    Boolean existsByEmail(String email);
 
     Optional<User> findByGoogleId(String googleId);
 
