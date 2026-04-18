@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Bell, UserCircle, LogOut, Menu, X, Settings, Shield, Wrench, LayoutDashboard, Layers, Box } from 'lucide-react';
+import NotificationBell from './Dashboard/NotificationBell';
 import Swal from 'sweetalert2';
 
 
@@ -12,15 +13,7 @@ const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-    // Hide header on dashboard, admin and technician routes
-    const hideHeaderRoutes = ['/dashboard', '/admin', '/technician'];
-    
-    // Show header even on admin sub-routes if they are resource related
-    const isResourceRoute = location.pathname.startsWith('/resources');
-    
-    if (hideHeaderRoutes.includes(location.pathname) && !isResourceRoute) {
-        return null;
-    }
+
 
     const handleLogout = () => {
         Swal.fire({
@@ -97,13 +90,7 @@ const Header = () => {
                     {/* Actions & Profile */}
                     <div className="hidden md:flex items-center space-x-4">
                         {/* Notifications */}
-                        <button className="relative p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors">
-                            <Bell className="w-5 h-5" />
-                            <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500 border-2 border-white"></span>
-                            </span>
-                        </button>
+                        <NotificationBell onViewAll={() => navigate('/dashboard')} />
 
                         {/* Profile Dropdown */}
                         <div className="relative">

@@ -9,4 +9,5 @@ public interface UserService {
     UserProfileDTO updateUser(String id, UserProfileDTO userDetails);
     void deleteUser(String id);
     UserProfileDTO createTechnician(TechnicianCreateRequest request);
+    List<UserProfileDTO> getUsersByRole(com.unisync.entity.Role role);
 }
