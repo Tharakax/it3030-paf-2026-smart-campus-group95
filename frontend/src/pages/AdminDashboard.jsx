@@ -7,6 +7,7 @@ import CreateResource from './CreateResource';
 import EditResource from './EditResource';
 import AdminTickets from '../components/Dashboard/Views/AdminTickets';
 import AdminBookingManagement from '../components/Booking/AdminBookingManagement';
+import ResourceAnalyticsPanel from '../components/Dashboard/Views/ResourceAnalyticsPanel';
 
 const AdminDashboard = () => {
     const { user, logout } = useContext(AuthContext);
@@ -57,6 +58,9 @@ const AdminDashboard = () => {
                                     <h1 className="text-4xl font-black text-slate-800 tracking-tighter">
                                         System <span className="text-blue-600 underline decoration-emerald-400 decoration-4">Dashboard</span>
                                     </h1>
+                                    
+                                    <ResourceAnalyticsPanel />
+                                    
                                     <div className="p-20 text-center border-2 border-dashed border-slate-200 rounded-[3rem] bg-white group hover:border-slate-900 transition-colors cursor-help">
                                         <p className="text-slate-400 font-bold group-hover:text-slate-600">Core administrative modules ready for deployment</p>
                                     </div>
