@@ -117,6 +117,11 @@ const Bookings = () => {
                     });
                     const data = await response.json();
                     setResourceDetails(data);
+                    
+                    // Sync resourceType if missing from state
+                    if (!formData.resourceType && data.type) {
+                        setFormData(prev => ({ ...prev, resourceType: data.type }));
+                    }
                 } catch (error) {
                     console.error('Error fetching resource details:', error);
                 }
@@ -147,7 +152,7 @@ const Bookings = () => {
                 startTime: formData.startTime,
                 endTime: formData.endTime,
                 purpose: formData.purpose,
-                attendees: parseInt(formData.attendees)
+                attendees: formData.resourceType === 'EQUIPMENT' ? 1 : parseInt(formData.attendees)
             });
             toast.success('Booking request submitted successfully!');
             navigate('/dashboard', { state: { activeTab: 'bookings' } });
@@ -293,26 +298,26 @@ const Bookings = () => {
                                             </div>
                                         </div>
 
-                                        <div className="space-y-2">
-                                            <label className="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">
-                                                {formData.resourceType === 'EQUIPMENT' ? 'Quantity / Count' : 'Expected Attendees'}
-                                            </label>
-                                            <div className="relative group">
-                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                                    <Users className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                                        {formData.resourceType !== 'EQUIPMENT' && (
+                                            <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Expected Attendees</label>
+                                                <div className="relative group">
+                                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                        <Users className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                                                    </div>
+                                                    <input
+                                                        type="number"
+                                                        name="attendees"
+                                                        min="1"
+                                                        required
+                                                        value={formData.attendees}
+                                                        onChange={handleInputChange}
+                                                        placeholder="Number of attendees"
+                                                        className="block w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200/60 rounded-2xl text-slate-700 font-bold focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 transition-all"
+                                                    />
                                                 </div>
-                                                <input
-                                                    type="number"
-                                                    name="attendees"
-                                                    min="1"
-                                                    required
-                                                    value={formData.attendees}
-                                                    onChange={handleInputChange}
-                                                    placeholder={formData.resourceType === 'EQUIPMENT' ? 'Enter quantity' : 'Number of attendees'}
-                                                    className="block w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200/60 rounded-2xl text-slate-700 font-bold focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 transition-all"
-                                                />
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
 
                                     {/* Right Column: Time & Date */}

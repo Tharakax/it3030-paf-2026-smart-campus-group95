@@ -317,7 +317,6 @@ const AdminBookingManagement = () => {
                     </div>
                 )}
             </div>
-            }
         </div>
     );
 };

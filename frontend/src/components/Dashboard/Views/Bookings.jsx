@@ -221,10 +221,12 @@ const Bookings = () => {
                                             <Clock size={14} className="mr-3 text-slate-300" />
                                             {booking.startTime} - {booking.endTime}
                                         </div>
-                                        <div className="flex items-center text-slate-400 text-[10px] font-black uppercase tracking-[0.1em]">
-                                            <ArrowUpRight size={14} className="mr-3 text-slate-200" />
-                                            Attendees: {booking.attendees}
-                                        </div>
+                                        {booking.resourceType !== 'EQUIPMENT' && (
+                                            <div className="flex items-center text-slate-400 text-[10px] font-black uppercase tracking-[0.1em]">
+                                                <ArrowUpRight size={14} className="mr-3 text-slate-200" />
+                                                Attendees: {booking.attendees}
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="pt-4 border-t border-slate-50">

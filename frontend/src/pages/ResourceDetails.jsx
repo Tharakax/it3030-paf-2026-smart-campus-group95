@@ -285,7 +285,7 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                             {user?.role === 'USER' && (
                                 resource.bookable ? (
                                     <button
-                                        onClick={() => navigate('/bookings', { state: { resourceId: id, resourceName: resource.name } })}
+                                        onClick={() => navigate('/bookings', { state: { resourceId: id, resourceName: resource.name, resourceType: resource.type } })}
                                         className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 active:scale-[0.98] flex items-center justify-center gap-3 group"
                                     >
                                         <Calendar size={20} />
