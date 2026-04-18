@@ -116,9 +116,6 @@ const TechnicianTickets = () => {
             <div className="mb-10">
                 <h1 className="text-3xl font-black text-slate-800 tracking-tight flex items-center">
                     Maintenance Hub
-                    <span className="ml-3 px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase rounded-xl border border-blue-100">
-                        Technician Portal
-                    </span>
                 </h1>
                 <p className="text-slate-500 mt-1 font-medium">Manage your assigned tasks and respond to campus incidents.</p>
             </div>

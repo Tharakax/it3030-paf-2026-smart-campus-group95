@@ -120,9 +120,6 @@ const TechnicianHistory = () => {
             <div className="mb-10">
                 <h1 className="text-3xl font-black text-slate-800 tracking-tight flex items-center">
                     Work History
-                    <span className="ml-3 px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-black uppercase rounded-xl border border-slate-200">
-                        Archive Logs
-                    </span>
                 </h1>
                 <p className="text-slate-500 mt-1 font-medium">Review your completed maintenance cycles and resolved incidents.</p>
             </div>
@@ -279,7 +276,7 @@ const TechnicianHistory = () => {
             {/* List Table */}
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-40">
-                    <Loader2 className="w-12 h-12 animate-spin text-slate-400 mb-6" />
+                    <Loader2 className="w-12 h-12 animate-spin text-indigo-500 mb-6 drop-shadow-xl shadow-indigo-200" />
                     <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Retrieving Work History...</p>
                 </div>
             ) : historicalTickets.length === 0 ? (
