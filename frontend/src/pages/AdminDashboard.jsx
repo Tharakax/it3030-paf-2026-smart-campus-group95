@@ -9,6 +9,10 @@ import AdminTickets from '../components/Dashboard/Views/AdminTickets';
 import AdminBookingManagement from '../components/Booking/AdminBookingManagement';
 import ResourceAnalyticsPanel from '../components/Dashboard/Views/ResourceAnalyticsPanel';
 import UserManagement from '../components/Dashboard/Views/UserManagement';
+import NotificationCenter from '../components/Dashboard/Views/NotificationCenter';
+import NotificationBell from '../components/Dashboard/NotificationBell';
+import SendNotificationModal from '../components/Dashboard/SendNotificationModal';
+import { Bell, Globe, Send } from 'lucide-react';
 
 const AdminDashboard = () => {
     const { user, logout } = useContext(AuthContext);
@@ -17,6 +21,7 @@ const AdminDashboard = () => {
     const [selectedResourceId, setSelectedResourceId] = useState(null);
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSendModalOpen, setIsSendModalOpen] = useState(false);
 
     useEffect(() => {
         // System initialization mock
@@ -61,9 +66,41 @@ const AdminDashboard = () => {
                                     </h1>
                                     
                                     <ResourceAnalyticsPanel />
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div 
+                                            onClick={() => setActiveTab('notifications')}
+                                            className="p-10 text-center border-2 border-dashed border-blue-100 rounded-[3rem] bg-white group hover:border-blue-600 transition-all cursor-pointer hover:shadow-xl hover:shadow-blue-50"
+                                        >
+                                            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                                <Bell className="w-8 h-8" />
+                                            </div>
+                                            <p className="text-slate-800 font-bold text-lg">System Notifications</p>
+                                            <p className="text-slate-400 font-medium text-sm mt-1">Review activity logs and system alerts</p>
+                                        </div>
+
+                                        <div 
+                                            onClick={() => setIsSendModalOpen(true)}
+                                            className="p-10 text-center border-2 border-dashed border-indigo-100 rounded-[3rem] bg-white group hover:border-indigo-600 transition-all cursor-pointer hover:shadow-xl hover:shadow-indigo-50"
+                                        >
+                                            <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                                <Send className="w-8 h-8" />
+                                            </div>
+                                            <p className="text-slate-800 font-bold text-lg">Send Broadcast</p>
+                                            <p className="text-slate-400 font-medium text-sm mt-1">Dispatch custom alerts to users/techs</p>
+                                        </div>
+                                    </div>
                                     
                                     <div className="p-20 text-center border-2 border-dashed border-slate-200 rounded-[3rem] bg-white group hover:border-slate-900 transition-colors cursor-help">
                                         <p className="text-slate-400 font-bold group-hover:text-slate-600">Core administrative modules ready for deployment</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'notifications' && (
+                                <div className="space-y-6">
+                                    <div className="flex items-center justify-between mb-8">
+                                        <NotificationCenter />
                                     </div>
                                 </div>
                             )}
@@ -128,6 +165,12 @@ const AdminDashboard = () => {
                     )}
                 </div>
             </main>
+
+            {/* Custom Modals */}
+            <SendNotificationModal 
+                isOpen={isSendModalOpen} 
+                onClose={() => setIsSendModalOpen(false)} 
+            />
         </div>
     );
 };

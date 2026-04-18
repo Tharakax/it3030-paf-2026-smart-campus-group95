@@ -48,6 +48,8 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/auth/**", "/oauth2/**").permitAll()
                                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                                 .requestMatchers("/api/technician/**").hasRole("TECHNICIAN")
+                                                .requestMatchers("/api/notifications/**").authenticated()
+                                                .requestMatchers("/api/users/**").authenticated()
                                                 .anyRequest().authenticated())
                                 .oauth2Login(oauth2 -> oauth2
                                                 .userInfoEndpoint(userInfo -> userInfo

@@ -5,6 +5,9 @@ import TechnicianSidebar from '../components/Dashboard/TechnicianSidebar';
 import TechnicianTickets from '../components/Dashboard/Views/TechnicianTickets';
 import TechnicianHistory from '../components/Dashboard/Views/TechnicianHistory';
 import Profile from '../components/Dashboard/Views/Profile';
+import NotificationCenter from '../components/Dashboard/Views/NotificationCenter';
+import SendNotificationModal from '../components/Dashboard/SendNotificationModal';
+import { Bell, Send } from 'lucide-react';
 
 const TechnicianDashboard = () => {
     const { user, logout } = useContext(AuthContext);
@@ -12,6 +15,7 @@ const TechnicianDashboard = () => {
     const [activeTab, setActiveTab] = useState('tasks');
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSendModalOpen, setIsSendModalOpen] = useState(false);
 
     useEffect(() => {
         // Mock loading effect
@@ -46,7 +50,24 @@ const TechnicianDashboard = () => {
                         </div>
                     ) : (
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            {activeTab === 'tasks' && <TechnicianTickets />}
+                            {activeTab === 'notifications' && <NotificationCenter />}
+                            
+                            {activeTab === 'tasks' && (
+                                <div className="space-y-6">
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                        <h1 className="text-3xl font-black text-slate-800 tracking-tighter">
+                                            Assigned <span className="text-blue-600 underline decoration-blue-200 decoration-4">Tasks</span>
+                                        </h1>
+                                        <button 
+                                            onClick={() => setIsSendModalOpen(true)}
+                                            className="px-6 py-3 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center gap-2"
+                                        >
+                                            <Send size={16} /> Broadcast Message
+                                        </button>
+                                    </div>
+                                    <TechnicianTickets />
+                                </div>
+                            )}
 
                             {activeTab === 'history' && <TechnicianHistory />}
 
@@ -61,6 +82,11 @@ const TechnicianDashboard = () => {
                     )}
                 </div>
             </main>
+
+            <SendNotificationModal 
+                isOpen={isSendModalOpen} 
+                onClose={() => setIsSendModalOpen(false)} 
+            />
         </div>
     );
 };

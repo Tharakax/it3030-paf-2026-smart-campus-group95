@@ -4,14 +4,17 @@ import com.unisync.dto.BookingRequestDTO;
 import com.unisync.dto.BookingResponseDTO;
 import com.unisync.entity.Booking;
 import com.unisync.entity.Resource;
+import com.unisync.entity.Role;
 import com.unisync.entity.User;
 import com.unisync.enums.BookingStatus;
+import com.unisync.enums.NotificationType;
 import com.unisync.exception.BookingConflictException;
 import com.unisync.exception.ResourceNotFoundException;
 import com.unisync.repository.BookingRepository;
 import com.unisync.repository.ResourceRepository;
 import com.unisync.repository.UserRepository;
 import com.unisync.service.BookingService;
+import com.unisync.service.NotificationService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,13 +27,16 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ResourceRepository resourceRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
-    public BookingServiceImpl(BookingRepository bookingRepository, 
-                              ResourceRepository resourceRepository, 
-                              UserRepository userRepository) {
+    public BookingServiceImpl(BookingRepository bookingRepository,
+                              ResourceRepository resourceRepository,
+                              UserRepository userRepository,
+                              NotificationService notificationService) {
         this.bookingRepository = bookingRepository;
         this.resourceRepository = resourceRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -84,6 +90,17 @@ public class BookingServiceImpl implements BookingService {
                 .build();
 
         Booking savedBooking = bookingRepository.save(booking);
+
+        // Notify all admins of the new booking request
+        String resourceNameForNotif = resource.getName();
+        notificationService.createBroadcastNotification(
+                Role.ADMIN,
+                "New Booking Request",
+                "A new booking request for \"" + resourceNameForNotif + "\" has been submitted and requires your review.",
+                NotificationType.NEW_BOOKING_REQUEST,
+                savedBooking.getId()
+        );
+
         return mapToResponseDTO(savedBooking);
     }
 
@@ -105,13 +122,39 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponseDTO updateBookingStatus(String bookingId, BookingStatus status, String rejectionReason) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
-        
+
         booking.setStatus(status);
         if (status == BookingStatus.REJECTED) {
             booking.setRejectionReason(rejectionReason);
         }
-        
+
         Booking updatedBooking = bookingRepository.save(booking);
+
+        // Notify the booking owner of the status change
+        Resource resource = resourceRepository.findById(booking.getResourceId()).orElse(null);
+        String resourceName = resource != null ? resource.getName() : "a resource";
+
+        if (status == BookingStatus.APPROVED) {
+            notificationService.createNotification(
+                    booking.getUserId(),
+                    "Booking Approved",
+                    "Your booking request for \"" + resourceName + "\" has been approved!",
+                    NotificationType.BOOKING_APPROVED,
+                    bookingId
+            );
+        } else if (status == BookingStatus.REJECTED) {
+            String reason = rejectionReason != null && !rejectionReason.isBlank()
+                    ? " Reason: " + rejectionReason
+                    : "";
+            notificationService.createNotification(
+                    booking.getUserId(),
+                    "Booking Declined",
+                    "Your booking request for \"" + resourceName + "\" has been declined." + reason,
+                    NotificationType.BOOKING_REJECTED,
+                    bookingId
+            );
+        }
+
         return mapToResponseDTO(updatedBooking);
     }
 

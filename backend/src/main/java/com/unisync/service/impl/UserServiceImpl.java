@@ -73,6 +73,13 @@ public class UserServiceImpl implements UserService {
         return convertToDTO(savedUser);
     }
 
+    @Override
+    public List<UserProfileDTO> getUsersByRole(Role role) {
+        return userRepository.findByRole(role).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     private UserProfileDTO convertToDTO(User user) {
         return UserProfileDTO.builder()
                 .id(user.getId())

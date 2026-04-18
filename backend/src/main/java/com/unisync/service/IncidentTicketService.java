@@ -8,6 +8,7 @@ import com.unisync.entity.ResolutionRecord;
 import com.unisync.entity.Resource;
 import com.unisync.entity.Role;
 import com.unisync.entity.User;
+import com.unisync.enums.NotificationType;
 import com.unisync.enums.ResourceStatus;
 import com.unisync.enums.TicketStatus;
 import com.unisync.enums.Department;
@@ -33,6 +34,7 @@ public class IncidentTicketService {
     private final UserRepository userRepository;
     private final ResourceRepository resourceRepository;
     private final SequenceGeneratorService sequenceGenerator;
+    private final NotificationService notificationService;
 
     @Transactional
     public IncidentTicketResponseDTO createTicket(IncidentTicketRequestDTO request, User currentUser) {
@@ -71,6 +73,16 @@ public class IncidentTicketService {
         resourceRepository.save(resource);
 
         IncidentTicket savedTicket = ticketRepository.save(ticket);
+
+        // Notify all admins of the new incident report
+        notificationService.createBroadcastNotification(
+                Role.ADMIN,
+                "New Incident Report",
+                "A new incident report (" + savedTicket.getTicketId() + ") has been submitted for \"" + resource.getName() + "\" and requires your attention.",
+                NotificationType.NEW_INCIDENT_REPORT,
+                savedTicket.getId()
+        );
+
         return convertToResponseDTO(savedTicket);
     }
 
@@ -149,6 +161,18 @@ public class IncidentTicketService {
         ticket.setUpdatedAt(LocalDateTime.now());
         IncidentTicket savedTicket = ticketRepository.save(ticket);
 
+        // Notify the ticket creator of the status change (if actor is not the creator)
+        if (!ticket.getCreatedBy().equals(currentUser.getId())) {
+            String statusLabel = newStatus.name().replace("_", " ");
+            notificationService.createNotification(
+                    ticket.getCreatedBy(),
+                    "Incident Status Updated",
+                    "Your incident report (" + ticket.getTicketId() + ") status has been updated to: " + statusLabel + ".",
+                    NotificationType.INCIDENT_STATUS_UPDATE,
+                    savedTicket.getId()
+            );
+        }
+
         // SYNC RESOURCE STATUS IF TERMINAL
         if (isTerminalStatus(newStatus)) {
             syncResourceStatusToActive(ticket.getResourceId());
@@ -196,7 +220,27 @@ public class IncidentTicketService {
 
         ticket.setAssignedTo(technicianId);
         ticket.setUpdatedAt(LocalDateTime.now());
-        return convertToResponseDTO(ticketRepository.save(ticket));
+        IncidentTicket savedTicket = ticketRepository.save(ticket);
+
+        // Notify the assigned technician
+        notificationService.createNotification(
+                technicianId,
+                "Incident Assigned to You",
+                "You have been assigned to incident report " + ticket.getTicketId() + ". Please review and take action.",
+                NotificationType.INCIDENT_ASSIGNED,
+                savedTicket.getId()
+        );
+
+        // Notify the ticket creator that a technician has been assigned
+        notificationService.createNotification(
+                ticket.getCreatedBy(),
+                "Technician Assigned",
+                "A technician has been assigned to your incident report (" + ticket.getTicketId() + ") and will be in touch shortly.",
+                NotificationType.INCIDENT_ASSIGNED,
+                savedTicket.getId()
+        );
+
+        return convertToResponseDTO(savedTicket);
     }
 
     private IncidentTicketResponseDTO convertToResponseDTO(IncidentTicket ticket) {
