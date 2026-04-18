@@ -523,7 +523,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 </div>
 
                                 {/* Status Actions */}
-                                {(canReject || canClose) && (
+                                {(canReject || canClose || isRejecting) && (
                                     <div className="pt-2 border-t border-slate-100">
                                         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-2">
                                             <Clock className="w-3.5 h-3.5" />

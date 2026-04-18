@@ -44,8 +44,6 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
     const [activeMenuId, setActiveMenuId] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
-    const [showCloseModal, setShowCloseModal] = useState(false);
-    const [closeReason, setCloseReason] = useState('');
     const scrollContainerRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -148,8 +146,6 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
             toast.success(`Ticket closed successfully`);
             fetchTicketDetails();
             onUpdate();
-            setShowCloseModal(false);
-            setCloseReason('');
         } catch (err) {
             toast.error('Failed to close ticket');
         } finally {
@@ -419,7 +415,13 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                         
                                         {ticket.status === 'OPEN' && (
                                             <button 
-                                                onClick={() => setShowCloseModal(true)}
+                                                onClick={() => showConfirmToast({
+                                                    title: 'Close Ticket?',
+                                                    message: 'Are you sure you want to close this incident report? This will notify administration that the issue is no longer active.',
+                                                    confirmText: 'Yes, Close It',
+                                                    cancelText: 'Keep Ticket',
+                                                    onConfirm: () => handleStatusUpdate('CLOSED', 'Closed by reporter')
+                                                })}
                                                 className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-rose-200 text-rose-600 rounded-xl text-xs font-bold hover:bg-rose-50 transition-all shadow-sm"
                                             >
                                                 <X className="w-3.5 h-3.5" />
@@ -629,48 +631,6 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                     >
                         Open in new tab <ExternalLink className="w-3.5 h-3.5" />
                     </a>
-                </div>
-            </Modal>
-
-            {/* User Close Ticket Modal */}
-            <Modal isOpen={showCloseModal} onClose={() => setShowCloseModal(false)} title="Close Your Ticket">
-                <div className="space-y-6">
-                    <div className="text-center">
-                        <div className="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                            <CheckCheck className="w-7 h-7 text-rose-600" />
-                        </div>
-                        <h4 className="text-lg font-bold text-slate-800 mb-2">Are you sure?</h4>
-                        <p className="text-sm text-slate-500">
-                            Closing this ticket will notify the administration that the issue is no longer active.
-                        </p>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Reason for Closing</label>
-                        <textarea
-                            placeholder="e.g. Issue resolved by myself, or reported by mistake..."
-                            value={closeReason}
-                            onChange={(e) => setCloseReason(e.target.value)}
-                            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-300 outline-none resize-none"
-                            rows={3}
-                        />
-                    </div>
-
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => setShowCloseModal(false)}
-                            className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold transition-all"
-                        >
-                            Keep Ticket
-                        </button>
-                        <button
-                            onClick={() => handleStatusUpdate('CLOSED', closeReason)}
-                            disabled={!closeReason.trim() || actionLoading}
-                            className="flex-1 px-4 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-rose-200 disabled:opacity-50 disabled:shadow-none"
-                        >
-                            {actionLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Confirm Close"}
-                        </button>
-                    </div>
                 </div>
             </Modal>
         </div>
