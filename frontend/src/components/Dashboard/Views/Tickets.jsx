@@ -119,10 +119,6 @@ const Tickets = () => {
         return groups;
     }, [filteredTickets]);
 
-    const totalCount = filteredTickets.length;
-    const openCount = sections.open.length;
-    const inProgressCount = sections.inProgress.length;
-    const resolvedCount = sections.resolved.length;
 
     const getStatusBadgeClass = (status) => {
         switch (status) {
@@ -169,7 +165,7 @@ const Tickets = () => {
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div>
                                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
-                                    Service Tickets
+                                    My Tickets
                                 </h1>
                                 <p className="text-sm text-slate-500 mt-1">
                                     Track and manage your facility service requests
@@ -177,79 +173,38 @@ const Tickets = () => {
                             </div>
                             <button
                                 onClick={handleOpenModal}
-                                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-semibold transition-all shadow-sm hover:shadow-md"
+                                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5 active:scale-[0.98]"
                             >
-                                <Plus className="w-4 h-4" />
+                                <Plus className="w-5 h-5 shadow-sm" />
                                 New Ticket
                             </button>
                         </div>
 
-                        {/* Stats Cards */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
-                            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Total</p>
-                                        <p className="text-2xl font-bold text-slate-800">{totalCount}</p>
-                                    </div>
-                                    <div className="p-2 bg-slate-100 rounded-lg">
-                                        <Ticket className="w-5 h-5 text-slate-500" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Open</p>
-                                        <p className="text-2xl font-bold text-blue-600">{openCount}</p>
-                                    </div>
-                                    <div className="p-2 bg-blue-50 rounded-lg">
-                                        <Inbox className="w-5 h-5 text-blue-500" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">In Progress</p>
-                                        <p className="text-2xl font-bold text-amber-600">{inProgressCount}</p>
-                                    </div>
-                                    <div className="p-2 bg-amber-50 rounded-lg">
-                                        <Clock className="w-5 h-5 text-amber-500" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Resolved</p>
-                                        <p className="text-2xl font-bold text-emerald-600">{resolvedCount}</p>
-                                    </div>
-                                    <div className="p-2 bg-emerald-50 rounded-lg">
-                                        <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 )}
 
                 {/* Filters Bar - Hidden when viewing details */}
                 {!selectedTicketId && (
                     <div className="mt-6">
-                        <div className="flex items-center justify-between mb-4">
+                        <div className="flex flex-wrap items-center gap-3 mb-4">
                             <button
                                 onClick={() => setShowFilters(!showFilters)}
-                                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 hover:text-slate-800 transition-colors"
+                                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all border shadow-sm ${
+                                    showFilters 
+                                        ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-blue-50' 
+                                        : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/30'
+                                }`}
                             >
-                                <SlidersHorizontal className="w-4 h-4" />
+                                <SlidersHorizontal className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-90 text-blue-600' : ''}`} />
                                 Filters
                                 {hasActiveFilters && (
-                                    <span className="ml-1 px-1.5 py-0.5 bg-blue-100 text-blue-600 text-xs rounded-full">
+                                    <span className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tight ${
+                                        showFilters ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-600'
+                                    }`}>
                                         Active
                                     </span>
                                 )}
-                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${showFilters ? 'rotate-180 opacity-60' : 'opacity-40'}`} />
                             </button>
                             {hasActiveFilters && (
                                 <button
@@ -271,7 +226,7 @@ const Tickets = () => {
                                         <select
                                             value={statusFilter}
                                             onChange={(e) => setStatusFilter(e.target.value)}
-                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
+                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 cursor-pointer focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
                                         >
                                             <option value="ALL">All Status</option>
                                             <option value="OPEN">Open</option>
@@ -288,7 +243,7 @@ const Tickets = () => {
                                         <select
                                             value={priorityFilter}
                                             onChange={(e) => setPriorityFilter(e.target.value)}
-                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
+                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 cursor-pointer focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
                                         >
                                             <option value="ALL">All Priorities</option>
                                             <option value="HIGH">High</option>
@@ -303,7 +258,7 @@ const Tickets = () => {
                                         <select
                                             value={categoryFilter}
                                             onChange={(e) => setCategoryFilter(e.target.value)}
-                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
+                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 cursor-pointer focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
                                         >
                                             <option value="ALL">All Categories</option>
                                             <option value="ELECTRICAL">Electrical</option>
@@ -326,12 +281,13 @@ const Tickets = () => {
                                             type="date"
                                             value={dateFrom}
                                             max={dateTo || today}
+                                            onClick={(e) => e.target.showPicker?.()}
                                             onChange={(e) => {
                                                 const val = e.target.value;
                                                 setDateFrom(val);
                                                 if (dateTo && val > dateTo) setDateTo('');
                                             }}
-                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
+                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 cursor-pointer focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
                                         />
                                     </div>
 
@@ -343,12 +299,13 @@ const Tickets = () => {
                                             value={dateTo}
                                             min={dateFrom}
                                             max={today}
+                                            onClick={(e) => e.target.showPicker?.()}
                                             onChange={(e) => {
                                                 const val = e.target.value;
                                                 setDateTo(val);
                                                 if (dateFrom && val < dateFrom) setDateFrom('');
                                             }}
-                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
+                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 cursor-pointer focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
                                         />
                                     </div>
                                 </div>

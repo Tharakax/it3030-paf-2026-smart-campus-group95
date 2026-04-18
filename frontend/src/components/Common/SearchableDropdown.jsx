@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, ChevronDown, Check, X } from 'lucide-react';
 
-const SearchableDropdown = ({ options, onSelect, placeholder, label, value, error }) => {
+const SearchableDropdown = ({ options, onSelect, placeholder, label, value, error, disabled }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const dropdownRef = useRef(null);
@@ -27,13 +27,15 @@ const SearchableDropdown = ({ options, onSelect, placeholder, label, value, erro
     };
 
     return (
-        <div className="relative space-y-2" ref={dropdownRef}>
+        <div className={`relative space-y-2 ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`} ref={dropdownRef}>
             {label && <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">{label}</label>}
             
             <div 
-                onClick={() => setIsOpen(!isOpen)}
-                className={`w-full bg-slate-50 border transition-all cursor-pointer px-4 py-3 rounded-2xl flex items-center justify-between ${
-                    error ? 'border-red-300 ring-4 ring-red-50' : 'border-slate-200 hover:border-blue-300 focus-within:ring-4 focus-within:ring-blue-50'
+                onClick={() => !disabled && setIsOpen(!isOpen)}
+                className={`w-full bg-slate-50 border transition-all px-4 py-3 rounded-2xl flex items-center justify-between ${
+                    disabled ? 'cursor-not-allowed border-slate-200' :
+                    error ? 'border-red-300 ring-4 ring-red-50 cursor-pointer' : 
+                    'border-slate-200 hover:border-blue-300 focus-within:ring-4 focus-within:ring-blue-50 cursor-pointer'
                 }`}
             >
                 <span className={`text-sm ${value ? 'text-slate-800 font-semibold' : 'text-slate-400'}`}>
