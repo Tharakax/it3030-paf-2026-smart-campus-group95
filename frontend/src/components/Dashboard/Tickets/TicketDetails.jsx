@@ -139,6 +139,20 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
         }
     };
 
+    const handleStatusUpdate = async (newStatus, notes = '') => {
+        setActionLoading(true);
+        try {
+            await api.put(`/tickets/${ticketId}/status`, { status: newStatus, notes });
+            toast.success(`Ticket closed successfully`);
+            fetchTicketDetails();
+            onUpdate();
+        } catch (err) {
+            toast.error('Failed to close ticket');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     const getStatusConfig = (status) => {
         const configs = {
             'OPEN': { label: 'Open', color: 'bg-blue-50 text-blue-700 border-blue-200', icon: AlertCircle },
@@ -195,7 +209,7 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                     </button>
                     <div className="flex items-center gap-3">
                         <span className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono text-slate-500">
-                            #{ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
+                            {ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
                         </span>
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${getStatusConfig(ticket.status).color}`}>
                             <StatusIcon className="w-3.5 h-3.5" />
@@ -215,9 +229,6 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                         <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
                                             {ticket.category.replace(/_/g, ' ')} Issue
                                         </h1>
-                                        <p className="text-sm text-slate-500 mt-1 line-clamp-2">
-                                            {ticket.description}
-                                        </p>
                                     </div>
                                     <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${getPriorityConfig(ticket.priority).color}`}>
                                         <PriorityIcon className="w-3.5 h-3.5" />
@@ -401,6 +412,22 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                         </div>
                                         <p className="text-sm text-slate-500">No technician assigned yet</p>
                                         <p className="text-xs text-slate-400 mt-1">Awaiting assignment</p>
+                                        
+                                        {ticket.status === 'OPEN' && (
+                                            <button 
+                                                onClick={() => showConfirmToast({
+                                                    title: 'Close Ticket?',
+                                                    message: 'Are you sure you want to close this incident report? This will notify administration that the issue is no longer active.',
+                                                    confirmText: 'Yes, Close It',
+                                                    cancelText: 'Keep Ticket',
+                                                    onConfirm: () => handleStatusUpdate('CLOSED', 'Closed by reporter')
+                                                })}
+                                                className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-rose-200 text-rose-600 rounded-xl text-xs font-bold hover:bg-rose-50 transition-all shadow-sm"
+                                            >
+                                                <X className="w-3.5 h-3.5" />
+                                                Close Ticket
+                                            </button>
+                                        )}
                                     </div>
                                 )}
                             </div>

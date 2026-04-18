@@ -13,7 +13,12 @@ import {
     AlertTriangle,
     Activity,
     History,
-    ClipboardCheck
+    ClipboardCheck,
+    Ticket,
+    Inbox,
+    Clock,
+    CheckCheck,
+    SlidersHorizontal
 } from 'lucide-react';
 import { useMemo } from 'react';
 import toast from 'react-hot-toast';
@@ -29,6 +34,7 @@ const Tickets = () => {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
 
     const today = new Date().toISOString().split('T')[0];
 
@@ -51,6 +57,8 @@ const Tickets = () => {
         setDateFrom('');
         setDateTo('');
     };
+
+    const hasActiveFilters = statusFilter !== 'ALL' || priorityFilter !== 'ALL' || categoryFilter !== 'ALL' || dateFrom || dateTo;
 
     // Fetch tickets from backend on mount
     const fetchTickets = async () => {
@@ -78,40 +86,48 @@ const Tickets = () => {
                 const matchesPriority = priorityFilter === 'ALL' || ticket.priority === priorityFilter;
                 const matchesCategory = categoryFilter === 'ALL' || ticket.category === categoryFilter;
 
-                // Date filtering logic
                 const ticketDate = ticket.createdAt ? ticket.createdAt.split('T')[0] : '';
                 const matchesDateFrom = !dateFrom || ticketDate >= dateFrom;
                 const matchesDateTo = !dateTo || ticketDate <= dateTo;
 
                 return matchesStatus && matchesPriority && matchesCategory && matchesDateFrom && matchesDateTo;
             })
-            .sort((a, b) => {
-                const dateA = new Date(a.createdAt);
-                const dateB = new Date(b.createdAt);
-                return dateB - dateA; // Default to newest first
-            });
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }, [tickets, statusFilter, priorityFilter, categoryFilter, dateFrom, dateTo]);
 
     // Split filtered tickets into status-based pipeline sections
     const sections = useMemo(() => {
         const groups = {
-            new: [],
-            active: [],
-            history: []
+            open: [],
+            inProgress: [],
+            resolved: [],
+            closed: []
         };
 
         filteredTickets.forEach(tkt => {
             if (tkt.status === 'OPEN') {
-                groups.new.push(tkt);
+                groups.open.push(tkt);
             } else if (tkt.status === 'IN_PROGRESS') {
-                groups.active.push(tkt);
+                groups.inProgress.push(tkt);
+            } else if (tkt.status === 'RESOLVED') {
+                groups.resolved.push(tkt);
             } else {
-                groups.history.push(tkt);
+                groups.closed.push(tkt);
             }
         });
 
         return groups;
     }, [filteredTickets]);
+
+
+    const getStatusBadgeClass = (status) => {
+        switch (status) {
+            case 'OPEN': return 'bg-blue-50 text-blue-600 border-blue-200';
+            case 'IN_PROGRESS': return 'bg-amber-50 text-amber-600 border-amber-200';
+            case 'RESOLVED': return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+            default: return 'bg-slate-100 text-slate-500 border-slate-200';
+        }
+    };
 
     // Submit ticket to backend: POST /api/tickets
     const handleFormSubmit = async (data) => {
@@ -139,234 +155,292 @@ const Tickets = () => {
         }
     };
 
-    const glassStyle = {
-        background: 'rgba(255,255,255,.85)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        border: '1px solid rgba(0,0,0,.05)',
-        borderRadius: 24,
-        boxShadow: '0 8px 24px rgba(0,0,0,.02)'
-    };
-
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-            {/* 1. Header Section (Hidden when viewing details) */}
-            {!selectedTicketId && (
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
-                    <div>
-                        <h2 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center">
-                            My Tickets
-                        </h2>
-                        <p className="text-slate-500 mt-2 font-medium tracking-tight">Report campus issues or track your active service requests.</p>
-                    </div>
-                    <button
-                        onClick={handleOpenModal}
-                        className="bg-slate-900 hover:bg-blue-600 text-white px-10 py-5 rounded-3xl font-black text-lg tracking-tight flex items-center shadow-2xl shadow-slate-200 transition-all hover:-translate-y-1 active:scale-95 group"
-                    >
-                        <Plus className="w-6 h-6 mr-3 group-hover:rotate-90 transition-transform duration-500" />
-                        Open New Ticket
-                    </button>
-                </div>
-            )}
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100/40">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-            {/* 2. Filters Bar (Hidden when viewing details) */}
-            {!selectedTicketId && (
-                <div style={glassStyle} className="bg-white/70 p-5 border-slate-100 mb-12 flex flex-col xl:flex-row gap-5 items-center group/filters hover:border-blue-200 transition-colors duration-500">
-                    <div className="flex flex-wrap gap-3 w-full">
-                        {/* Status Filter */}
-                        <div className="relative flex-1 md:flex-none">
-                            <select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                className="appearance-none w-full md:w-44 px-5 py-3.5 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs font-black text-slate-600 cursor-pointer focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/20 transition-all pr-12 uppercase tracking-widest"
+                {/* Header Section - Hidden when viewing details */}
+                {!selectedTicketId && (
+                    <div className="mb-8">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div>
+                                <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
+                                    My Tickets
+                                </h1>
+                                <p className="text-sm text-slate-500 mt-1">
+                                    Track and manage your facility service requests
+                                </p>
+                            </div>
+                            <button
+                                onClick={handleOpenModal}
+                                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5 active:scale-[0.98]"
                             >
-                                <option value="ALL">All Status</option>
-                                <option value="OPEN">Open</option>
-                                <option value="IN_PROGRESS">Active</option>
-                                <option value="RESOLVED">Resolved</option>
-                                <option value="CLOSED">Closed</option>
-                                <option value="REJECTED">Rejected</option>
-                            </select>
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none group-hover/select:text-blue-500 transition-colors" />
+                                <Plus className="w-5 h-5 shadow-sm" />
+                                New Ticket
+                            </button>
                         </div>
 
-                        {/* Priority Filter */}
-                        <div className="relative flex-1 md:flex-none">
-                            <select
-                                value={priorityFilter}
-                                onChange={(e) => setPriorityFilter(e.target.value)}
-                                className="appearance-none w-full md:w-40 px-5 py-3.5 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs font-black text-slate-600 cursor-pointer focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/20 transition-all pr-12 uppercase tracking-widest"
+                    </div>
+                )}
+
+                {/* Filters Bar - Hidden when viewing details */}
+                {!selectedTicketId && (
+                    <div className="mt-6">
+                        <div className="flex flex-wrap items-center gap-3 mb-4">
+                            <button
+                                onClick={() => setShowFilters(!showFilters)}
+                                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl transition-all border shadow-sm ${
+                                    showFilters 
+                                        ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-blue-50' 
+                                        : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/30'
+                                }`}
                             >
-                                <option value="ALL">Priority</option>
-                                <option value="HIGH">High</option>
-                                <option value="MEDIUM">Medium</option>
-                                <option value="LOW">Low</option>
-                            </select>
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none group-hover/select:text-blue-500 transition-colors" />
+                                <SlidersHorizontal className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-90 text-blue-600' : ''}`} />
+                                Filters
+                                {hasActiveFilters && (
+                                    <span className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tight ${
+                                        showFilters ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-600'
+                                    }`}>
+                                        Active
+                                    </span>
+                                )}
+                                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${showFilters ? 'rotate-180 opacity-60' : 'opacity-40'}`} />
+                            </button>
+                            {hasActiveFilters && (
+                                <button
+                                    onClick={handleClearFilters}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg text-xs font-semibold transition-all border border-rose-100 shadow-sm"
+                                >
+                                    <X className="w-3.5 h-3.5" />
+                                    Clear all
+                                </button>
+                            )}
                         </div>
 
-                        {/* Category Filter */}
-                        <div className="relative flex-1 md:flex-none">
-                            <select
-                                value={categoryFilter}
-                                onChange={(e) => setCategoryFilter(e.target.value)}
-                                className="appearance-none w-full md:w-48 px-5 py-3.5 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs font-black text-slate-600 cursor-pointer focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/20 transition-all pr-12 uppercase tracking-widest"
+                        {showFilters && (
+                            <div className="bg-white rounded-xl border border-slate-200 p-5 mb-6 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                                    {/* Status Filter */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-slate-500 mb-1.5">Status</label>
+                                        <select
+                                            value={statusFilter}
+                                            onChange={(e) => setStatusFilter(e.target.value)}
+                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 cursor-pointer focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
+                                        >
+                                            <option value="ALL">All Status</option>
+                                            <option value="OPEN">Open</option>
+                                            <option value="IN_PROGRESS">In Progress</option>
+                                            <option value="RESOLVED">Resolved</option>
+                                            <option value="CLOSED">Closed</option>
+                                            <option value="REJECTED">Rejected</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Priority Filter */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-slate-500 mb-1.5">Priority</label>
+                                        <select
+                                            value={priorityFilter}
+                                            onChange={(e) => setPriorityFilter(e.target.value)}
+                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 cursor-pointer focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
+                                        >
+                                            <option value="ALL">All Priorities</option>
+                                            <option value="HIGH">High</option>
+                                            <option value="MEDIUM">Medium</option>
+                                            <option value="LOW">Low</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Category Filter */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-slate-500 mb-1.5">Category</label>
+                                        <select
+                                            value={categoryFilter}
+                                            onChange={(e) => setCategoryFilter(e.target.value)}
+                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 cursor-pointer focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
+                                        >
+                                            <option value="ALL">All Categories</option>
+                                            <option value="ELECTRICAL">Electrical</option>
+                                            <option value="IT_NETWORK">IT & Network</option>
+                                            <option value="PROJECTOR_AV">AV & Projector</option>
+                                            <option value="FURNITURE">Furniture</option>
+                                            <option value="PLUMBING">Plumbing</option>
+                                            <option value="AC_VENTILATION">AC & Ventilation</option>
+                                            <option value="CLEANING">Cleaning</option>
+                                            <option value="SAFETY_SECURITY">Safety & Security</option>
+                                            <option value="LAB_EQUIPMENT">Lab Equipment</option>
+                                            <option value="OTHER">Other</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Date From */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-slate-500 mb-1.5">From Date</label>
+                                        <input
+                                            type="date"
+                                            value={dateFrom}
+                                            max={dateTo || today}
+                                            onClick={(e) => e.target.showPicker?.()}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setDateFrom(val);
+                                                if (dateTo && val > dateTo) setDateTo('');
+                                            }}
+                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 cursor-pointer focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
+                                        />
+                                    </div>
+
+                                    {/* Date To */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-slate-500 mb-1.5">To Date</label>
+                                        <input
+                                            type="date"
+                                            value={dateTo}
+                                            min={dateFrom}
+                                            max={today}
+                                            onClick={(e) => e.target.showPicker?.()}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setDateTo(val);
+                                                if (dateFrom && val < dateFrom) setDateFrom('');
+                                            }}
+                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 cursor-pointer focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 outline-none"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Main Content */}
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-200 shadow-sm mt-6">
+                        <Loader2 className="w-10 h-10 animate-spin text-blue-500 mb-4" />
+                        <p className="text-slate-500 font-medium">Loading tickets...</p>
+                    </div>
+                ) : selectedTicketId ? (
+                    <TicketDetails
+                        ticketId={selectedTicketId}
+                        onClose={closeTicketDetails}
+                        onUpdate={fetchTickets}
+                    />
+                ) : filteredTickets.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm mt-6">
+                        <div className="p-4 bg-slate-100 rounded-full mb-4">
+                            <Ticket className="w-8 h-8 text-slate-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-700 mb-1">No tickets found</h3>
+                        <p className="text-sm text-slate-400">
+                            {hasActiveFilters ? 'Try adjusting your filters' : 'Create your first ticket to get started'}
+                        </p>
+                        {hasActiveFilters && (
+                            <button
+                                onClick={handleClearFilters}
+                                className="mt-6 px-6 py-2 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-xl text-sm font-semibold transition-all shadow-sm"
                             >
-                                <option value="ALL">All Categories</option>
-                                <option value="ELECTRICAL">Electrical</option>
-                                <option value="IT_NETWORK">IT & Network</option>
-                                <option value="PROJECTOR_AV">AV & Projector</option>
-                                <option value="FURNITURE">Furniture</option>
-                                <option value="PLUMBING">Plumbing</option>
-                                <option value="AC_VENTILATION">AC & Vent</option>
-                                <option value="CLEANING">Cleaning</option>
-                                <option value="SAFETY_SECURITY">Security</option>
-                                <option value="LAB_EQUIPMENT">Lab Space</option>
-                                <option value="OTHER">Other</option>
-                            </select>
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none group-hover/select:text-blue-500 transition-colors" />
-                        </div>
-
-                        {/* Date From */}
-                        <div className="flex-1 md:flex-none flex items-center bg-slate-50 rounded-2xl px-4 py-3 group focus-within:ring-4 focus-within:ring-blue-50 transition-all">
-                            <span className="text-[10px] font-black uppercase text-slate-400 mr-3">From</span>
-                            <input
-                                type="date"
-                                value={dateFrom}
-                                max={dateTo || today}
-                                onChange={(e) => {
-                                    const val = e.target.value;
-                                    setDateFrom(val);
-                                    if (dateTo && val > dateTo) setDateTo('');
-                                }}
-                                className="bg-transparent border-none p-0 text-xs font-black text-slate-600 focus:ring-0 cursor-pointer uppercase"
-                            />
-                        </div>
-
-                        {/* Date To */}
-                        <div className="flex-1 md:flex-none flex items-center bg-slate-50 rounded-2xl px-4 py-3 group focus-within:ring-4 focus-within:ring-blue-50 transition-all">
-                            <span className="text-[10px] font-black uppercase text-slate-400 mr-3">To</span>
-                            <input
-                                type="date"
-                                value={dateTo}
-                                min={dateFrom}
-                                max={today}
-                                onChange={(e) => {
-                                    const val = e.target.value;
-                                    setDateTo(val);
-                                    if (dateFrom && val < dateFrom) setDateFrom('');
-                                }}
-                                className="bg-transparent border-none p-0 text-xs font-black text-slate-600 focus:ring-0 cursor-pointer uppercase"
-                            />
-                        </div>
-
-                        {/* Clear Filters */}
-                        <button
-                            onClick={handleClearFilters}
-                            disabled={statusFilter === 'ALL' && priorityFilter === 'ALL' && categoryFilter === 'ALL' && !dateFrom && !dateTo}
-                            className="flex-1 md:flex-none xl:ml-auto flex items-center justify-center px-6 py-3.5 bg-rose-50 border border-rose-100 rounded-2xl text-[11px] font-black text-rose-600 uppercase tracking-widest hover:bg-rose-100 transition-all disabled:opacity-0 disabled:pointer-events-none duration-500"
-                        >
-                            <X className="w-4 h-4 mr-2" />
-                            Reset Filters
-                        </button>
+                                Clear all filters
+                            </button>
+                        )}
                     </div>
-                </div>
-            )}
+                ) : (
+                    <div className="space-y-8 mt-6">
+                        {/* Open Tickets Section */}
+                        {sections.open.length > 0 && (
+                            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="p-1.5 bg-blue-100 rounded-lg">
+                                        <Inbox className="w-4 h-4 text-blue-600" />
+                                    </div>
+                                    <h2 className="text-base font-semibold text-slate-700">Open Requests</h2>
+                                    <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-xs rounded-full">
+                                        {sections.open.length}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                                    {sections.open.map((ticket) => (
+                                        <TicketCard key={ticket.id} ticket={ticket} onClick={() => setSelectedTicketId(ticket.id)} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
-            {/* 3. Render View (List or Detail) */}
-            {loading ? (
-                <div className="flex flex-col items-center justify-center min-h-[400px] bg-white rounded-[3rem] border border-slate-100 shadow-sm animate-in fade-in duration-700">
-                    <div className="relative">
-                        <div className="w-20 h-20 border-4 border-indigo-50 border-t-indigo-600 rounded-full animate-spin" />
-                        <Loader2 className="w-8 h-8 text-indigo-600 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+                        {/* In Progress Tickets Section */}
+                        {sections.inProgress.length > 0 && (
+                            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-75">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="p-1.5 bg-amber-100 rounded-lg">
+                                        <Clock className="w-4 h-4 text-amber-600" />
+                                    </div>
+                                    <h2 className="text-base font-semibold text-slate-700">In Progress</h2>
+                                    <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-xs rounded-full">
+                                        {sections.inProgress.length}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                                    {sections.inProgress.map((ticket) => (
+                                        <TicketCard key={ticket.id} ticket={ticket} onClick={() => setSelectedTicketId(ticket.id)} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Resolved Tickets Section */}
+                        {sections.resolved.length > 0 && (
+                            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-150">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="p-1.5 bg-emerald-100 rounded-lg">
+                                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                    </div>
+                                    <h2 className="text-base font-semibold text-slate-700">Resolved</h2>
+                                    <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-xs rounded-full">
+                                        {sections.resolved.length}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                                    {sections.resolved.map((ticket) => (
+                                        <TicketCard key={ticket.id} ticket={ticket} onClick={() => setSelectedTicketId(ticket.id)} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Closed Tickets Section */}
+                        {sections.closed.length > 0 && (
+                            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 delay-200">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="p-1.5 bg-slate-100 rounded-lg">
+                                        <CheckCheck className="w-4 h-4 text-slate-500" />
+                                    </div>
+                                    <h2 className="text-base font-semibold text-slate-500">Closed</h2>
+                                    <span className="px-2 py-0.5 bg-slate-100 text-slate-400 text-xs rounded-full">
+                                        {sections.closed.length}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 opacity-75 hover:opacity-100 transition-opacity">
+                                    {sections.closed.map((ticket) => (
+                                        <TicketCard key={ticket.id} ticket={ticket} onClick={() => setSelectedTicketId(ticket.id)} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
-                    <div className="mt-8 text-center space-y-2">
-                        <h3 className="text-xl font-black text-slate-800 uppercase tracking-tighter">Synchronizing Tickets</h3>
-                        <p className="text-sm text-slate-400 font-medium">Connecting to Servers...</p>
-                    </div>
-                </div>
-            ) : selectedTicketId ? (
-                <TicketDetails
-                    ticketId={selectedTicketId}
-                    onClose={closeTicketDetails}
-                    onUpdate={fetchTickets}
-                />
-            ) : (
-                <div className="space-y-12">
-                    {/* 1. New Requests Section */}
-                    {sections.new.length > 0 && (
-                        <div className="animate-in fade-in slide-in-from-top-4 duration-700">
-                            <div className="flex items-center space-x-3 mb-6 px-4">
-                                <div className="p-2.5 bg-blue-50 rounded-xl">
-                                    <ClipboardCheck className="w-5 h-5 text-blue-500" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-black text-slate-800 tracking-tight">Recent Reports</h3>
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Submitted and pending review ({sections.new.length})</p>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {sections.new.map((tkt) => (
-                                    <TicketCard key={tkt.id} ticket={tkt} onClick={() => setSelectedTicketId(tkt.id)} />
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                )}
 
-                    {/* 2. Active Progress Section */}
-                    {sections.active.length > 0 && (
-                        <div className="animate-in fade-in slide-in-from-top-4 duration-700 delay-150">
-                            <div className="flex items-center space-x-3 mb-6 px-4">
-                                <div className="p-2.5 bg-violet-50 rounded-xl">
-                                    <Activity className="w-5 h-5 text-violet-500" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-black text-slate-800 tracking-tight">Actively Fixing</h3>
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Technicians are currently working on these ({sections.active.length})</p>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {sections.active.map((tkt) => (
-                                    <TicketCard key={tkt.id} ticket={tkt} onClick={() => setSelectedTicketId(tkt.id)} />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* 3. Completed History Section */}
-                    {sections.history.length > 0 && (
-                        <div className="animate-in fade-in slide-in-from-top-4 duration-700 delay-300">
-                            <div className="flex items-center space-x-3 mb-6 px-4 pt-12 border-t border-slate-100">
-                                <div className="p-2.5 bg-slate-50 rounded-xl">
-                                    <History className="w-5 h-5 text-slate-400" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-black text-slate-800 tracking-tight opacity-60">Resolved & History</h3>
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Past incidents that have been handled ({sections.history.length})</p>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-80 hover:opacity-100 transition-opacity">
-                                {sections.history.map((tkt) => (
-                                    <TicketCard key={tkt.id} ticket={tkt} onClick={() => setSelectedTicketId(tkt.id)} />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {/* Modal & Form Integration */}
-            <Modal
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                title="Create Incident Ticket"
-            >
-                <TicketForm
-                    onSubmit={handleFormSubmit}
+                {/* Create Ticket Modal */}
+                <Modal
+                    isOpen={isModalOpen}
                     onClose={handleCloseModal}
-                    submitting={submitting}
-                />
-            </Modal>
+                    title="Create Service Ticket"
+                >
+                    <TicketForm
+                        onSubmit={handleFormSubmit}
+                        onClose={handleCloseModal}
+                        submitting={submitting}
+                    />
+                </Modal>
+            </div>
         </div>
     );
 };

@@ -113,10 +113,12 @@ public class IncidentTicketService {
 
         // Role-based transition logic
         if (currentUser.getRole() == Role.USER) {
-            if (newStatus == TicketStatus.CLOSED && oldStatus == TicketStatus.RESOLVED) {
+            // Allow closing if already resolved OR if still open and unassigned
+            if (newStatus == TicketStatus.CLOSED && 
+               (oldStatus == TicketStatus.RESOLVED || (oldStatus == TicketStatus.OPEN && ticket.getAssignedTo() == null))) {
                 ticket.setStatus(TicketStatus.CLOSED);
             } else {
-                throw new UnauthorizedException("Users can only close resolved tickets");
+                throw new UnauthorizedException("Users can only close resolved tickets or their own unassigned tickets");
             }
         } else if (currentUser.getRole() == Role.TECHNICIAN) {
             if (ticket.getAssignedTo() == null || !ticket.getAssignedTo().equals(currentUser.getId())) {
