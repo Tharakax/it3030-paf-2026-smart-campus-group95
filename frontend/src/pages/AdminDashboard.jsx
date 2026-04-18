@@ -29,7 +29,7 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="flex min-h-screen bg-[#f8fafc]">
+        <div className="min-h-screen bg-[#f8fafc]">
             {/* Admin Sidebar */}
             <AdminSidebar 
                 activeTab={activeTab} 
@@ -41,7 +41,7 @@ const AdminDashboard = () => {
             />
 
             {/* Main Control Area */}
-            <main className={`flex-1 transition-all duration-300 ${isCollapsed ? 'md:ml-20' : 'md:ml-64'} p-4 md:p-10 pb-20`}>
+            <main className={`transition-all duration-300 ${isCollapsed ? 'md:ml-20' : 'md:ml-64'} p-4 md:p-10 pb-20`}>
                 <div className="max-w-7xl mx-auto">
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">

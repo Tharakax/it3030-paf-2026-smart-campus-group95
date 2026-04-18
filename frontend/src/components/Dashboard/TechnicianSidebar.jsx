@@ -14,15 +14,12 @@ import Swal from 'sweetalert2';
 
 const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed, setIsCollapsed }) => {
     const mainNav = [
-        { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-        { id: 'tasks', label: 'Ticket Hub', icon: ListTodo },
+        { id: 'tasks', label: 'Tasks', icon: ListTodo },
         { id: 'history', label: 'Work History', icon: History },
-        { id: 'tools', label: 'Equipment & Tools', icon: Wrench },
     ];
 
     const secondaryNav = [
         { id: 'profile', label: 'My Profile', icon: User },
-        { id: 'settings', label: 'Settings', icon: Settings },
     ];
 
     const confirmLogout = () => {

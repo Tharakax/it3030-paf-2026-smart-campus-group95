@@ -1,15 +1,26 @@
 import React, { useState } from 'react';
-import { 
-    Mail, 
-    MessageSquare, 
-    Phone, 
-    MapPin, 
-    Send, 
-    Sparkles, 
+import { useNavigate } from 'react-router-dom';
+import {
+    Mail,
+    Phone,
+    MapPin,
+    Sparkles,
     CheckCircle2,
     Users,
     Clock,
-    Globe
+    Globe,
+    MessageSquare,
+    HelpCircle,
+    BookOpen,
+    Twitter,
+    Facebook,
+    Linkedin,
+    Github,
+    Ticket,
+    AlertCircle,
+    ChevronRight,
+    Shield,
+    Zap
 } from 'lucide-react';
 
 /* ─── Inline styles (CSS-in-JS) ──────────────────────────────── */
@@ -19,6 +30,8 @@ const css = `
   @keyframes orb3 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(20px,30px) scale(1.08)} 66%{transform:translate(-40px,-10px) scale(.92)} }
   @keyframes fadeSlideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
   @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
+  @keyframes pulse-ring { 0%{transform:scale(0.8);opacity:0.5} 100%{transform:scale(1.3);opacity:0} }
+  @keyframes float { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-5px)} }
   
   .contact-root *{box-sizing:border-box;font-family:'Outfit',sans-serif}
   .contact-root h1,.contact-root h2,.contact-root h3{font-family:'Sora',sans-serif}
@@ -29,36 +42,20 @@ const css = `
   .contact-card{transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s ease,border-color .35s ease}
   .contact-card:hover{transform:translateY(-8px);box-shadow:0 32px 64px rgba(0,0,0,.08),0 0 0 1px rgba(59,130,246,.2)!important;border-color:rgba(59,130,246,.2)!important}
   
-  .form-input{background:rgba(255,255,255,.8); backdrop-filter:blur(20px); border:1px solid rgba(0,0,0,.08); color:#334155; border-radius:12px; transition:all .3s ease}
-  .form-input:focus{border-color:rgba(59,130,246,.4); background:rgba(255,255,255,.9); outline:none; box-shadow:0 0 0 4px rgba(59,130,246,0.1)}
+  .quick-link{transition:all .3s ease}
+  .quick-link:hover{transform:translateX(4px);color:#3b82f6}
   
-  .submit-btn{background:linear-gradient(135deg,#3b82f6,#2563eb); transition:all .3s ease}
-  .submit-btn:hover{transform:translateY(-2px); box-shadow:0 12px 24px rgba(59,130,246,.3)}
-  .submit-btn:active{transform:translateY(0)}
+  .ticket-btn{position:relative;overflow:hidden;transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+  .ticket-btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,0.3);transform:translate(-50%,-50%);transition:width .6s,height .6s}
+  .ticket-btn:hover::before{width:300px;height:300px}
+  .ticket-btn:hover{transform:translateY(-3px);box-shadow:0 20px 40px rgba(139,92,246,0.3)}
+  
+  .pulse-ring{animation:pulse-ring 1.5s cubic-bezier(0.24,0,0.38,1) infinite}
+  .float-animation{animation:float 3s ease-in-out infinite}
 `;
 
 const ContactUs = () => {
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-    });
-    const [isSubmitted, setIsSubmitted] = useState(false);
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Simulate form submission
-        setTimeout(() => {
-            setIsSubmitted(true);
-            setFormData({ name: '', email: '', subject: '', message: '' });
-        }, 1000);
-    };
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
+    const navigate = useNavigate();
     const glass = {
         background: 'rgba(255,255,255,.85)',
         backdropFilter: 'blur(16px)',
@@ -69,10 +66,22 @@ const ContactUs = () => {
     };
 
     const contactMethods = [
-        { icon: Mail, title: 'Email Us', value: 'support@unisync.edu', desc: 'Typical response within 2 hours', color: '#3b82f6' },
-        { icon: Phone, title: 'Call Support', value: '+1 (555) 000-1234', desc: 'Mon-Fri from 8am to 6pm', color: '#10b981' },
-        { icon: MapPin, title: 'Visit Hub', value: 'C-Block, Level 4', desc: 'Main Campus, Tech Avenue', color: '#8b5cf6' }
+        { icon: Mail, title: 'Email Us', value: 'support@unisync.edu', desc: 'Typical response within 2 hours', color: '#3b82f6', action: 'mailto:support@unisync.edu' },
+        { icon: Phone, title: 'Call Support', value: '+1 (555) 000-1234', desc: 'Mon-Fri from 8am to 6pm', color: '#10b981', action: 'tel:+15550001234' },
+        { icon: MapPin, title: 'Visit Hub', value: 'C-Block, Level 4', desc: 'Main Campus, Tech Avenue', color: '#8b5cf6', action: 'https://maps.google.com' }
     ];
+
+
+
+    const resourceIssues = [
+        { icon: Shield, title: 'Room Access Issues', desc: 'Cannot access booked rooms or facilities' },
+        { icon: Zap, title: 'Equipment Malfunction', desc: 'Projectors, computers, or AV equipment not working' },
+        { icon: AlertCircle, title: 'Resource Availability', desc: 'Missing or insufficient resources' }
+    ];
+
+    const handleTicketSubmit = () => {
+        navigate('/dashboard', { state: { activeTab: 'tickets' } });
+    };
 
     return (
         <div className="contact-root" style={{
@@ -111,7 +120,7 @@ const ContactUs = () => {
             </div>
 
             <div style={{ position: 'relative', zIndex: 1, maxWidth: 1200, margin: '0 auto', padding: '60px 24px 100px' }}>
-                
+
                 {/* ── Header ──────────────────────────────────────── */}
                 <div className="anim-0 text-center mb-16">
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 999, background: 'rgba(59,130,246,.08)', border: '1px solid rgba(59,130,246,.15)', marginBottom: 20 }}>
@@ -131,28 +140,124 @@ const ContactUs = () => {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-                    
-                    {/* ── Contact Info ── */}
-                    <div className="lg:col-span-5 space-y-6 anim-1">
-                        {contactMethods.map((method, i) => (
-                            <div key={i} style={glass} className="contact-card p-6 border-slate-100 bg-white/60">
-                                <div className="flex items-center gap-5">
-                                    <div style={{ background: `${method.color}10`, border: `1px solid ${method.color}15` }} className="p-4 rounded-2xl shadow-sm">
-                                        <method.icon size={24} style={{ color: method.color }} />
+                {/* ── Resource Issue Ticket Button (Hero Section) ── */}
+                <div className="anim-1 mb-16">
+                    <div style={{
+                        ...glass,
+                        background: 'linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1))',
+                        border: '2px solid rgba(139,92,246,0.2)',
+                        borderRadius: 32
+                    }} className="p-8 text-center relative overflow-hidden">
+                        {/* Decorative elements */}
+                        <div className="float-animation" style={{ position: 'absolute', top: -20, right: -20, opacity: 0.1 }}>
+                            <Ticket size={120} />
+                        </div>
+                        <div className="pulse-ring" style={{ position: 'absolute', bottom: 20, left: 20 }}>
+                            <AlertCircle size={40} style={{ color: '#8b5cf6', opacity: 0.15 }} />
+                        </div>
+
+                        <div className="relative z-10">
+                            <div style={{
+                                width: 60, height: 60,
+                                background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '0 auto 20px',
+                                boxShadow: '0 8px 20px rgba(139,92,246,0.3)'
+                            }}>
+                                <Ticket size={28} color="white" />
+                            </div>
+
+                            <h2 style={{ fontSize: 'clamp(24px,4vw,32px)', fontWeight: 700, color: '#1e293b', marginBottom: 12 }}>
+                                Having Issues with Resources?
+                            </h2>
+                            <p style={{ fontSize: 16, color: '#5b6e8c', maxWidth: 500, margin: '0 auto 24px' }}>
+                                Submit a support ticket and our team will prioritize your request
+                            </p>
+
+                            <button
+                                onClick={handleTicketSubmit}
+                                className="ticket-btn"
+                                style={{
+                                    background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+                                    padding: '14px 32px',
+                                    borderRadius: 48,
+                                    border: 'none',
+                                    color: 'white',
+                                    fontSize: 16,
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: 12,
+                                    boxShadow: '0 4px 15px rgba(139,92,246,0.3)'
+                                }}
+                            >
+                                <Ticket size={18} />
+                                Submit Resource Ticket
+                                <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                            </button>
+
+                            <div style={{ marginTop: 20, display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+                                {resourceIssues.map((issue, idx) => (
+                                    <div key={idx} style={{
+                                        background: 'rgba(255,255,255,0.5)',
+                                        backdropFilter: 'blur(8px)',
+                                        padding: '6px 14px',
+                                        borderRadius: 48,
+                                        fontSize: 12,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: 6,
+                                        color: '#475569'
+                                    }}>
+                                        <issue.icon size={12} style={{ color: '#8b5cf6' }} />
+                                        <span>{issue.title}</span>
                                     </div>
-                                    <div>
-                                        <h3 className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">{method.title}</h3>
-                                        <p className="text-slate-800 text-lg font-bold mb-1">{method.value}</p>
-                                        <p className="text-slate-500 text-sm">{method.desc}</p>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+
+                    {/* ── Main Contact Info ── */}
+                    <div className="lg:col-span-7 space-y-6 anim-1">
+                        {contactMethods.map((method, i) => (
+                            <a
+                                key={i}
+                                href={method.action}
+                                target={method.action.startsWith('http') ? '_blank' : '_self'}
+                                rel="noopener noreferrer"
+                                style={{ textDecoration: 'none', display: 'block' }}
+                            >
+                                <div style={glass} className="contact-card p-6 border-slate-100 bg-white/60 cursor-pointer">
+                                    <div className="flex items-center gap-5">
+                                        <div style={{ background: `${method.color}10`, border: `1px solid ${method.color}15` }} className="p-4 rounded-2xl shadow-sm">
+                                            <method.icon size={24} style={{ color: method.color }} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">{method.title}</h3>
+                                            <p className="text-slate-800 text-lg font-bold mb-1">{method.value}</p>
+                                            <p className="text-slate-500 text-sm">{method.desc}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </a>
                         ))}
+                    </div>
 
-                        {/* Extra Info Card */}
-                        <div style={{ ...glass, background: 'linear-gradient(135deg,rgba(59,130,246,.05),rgba(99,102,241,.05))', border: '1px solid rgba(59,130,246,.1)' }} className="p-8 mt-8 shadow-sm">
-                            <h3 className="text-blue-600 font-bold mb-4">Support Hours</h3>
+                    {/* ── Support Hours & Quick Actions ── */}
+                    <div className="lg:col-span-5 space-y-6 anim-2">
+                        {/* Support Hours Card */}
+                        <div style={{ ...glass, background: 'linear-gradient(135deg,rgba(59,130,246,.05),rgba(99,102,241,.05))', border: '1px solid rgba(59,130,246,.1)' }} className="p-8 shadow-sm">
+                            <h3 className="text-blue-600 font-bold mb-4 flex items-center gap-2">
+                                <Clock size={18} />
+                                Support Hours
+                            </h3>
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="text-slate-500">Weekdays</span>
@@ -168,111 +273,11 @@ const ContactUs = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* ── Contact Form ── */}
-                    <div className="lg:col-span-7 anim-2">
-                        {isSubmitted ? (
-                            <div style={glass} className="p-16 text-center border-emerald-500/10 bg-emerald-500/5">
-                                <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-500/15">
-                                    <CheckCircle2 size={40} className="text-emerald-500" />
-                                </div>
-                                <h2 className="text-3xl font-bold text-slate-800 mb-4">Message Received!</h2>
-                                <p className="text-slate-500 mb-8 max-w-sm mx-auto">
-                                    Thanks for reaching out! Our support team has received your inquiry and will get back to you shortly.
-                                </p>
-                                <button 
-                                    onClick={() => setIsSubmitted(false)}
-                                    className="px-8 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg"
-                                >
-                                    Send Another Message
-                                </button>
-                            </div>
-                        ) : (
-                            <div style={glass} className="p-8 md:p-10 border-slate-100 bg-white/70 shadow-sm">
-                                <div className="flex items-center gap-3 mb-8">
-                                    <MessageSquare className="text-blue-600" size={24} />
-                                    <h2 className="text-2xl font-bold text-slate-800">Send a Message</h2>
-                                </div>
-                                <form onSubmit={handleSubmit} className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <label className="text-slate-500 text-sm font-semibold ml-1">Full Name</label>
-                                            <input 
-                                                required
-                                                type="text" 
-                                                name="name"
-                                                value={formData.name}
-                                                onChange={handleChange}
-                                                placeholder="John Doe" 
-                                                className="form-input w-full px-5 py-3.5 focus:shadow-md transition-shadow"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-slate-500 text-sm font-semibold ml-1">Email Address</label>
-                                            <input 
-                                                required
-                                                type="email" 
-                                                name="email"
-                                                value={formData.email}
-                                                onChange={handleChange}
-                                                placeholder="john@example.com" 
-                                                className="form-input w-full px-5 py-3.5 focus:shadow-md transition-shadow"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-slate-500 text-sm font-semibold ml-1">Subject</label>
-                                        <input 
-                                            required
-                                            type="text" 
-                                            name="subject"
-                                            value={formData.subject}
-                                            onChange={handleChange}
-                                            placeholder="How can we help?" 
-                                            className="form-input w-full px-5 py-3.5 focus:shadow-md transition-shadow"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-slate-500 text-sm font-semibold ml-1">Message</label>
-                                        <textarea 
-                                            required
-                                            name="message"
-                                            value={formData.message}
-                                            onChange={handleChange}
-                                            rows="5" 
-                                            placeholder="Write your message here..." 
-                                            className="form-input w-full px-5 py-3.5 resize-none focus:shadow-md transition-shadow"
-                                        ></textarea>
-                                    </div>
-                                    <button 
-                                        type="submit"
-                                        className="submit-btn w-full py-4 rounded-xl text-white font-bold text-lg flex items-center justify-center gap-2 group shadow-xl shadow-blue-500/20"
-                                    >
-                                        Send Message
-                                        <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                                    </button>
-                                </form>
-                            </div>
-                        )}
                     </div>
                 </div>
 
-                {/* ── Footer Stats ── */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-20 anim-2">
-                    {[
-                        { icon: Users, label: 'Happy Users', val: '2k+' },
-                        { icon: Clock, label: 'Avg Response', val: '1.2h' },
-                        { icon: CheckCircle2, label: 'Solved', val: '98%' },
-                        { icon: Globe, label: 'Campus Sites', val: '4' }
-                    ].map((stat, i) => (
-                        <div key={i} style={glass} className="p-6 text-center border-slate-100 bg-white/60 shadow-xs">
-                            <stat.icon size={20} className="text-blue-500 mx-auto mb-3" />
-                            <div className="text-2xl font-bold text-slate-800 mb-1">{stat.val}</div>
-                            <div className="text-slate-500 text-xs font-bold uppercase tracking-widest">{stat.label}</div>
-                        </div>
-                    ))}
-                </div>
+
             </div>
         </div>
     );
