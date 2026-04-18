@@ -1,7 +1,9 @@
 package com.unisync.controller;
 
+import com.unisync.dto.TechnicianCreateRequest;
 import com.unisync.dto.UserProfileDTO;
 import com.unisync.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +28,12 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserProfileDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @PostMapping("/technicians")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserProfileDTO> createTechnician(@Valid @RequestBody TechnicianCreateRequest request) {
+        return ResponseEntity.ok(userService.createTechnician(request));
     }
 
     @PutMapping("/users/{id}")
