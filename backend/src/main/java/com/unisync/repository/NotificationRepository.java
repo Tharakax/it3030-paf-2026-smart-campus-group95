@@ -14,4 +14,10 @@ public interface NotificationRepository extends MongoRepository<Notification, St
     List<Notification> findByRecipientIdAndReadFalseOrderByCreatedAtDesc(String recipientId);
 
     long countByRecipientIdAndReadFalse(String recipientId);
+
+    List<Notification> findBySenderIdOrderByCreatedAtDesc(String senderId);
+
+    List<Notification> findByBroadcastId(String broadcastId);
+
+    void deleteByBroadcastId(String broadcastId);
 }

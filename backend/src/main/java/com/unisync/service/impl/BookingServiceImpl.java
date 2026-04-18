@@ -98,7 +98,8 @@ public class BookingServiceImpl implements BookingService {
                 "New Booking Request",
                 "A new booking request for \"" + resourceNameForNotif + "\" has been submitted and requires your review.",
                 NotificationType.NEW_BOOKING_REQUEST,
-                savedBooking.getId()
+                savedBooking.getId(),
+                null, null, "All Administrators"
         );
 
         return mapToResponseDTO(savedBooking);
@@ -140,7 +141,8 @@ public class BookingServiceImpl implements BookingService {
                     "Booking Approved",
                     "Your booking request for \"" + resourceName + "\" has been approved!",
                     NotificationType.BOOKING_APPROVED,
-                    bookingId
+                    bookingId,
+                    null, null, null, "Booking Owner"
             );
         } else if (status == BookingStatus.REJECTED) {
             String reason = rejectionReason != null && !rejectionReason.isBlank()
@@ -151,7 +153,8 @@ public class BookingServiceImpl implements BookingService {
                     "Booking Declined",
                     "Your booking request for \"" + resourceName + "\" has been declined." + reason,
                     NotificationType.BOOKING_REJECTED,
-                    bookingId
+                    bookingId,
+                    null, null, null, "Booking Owner"
             );
         }
 

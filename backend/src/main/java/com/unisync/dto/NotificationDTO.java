@@ -20,6 +20,10 @@ public class NotificationDTO {
     private String message;
     private NotificationType type;
     private String relatedEntityId;
+    private String senderId;
+    private String senderName;
+    private String broadcastId;
+    private String targetDisplayName;
     private boolean isRead;
     private LocalDateTime createdAt;
 }

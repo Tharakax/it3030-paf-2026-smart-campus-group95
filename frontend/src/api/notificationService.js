@@ -29,6 +29,24 @@ const notificationService = {
     sendCustomNotification: async (payload) => {
         const response = await api.post('/notifications/send', payload);
         return response.data;
+    },
+
+    /** Get history of notifications sent by the authenticated user */
+    getSentNotifications: async () => {
+        const response = await api.get('/notifications/sent');
+        return response.data;
+    },
+
+    /** Update an existing broadcast / custom notification */
+    updateBroadcast: async (broadcastId, payload) => {
+        const response = await api.put(`/notifications/broadcast/${broadcastId}`, payload);
+        return response.data;
+    },
+
+    /** Retract a broadcast / custom notification */
+    deleteBroadcast: async (broadcastId) => {
+        const response = await api.delete(`/notifications/broadcast/${broadcastId}`);
+        return response.data;
     }
 };
 

@@ -68,4 +68,39 @@ public class NotificationController {
         notificationService.sendCustomNotification(request, principal.getUser());
         return ResponseEntity.ok().build();
     }
+
+    /** Get history of notifications sent by the authenticated user */
+    @GetMapping("/sent")
+    public ResponseEntity<List<NotificationDTO>> getSentNotifications(
+            @AuthenticationPrincipal UserPrincipal principal) {
+        Role role = principal.getUser().getRole();
+        if (role != Role.ADMIN && role != Role.TECHNICIAN) {
+            throw new UnauthorizedException("Only admins and technicians can view sent history");
+        }
+        return ResponseEntity.ok(notificationService.getSentNotifications(principal.getUser().getId()));
+    }
+
+    /** Update an existing broadcast / custom notification */
+    @PutMapping("/broadcast/{broadcastId}")
+    public ResponseEntity<Void> updateBroadcast(
+            @PathVariable String broadcastId,
+            @RequestBody Map<String, String> updates,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        
+        String title = updates.get("title");
+        String message = updates.get("message");
+        
+        notificationService.updateBroadcast(broadcastId, title, message, principal.getUser().getId());
+        return ResponseEntity.ok().build();
+    }
+
+    /** Retract a broadcast / custom notification */
+    @DeleteMapping("/broadcast/{broadcastId}")
+    public ResponseEntity<Void> deleteBroadcast(
+            @PathVariable String broadcastId,
+            @AuthenticationPrincipal UserPrincipal principal) {
+        
+        notificationService.deleteBroadcast(broadcastId, principal.getUser().getId());
+        return ResponseEntity.ok().build();
+    }
 }

@@ -80,7 +80,8 @@ public class IncidentTicketService {
                 "New Incident Report",
                 "A new incident report (" + savedTicket.getTicketId() + ") has been submitted for \"" + resource.getName() + "\" and requires your attention.",
                 NotificationType.NEW_INCIDENT_REPORT,
-                savedTicket.getId()
+                savedTicket.getId(),
+                null, null, "All Administrators"
         );
 
         return convertToResponseDTO(savedTicket);
@@ -169,7 +170,8 @@ public class IncidentTicketService {
                     "Incident Status Updated",
                     "Your incident report (" + ticket.getTicketId() + ") status has been updated to: " + statusLabel + ".",
                     NotificationType.INCIDENT_STATUS_UPDATE,
-                    savedTicket.getId()
+                    savedTicket.getId(),
+                    null, null, null, "Ticket Creator"
             );
         }
 
@@ -228,7 +230,8 @@ public class IncidentTicketService {
                 "Incident Assigned to You",
                 "You have been assigned to incident report " + ticket.getTicketId() + ". Please review and take action.",
                 NotificationType.INCIDENT_ASSIGNED,
-                savedTicket.getId()
+                savedTicket.getId(),
+                null, null, null, "Assigned Technician"
         );
 
         // Notify the ticket creator that a technician has been assigned
@@ -237,7 +240,8 @@ public class IncidentTicketService {
                 "Technician Assigned",
                 "A technician has been assigned to your incident report (" + ticket.getTicketId() + ") and will be in touch shortly.",
                 NotificationType.INCIDENT_ASSIGNED,
-                savedTicket.getId()
+                savedTicket.getId(),
+                null, null, null, "Ticket Creator"
         );
 
         return convertToResponseDTO(savedTicket);

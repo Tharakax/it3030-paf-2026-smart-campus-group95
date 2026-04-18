@@ -31,6 +31,16 @@ public class Notification {
     /** ID of the related booking or ticket — may be null for CUSTOM notifications */
     private String relatedEntityId;
 
+    /** Fields to support management of sent messages */
+    private String senderId;
+    private String senderName;
+    
+    @Indexed
+    private String broadcastId;
+
+    /** Display name for the target group or specific recipient used in Sent History */
+    private String targetDisplayName;
+
     @Builder.Default
     private boolean read = false;
 
