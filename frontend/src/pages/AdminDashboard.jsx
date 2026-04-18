@@ -8,6 +8,7 @@ import EditResource from './EditResource';
 import AdminTickets from '../components/Dashboard/Views/AdminTickets';
 import AdminBookingManagement from '../components/Booking/AdminBookingManagement';
 import ResourceAnalyticsPanel from '../components/Dashboard/Views/ResourceAnalyticsPanel';
+import UserManagement from '../components/Dashboard/Views/UserManagement';
 
 const AdminDashboard = () => {
     const { user, logout } = useContext(AuthContext);
@@ -71,14 +72,7 @@ const AdminDashboard = () => {
 
                             {activeTab === 'bookings' && <AdminBookingManagement />}
 
-                            {activeTab === 'users' && (
-                                <div className="space-y-6">
-                                    <h2 className="text-3xl font-black text-slate-800 tracking-tighter">User Management</h2>
-                                    <div className="p-20 text-center bg-white rounded-[3rem] border border-slate-100 shadow-sm">
-                                        <p className="text-slate-400 font-bold">User audit and permission controls initialization pending</p>
-                                    </div>
-                                </div>
-                            )}
+                            {activeTab === 'users' && <UserManagement />}
 
                             {activeTab === 'campus' && (
                                 <div className="space-y-6">
