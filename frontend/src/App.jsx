@@ -16,6 +16,7 @@ import ResourceDetails from './pages/ResourceDetails';
 import CreateResource from './pages/CreateResource';
 import EditResource from './pages/EditResource';
 import ContactUs from './pages/ContactUs';
+import Bookings from './pages/Bookings';
 import Unauthorized from './pages/Unauthorized';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -82,6 +83,12 @@ function App() {
               } />
 
               <Route path="/contact" element={<ContactUs />} />
+
+              <Route path="/bookings" element={
+                <PrivateRoute>
+                  <Bookings />
+                </PrivateRoute>
+              } />
 
               <Route path="/unauthorized" element={<Unauthorized />} />
 

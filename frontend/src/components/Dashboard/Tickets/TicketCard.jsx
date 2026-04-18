@@ -61,38 +61,48 @@ const TicketCard = ({ ticket, onClick }) => {
     const isResolved = ticket.status === 'RESOLVED' || ticket.status === 'CLOSED';
     const isRejected = ticket.status === 'REJECTED';
 
+    const glassStyle = {
+        background: 'rgba(255,255,255,.85)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(0,0,0,.05)',
+        borderRadius: 32,
+        boxShadow: '0 8px 24px rgba(0,0,0,.02)'
+    };
+
     return (
         <div
             onClick={onClick}
-            className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 group cursor-pointer relative overflow-hidden"
+            style={glassStyle}
+            className="bg-white/80 p-8 border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 group cursor-pointer relative overflow-hidden active:scale-[0.98] hover:-translate-y-1"
         >
             {/* Status Accent Bar */}
-            <div className={`absolute top-0 left-0 w-full h-1.5 ${isResolved ? 'bg-emerald-500'
-                    : isRejected ? 'bg-red-500'
-                        : 'bg-indigo-500'
+            <div className={`absolute top-0 left-0 w-full h-1.5 transition-all duration-500 group-hover:h-2 ${isResolved ? 'bg-emerald-400'
+                    : isRejected ? 'bg-rose-400'
+                        : 'bg-blue-500'
                 }`} />
 
             {/* Header: ID + Priority Badge */}
             <div className="flex justify-between items-start mb-6">
-                <span className="text-[10px] font-black font-mono text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl tracking-widest border border-slate-100">
-                    {ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
+                <span className="text-[10px] font-black font-mono text-slate-400 bg-slate-50/50 px-3 py-1.5 rounded-xl tracking-[0.15em] border border-slate-100/50 group-hover:bg-white transition-colors">
+                    #{ticket.ticketId || (ticket.id ? ticket.id.substring(0, 8).toUpperCase() : 'NEW')}
                 </span>
-                <span className={`px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border ${priorityStyles[ticket.priority] || priorityStyles['LOW']
+                <span className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm ${priorityStyles[ticket.priority] || priorityStyles['LOW']
                     }`}>
-                    {ticket.priority} Priority
+                    {ticket.priority}
                 </span>
             </div>
 
             {/* Body: Category + Description */}
-            <div className="mb-6">
-                <div className="flex items-center space-x-2 mb-1">
-                    <p className="text-xs font-bold text-blue-600 uppercase tracking-tighter opacity-70">
+            <div className="mb-8">
+                <div className="flex items-center space-x-2 mb-2">
+                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest opacity-80 group-hover:opacity-100 transition-opacity">
                         {categoryLabels[ticket.category] || ticket.category}
                     </p>
                     {ticket.resourceType && (
                         <>
                             <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                            <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none">
+                            <p className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.2em] leading-none">
                                 {ticket.resourceType.replace(/_/g, ' ')}
                             </p>
                         </>

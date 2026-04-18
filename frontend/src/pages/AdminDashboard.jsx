@@ -6,6 +6,7 @@ import ResourceCatalogue from './ResourceCatalogue';
 import CreateResource from './CreateResource';
 import EditResource from './EditResource';
 import AdminTickets from '../components/Dashboard/Views/AdminTickets';
+import AdminBookingManagement from '../components/Booking/AdminBookingManagement';
 
 const AdminDashboard = () => {
     const { user, logout } = useContext(AuthContext);
@@ -46,7 +47,7 @@ const AdminDashboard = () => {
                             <div className="w-16 h-16 border-4 border-blue-600 border-t-emerald-500 rounded-full animate-spin shadow-2xl shadow-blue-100" />
                             <div className="text-center">
                                 <p className="text-blue-600 font-black uppercase tracking-widest text-xs animate-pulse mb-1">Authenticating Root Access...</p>
-                                <p className="text-slate-400 text-[10px] uppercase font-bold tracking-tighter italic">UniSync Secure Shield Active</p>
+                                <p className="text-slate-400 text-[10px] uppercase font-bold tracking-tighter">UniSync Secure Shield Active</p>
                             </div>
                         </div>
                     ) : (
@@ -57,18 +58,20 @@ const AdminDashboard = () => {
                                         System <span className="text-blue-600 underline decoration-emerald-400 decoration-4">Dashboard</span>
                                     </h1>
                                     <div className="p-20 text-center border-2 border-dashed border-slate-200 rounded-[3rem] bg-white group hover:border-slate-900 transition-colors cursor-help">
-                                        <p className="text-slate-400 font-bold italic group-hover:text-slate-600">Core administrative modules ready for deployment</p>
+                                        <p className="text-slate-400 font-bold group-hover:text-slate-600">Core administrative modules ready for deployment</p>
                                     </div>
                                 </div>
                             )}
 
                             {activeTab === 'tickets' && <AdminTickets />}
 
+                            {activeTab === 'bookings' && <AdminBookingManagement />}
+
                             {activeTab === 'users' && (
                                 <div className="space-y-6">
                                     <h2 className="text-3xl font-black text-slate-800 tracking-tighter">User Management</h2>
                                     <div className="p-20 text-center bg-white rounded-[3rem] border border-slate-100 shadow-sm">
-                                        <p className="text-slate-400 font-bold italic">User audit and permission controls initialization pending</p>
+                                        <p className="text-slate-400 font-bold">User audit and permission controls initialization pending</p>
                                     </div>
                                 </div>
                             )}

@@ -14,7 +14,13 @@ import {
     ChevronRight, 
     Compass,
     Sparkles,
-    LayoutGrid
+    LayoutGrid,
+    BookOpen,
+    FlaskConical,
+    MessagesSquare,
+    Mic2,
+    Monitor,
+    Trophy
 } from 'lucide-react';
 
 /* ─── Google Fonts injection ─────────────────────────────────── */
@@ -39,9 +45,9 @@ const css = `
   .anim-1{animation:fadeSlideUp .7s .15s ease both}
   .anim-2{animation:fadeSlideUp .7s .3s ease both}
   .resource-card{transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s ease,border-color .35s ease; border-radius: 20px !important}
-  .resource-card:hover{transform:translateY(-8px) scale(1.015);box-shadow:0 32px 64px rgba(0,0,0,.45),0 0 0 1px rgba(99,179,237,.35)!important;border-color:rgba(99,179,237,.35)!important}
-  .filter-select{background:rgba(15,23,42,.55); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,.08); color:#e2e8f0; border-radius:12px}
-  .filter-select:focus{border-color:rgba(99,179,237,.4); background:rgba(30,41,59,.8)}
+  .resource-card:hover{transform:translateY(-8px) scale(1.015);box-shadow:0 32px 64px rgba(0,0,0,.08),0 0 0 1px rgba(59,130,246,.2)!important;border-color:rgba(59,130,246,.2)!important}
+  .filter-select{background:rgba(255,255,255,.8); backdrop-filter:blur(20px); border:1px solid rgba(0,0,0,.08); color:#334155; border-radius:12px}
+  .filter-select:focus{border-color:rgba(59,130,246,.4); background:rgba(255,255,255,.9)}
 `;
 
 const UserResourceCatalogue = () => {
@@ -53,10 +59,10 @@ const UserResourceCatalogue = () => {
 
     // Shared glassmorphism token
     const glass = {
-        background: 'rgba(15,23,42,.55)',
+        background: 'rgba(255,255,255,.75)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255,255,255,.08)',
+        border: '1px solid rgba(0,0,0,.08)',
         borderRadius: 20
     };
 
@@ -122,6 +128,19 @@ const UserResourceCatalogue = () => {
         return types[type] || 'from-gray-500 to-gray-600';
     };
 
+    const getTypeIcon = (type) => {
+        switch (type) {
+            case 'LECTURE_HALL': return <BookOpen className="w-6 h-6 text-white" />;
+            case 'LAB': return <Monitor className="w-6 h-6 text-white" />;
+            case 'MEETING_ROOM': return <MessagesSquare className="w-6 h-6 text-white" />;
+            case 'AUDITORIUM': return <Mic2 className="w-6 h-6 text-white" />;
+            case 'STUDY_ROOM': return <Users className="w-6 h-6 text-white" />;
+            case 'GROUND': return <Trophy className="w-6 h-6 text-white" />;
+            case 'EQUIPMENT': return <LayoutGrid className="w-6 h-6 text-white" />;
+            default: return <Building2 className="w-6 h-6 text-white" />;
+        }
+    };
+
     if (error) return (
         <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#050b1a' }}>
             <div style={glass} className="max-w-md w-full p-8 text-center">
@@ -142,17 +161,17 @@ const UserResourceCatalogue = () => {
 
     // Skeleton Loader Component
     const SkeletonCard = () => (
-        <div style={glass} className="overflow-hidden animate-pulse">
+        <div style={glass} className="overflow-hidden animate-pulse bg-white/50">
             <div className="p-6">
                 <div className="flex justify-between items-start mb-6">
-                    <div className="w-14 h-14 bg-white/5 rounded-2xl"></div>
-                    <div className="w-16 h-6 bg-white/5 rounded-full"></div>
+                    <div className="w-14 h-14 bg-blue-500/5 rounded-2xl"></div>
+                    <div className="w-16 h-6 bg-blue-500/5 rounded-full"></div>
                 </div>
-                <div className="h-7 bg-white/5 rounded-lg mb-3 w-3/4"></div>
-                <div className="h-4 bg-white/5 rounded-full mb-6 w-1/2"></div>
-                <div className="space-y-3 pt-6 border-t border-white/5">
-                    <div className="h-4 bg-white/5 rounded-full w-full"></div>
-                    <div className="h-4 bg-white/5 rounded-full w-2/3"></div>
+                <div className="h-7 bg-blue-500/5 rounded-lg mb-3 w-3/4"></div>
+                <div className="h-4 bg-blue-500/5 rounded-full mb-6 w-1/2"></div>
+                <div className="space-y-3 pt-6 border-t border-slate-200/50">
+                    <div className="h-4 bg-blue-500/5 rounded-full w-full"></div>
+                    <div className="h-4 bg-blue-500/5 rounded-full w-2/3"></div>
                 </div>
             </div>
         </div>
@@ -161,7 +180,7 @@ const UserResourceCatalogue = () => {
     return (
         <div className="resource-root" style={{
             minHeight: '100vh',
-            background: 'linear-gradient(135deg,#050b1a 0%,#0a1628 40%,#0d1f3c 70%,#071020 100%)',
+            background: 'linear-gradient(135deg,#f8fafc 0%,#f1f5f9 40%,#e2e8f0 70%,#f8fafc 100%)',
             position: 'relative',
             overflowX: 'hidden'
         }}>
@@ -172,24 +191,24 @@ const UserResourceCatalogue = () => {
                 <div style={{
                     position: 'absolute', top: '8%', left: '5%',
                     width: 520, height: 520,
-                    background: 'radial-gradient(circle,rgba(59,130,246,.18) 0%,transparent 70%)',
+                    background: 'radial-gradient(circle,rgba(59,130,246,.08) 0%,transparent 70%)',
                     borderRadius: '50%', animation: 'orb1 18s ease-in-out infinite'
                 }} />
                 <div style={{
                     position: 'absolute', top: '30%', right: '3%',
                     width: 420, height: 420,
-                    background: 'radial-gradient(circle,rgba(99,102,241,.16) 0%,transparent 70%)',
+                    background: 'radial-gradient(circle,rgba(99,102,241,.06) 0%,transparent 70%)',
                     borderRadius: '50%', animation: 'orb2 22s ease-in-out infinite'
                 }} />
                 <div style={{
                     position: 'absolute', bottom: '10%', left: '35%',
                     width: 360, height: 360,
-                    background: 'radial-gradient(circle,rgba(6,182,212,.13) 0%,transparent 70%)',
+                    background: 'radial-gradient(circle,rgba(6,182,212,.05) 0%,transparent 70%)',
                     borderRadius: '50%', animation: 'orb3 15s ease-in-out infinite'
                 }} />
                 <div style={{
                     position: 'absolute', inset: 0,
-                    backgroundImage: 'linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px), linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px)',
+                    backgroundImage: 'linear-gradient(rgba(0,0,0,.01) 1px,transparent 1px), linear-gradient(90deg,rgba(0,0,0,.01) 1px,transparent 1px)',
                     backgroundSize: '60px 60px'
                 }} />
             </div>
@@ -201,38 +220,38 @@ const UserResourceCatalogue = () => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                         <div style={{
                             padding: '4px 14px', borderRadius: 999,
-                            background: 'rgba(59,130,246,.12)',
-                            border: '1px solid rgba(59,130,246,.3)',
+                            background: 'rgba(59,130,246,.1)',
+                            border: '1px solid rgba(59,130,246,.2)',
                             display: 'flex', alignItems: 'center', gap: 6
                         }}>
-                            <Sparkles size={13} style={{ color: '#63b3ed' }} />
-                            <span style={{ fontSize: 11, fontWeight: 600, color: '#63b3ed', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                            <Sparkles size={13} style={{ color: '#3b82f6' }} />
+                            <span style={{ fontSize: 11, fontWeight: 600, color: '#3b82f6', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                                 Campus Resources
                             </span>
                         </div>
                     </div>
-                    <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', fontWeight: 800, color: '#f0f6ff', lineHeight: 1.1, margin: '0 0 10px', letterSpacing: '-0.02em' }}>
+                    <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', fontWeight: 800, color: '#1e293b', lineHeight: 1.1, margin: '0 0 10px', letterSpacing: '-0.02em' }}>
                         Browse <span style={{
-                            background: 'linear-gradient(90deg,#63b3ed,#a78bfa,#67e8f9)',
+                            background: 'linear-gradient(90deg,#3b82f6,#8b5cf6,#06b6d4)',
                             backgroundSize: '200% auto',
                             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                             animation: 'shimmer 4s linear infinite'
                         }}>Facilities</span>
                     </h1>
-                    <p style={{ fontSize: 16, color: 'rgba(148,163,184,.8)', margin: 0, fontWeight: 400, maxWidth: 520 }}>
+                    <p style={{ fontSize: 16, color: '#64748b', margin: 0, fontWeight: 400, maxWidth: 520 }}>
                         Find and book the perfect space for your academic needs, from study rooms to laboratories.
                     </p>
 
                     {/* Enhanced Search Bar */}
                     <div className="max-w-2xl mt-12 relative group anim-1">
-                        <div style={glass} className="flex items-center gap-4 px-6 py-4 bg-slate-900/40 focus-within:border-blue-500/50 transition-all duration-300">
-                            <Search className="w-5 h-5 text-slate-400 group-focus-within:text-blue-400 transition-colors" />
+                        <div style={glass} className="flex items-center gap-4 px-6 py-4 bg-white/50 focus-within:border-blue-500/50 transition-all duration-300 shadow-sm">
+                            <Search className="w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                             <input 
                                 type="text"
                                 placeholder="Search by name or code (e.g. L001, Computer Lab)..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-transparent outline-none text-slate-100 font-medium placeholder:text-slate-500"
+                                className="w-full bg-transparent outline-none text-slate-700 font-medium placeholder:text-slate-400"
                             />
                         </div>
                     </div>
@@ -240,17 +259,17 @@ const UserResourceCatalogue = () => {
 
                 {/* ── Filter Bar ───────────────────────────────────── */}
                 <div className="anim-1 mb-10 sticky top-4 z-20">
-                    <div style={glass} className="p-3 flex flex-wrap items-center gap-3">
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-xl border border-white/5">
-                            <SlidersHorizontal className="w-4 h-4 text-slate-400" />
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Filters</span>
+                    <div style={glass} className="p-3 flex flex-wrap items-center gap-3 bg-white/80">
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/5 rounded-xl border border-blue-500/10">
+                            <SlidersHorizontal className="w-4 h-4 text-blue-500" />
+                            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Filters</span>
                         </div>
 
                         <select 
                             name="type" 
                             value={filters.type} 
                             onChange={handleFilterChange} 
-                            className="filter-select flex-1 min-w-[150px] px-4 py-2.5 text-sm font-semibold outline-none transition-all cursor-pointer"
+                            className="filter-select flex-1 min-w-37.5 px-4 py-2.5 text-sm font-semibold outline-none transition-all cursor-pointer shadow-sm"
                         >
                             <option value="">All Types</option>
                             <option value="LECTURE_HALL">📚 Lecture Halls</option>
@@ -266,7 +285,7 @@ const UserResourceCatalogue = () => {
                             name="department" 
                             value={filters.department} 
                             onChange={handleFilterChange} 
-                            className="filter-select flex-1 min-w-[150px] px-4 py-2.5 text-sm font-semibold outline-none transition-all cursor-pointer"
+                            className="filter-select flex-1 min-w-37.5 px-4 py-2.5 text-sm font-semibold outline-none transition-all cursor-pointer shadow-sm"
                         >
                             <option value="">All Departments</option>
                             <option value="FACULTY_OF_COMPUTING">💻 Computing</option>
@@ -281,7 +300,7 @@ const UserResourceCatalogue = () => {
                             name="bookable" 
                             value={filters.bookable} 
                             onChange={handleFilterChange} 
-                            className="filter-select flex-1 min-w-[150px] px-4 py-2.5 text-sm font-semibold outline-none transition-all cursor-pointer"
+                            className="filter-select flex-1 min-w-37.5 px-4 py-2.5 text-sm font-semibold outline-none transition-all cursor-pointer shadow-sm"
                         >
                             <option value="">Any Status</option>
                             <option value="true">✅ Bookable</option>
@@ -290,7 +309,7 @@ const UserResourceCatalogue = () => {
 
                         <button 
                             onClick={clearFilters} 
-                            className="px-5 py-2.5 text-sm font-bold text-slate-400 hover:text-white transition-all duration-300"
+                            className="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-blue-600 transition-all duration-300"
                         >
                             Reset
                         </button>
@@ -300,9 +319,9 @@ const UserResourceCatalogue = () => {
                 {/* Results Counter */}
                 {!loading && filteredResources.length > 0 && (
                     <div className="mb-6 anim-2">
-                        <div style={glass} className="inline-flex items-center px-4 py-2 border border-white/5">
-                            <span className="text-sm font-semibold text-slate-400">
-                                Found <span className="text-blue-400 font-bold">{filteredResources.length}</span> facilities
+                        <div style={glass} className="inline-flex items-center px-4 py-2 bg-white/50 border-blue-500/10">
+                            <span className="text-sm font-semibold text-slate-500">
+                                Found <span className="text-blue-500 font-bold">{filteredResources.length}</span> facilities
                             </span>
                         </div>
                     </div>
@@ -313,13 +332,13 @@ const UserResourceCatalogue = () => {
                         {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
                     </div>
                 ) : filteredResources.length === 0 ? (
-                    <div style={glass} className="text-center p-16 anim-2">
-                        <div className="bg-white/5 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/5">
-                            <Search className="w-10 h-10 text-slate-600" />
+                    <div style={glass} className="text-center p-16 anim-2 bg-white/50">
+                        <div className="bg-blue-500/5 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-500/10">
+                            <Search className="w-10 h-10 text-slate-300" />
                         </div>
-                        <h3 className="text-2xl font-bold text-slate-200 mb-2">No facilities found</h3>
+                        <h3 className="text-2xl font-bold text-slate-700 mb-2">No facilities found</h3>
                         <p className="text-slate-500 font-medium max-w-sm mx-auto">Try adjusting your search or filters to discover available campus resources.</p>
-                        <button onClick={clearFilters} className="mt-6 text-blue-400 font-bold text-sm hover:text-blue-300 transition-colors">
+                        <button onClick={clearFilters} className="mt-6 text-blue-500 font-bold text-sm hover:text-blue-600 transition-colors">
                             Clear all filters →
                         </button>
                     </div>
@@ -330,47 +349,47 @@ const UserResourceCatalogue = () => {
                                 key={resource.id} 
                                 onClick={() => navigate(`/resources/${resource.id}`)}
                                 style={glass}
-                                className="resource-card group relative p-6 cursor-pointer overflow-hidden border-white/5"
+                                className="resource-card group relative p-6 cursor-pointer overflow-hidden bg-white/60 border-slate-200/50"
                             >
                                 <div className="flex justify-between items-start mb-5">
-                                    <div className={`p-3 rounded-2xl bg-gradient-to-br ${getTypeColor(resource.type)} shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300`}>
-                                        <Building2 className="w-6 h-6 text-white" />
+                                    <div className={`p-3 rounded-2xl bg-linear-to-br ${getTypeColor(resource.type)} shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform duration-300`}>
+                                        {getTypeIcon(resource.type)}
                                     </div>
-                                    <div className="px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider text-slate-400 bg-white/5 border border-white/10">
+                                    <div className="px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider text-slate-400 bg-slate-50 border border-slate-200">
                                         {resource.resourceCode}
                                     </div>
                                 </div>
 
-                                <h3 className="text-xl font-bold text-slate-100 tracking-tight group-hover:text-blue-400 transition-colors duration-300 mb-2 line-clamp-1">
+                                <h3 className="text-xl font-bold text-slate-700 tracking-tight group-hover:text-blue-600 transition-colors duration-300 mb-2 line-clamp-1">
                                     {resource.name}
                                 </h3>
                                 
-                                <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-500/10 text-[10px] font-bold text-blue-400 mb-4 border border-blue-500/20">
+                                <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-500/5 text-[10px] font-bold text-blue-600 mb-4 border border-blue-500/10">
                                     {resource.type.replace(/_/g, ' ')}
                                 </div>
 
-                                <div className="space-y-3 pt-4 border-t border-white/5">
-                                    <div className="flex items-center text-slate-400 font-medium text-sm">
-                                        <MapPin className="w-4 h-4 mr-3 text-slate-500 group-hover:text-blue-400 transition-colors shrink-0" />
+                                <div className="space-y-3 pt-4 border-t border-slate-100">
+                                    <div className="flex items-center text-slate-500 font-medium text-sm">
+                                        <MapPin className="w-4 h-4 mr-3 text-slate-400 group-hover:text-blue-500 transition-colors shrink-0" />
                                         <span className="truncate">{resource.department?.replace(/_/g, ' ') || 'General Campus'}</span>
                                     </div>
-                                    <div className="flex items-center text-slate-400 font-medium text-sm">
-                                        <Users className="w-4 h-4 mr-3 text-slate-500 group-hover:text-blue-400 transition-colors shrink-0" />
-                                        <span>Capacity: <strong className="text-slate-200 ml-1">{resource.capacity || 'N/A'}</strong></span>
+                                    <div className="flex items-center text-slate-500 font-medium text-sm">
+                                        <Users className="w-4 h-4 mr-3 text-slate-400 group-hover:text-blue-500 transition-colors shrink-0" />
+                                        <span>Capacity: <strong className="text-slate-700 ml-1">{resource.capacity || 'N/A'}</strong></span>
                                     </div>
                                 </div>
 
-                                <div className="mt-6 flex justify-between items-center bg-white/5 -mx-6 -mb-6 px-6 py-4 border-t border-white/5 group-hover:bg-blue-500/5 transition-colors">
+                                <div className="mt-6 flex justify-between items-center bg-slate-50/50 -mx-6 -mb-6 px-6 py-4 border-t border-slate-100 group-hover:bg-blue-500/5 transition-colors">
                                     {resource.bookable ? (
-                                        <span className="flex items-center text-[10px] font-black text-emerald-400 uppercase tracking-wider gap-1.5">
+                                        <span className="flex items-center text-[10px] font-black text-emerald-600 uppercase tracking-wider gap-1.5">
                                             <CheckCircle2 className="w-3.5 h-3.5" /> Bookable
                                         </span>
                                     ) : (
-                                        <span className="flex items-center text-[10px] font-black text-slate-500 uppercase tracking-wider gap-1.5">
+                                        <span className="flex items-center text-[10px] font-black text-slate-400 uppercase tracking-wider gap-1.5">
                                             <XCircle className="w-3.5 h-3.5" /> View Only
                                         </span>
                                     )}
-                                    <span className="flex items-center gap-1 text-blue-400 font-black text-[10px] uppercase tracking-wider group-hover:gap-2 transition-all duration-300">
+                                    <span className="flex items-center gap-1 text-blue-600 font-black text-[10px] uppercase tracking-wider group-hover:gap-2 transition-all duration-300">
                                         Details <ChevronRight className="w-3 h-3" />
                                     </span>
                                 </div>
