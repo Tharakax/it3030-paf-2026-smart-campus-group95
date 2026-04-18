@@ -3,6 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import TechnicianSidebar from '../components/Dashboard/TechnicianSidebar';
 import TechnicianTickets from '../components/Dashboard/Views/TechnicianTickets';
+import TechnicianHistory from '../components/Dashboard/Views/TechnicianHistory';
 
 const TechnicianDashboard = () => {
     const { user, logout } = useContext(AuthContext);
@@ -23,7 +24,7 @@ const TechnicianDashboard = () => {
     };
 
     return (
-        <div className="flex min-h-screen bg-[#f8fafc]">
+        <div className="min-h-screen bg-[#f8fafc]">
             {/* Sidebar */}
             <TechnicianSidebar 
                 activeTab={activeTab} 
@@ -35,7 +36,7 @@ const TechnicianDashboard = () => {
             />
 
             {/* Main Content Area */}
-            <main className={`flex-1 transition-all duration-300 ${isCollapsed ? 'md:ml-20' : 'md:ml-64'} p-4 md:p-10 pb-20`}>
+            <main className={`transition-all duration-300 ${isCollapsed ? 'md:ml-20' : 'md:ml-64'} p-4 md:p-10 pb-20`}>
                 <div className="max-w-6xl mx-auto">
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
@@ -57,11 +58,7 @@ const TechnicianDashboard = () => {
                             
                             {activeTab === 'tasks' && <TechnicianTickets />}
 
-                            {activeTab === 'history' && (
-                                <div className="p-20 text-center text-slate-400 font-medium italic animate-in fade-in duration-500 bg-white rounded-[3rem] border border-slate-100">
-                                    Work History logs
-                                </div>
-                            )}
+                            {activeTab === 'history' && <TechnicianHistory />}
 
                             {['tools', 'profile', 'settings'].includes(activeTab) && (
                                 <div className="p-20 text-center text-slate-400 font-medium italic animate-in fade-in duration-500 bg-white rounded-[3rem] border border-slate-100 uppercase tracking-widest text-xs">

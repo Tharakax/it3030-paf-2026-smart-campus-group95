@@ -365,16 +365,15 @@ const AdminTickets = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-slate-50 border-b border-slate-100">
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Ticket Id</th>
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Type</th>
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden lg:table-cell">Description</th>
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden xl:table-cell">Department</th>
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden lg:table-cell">Resource Type</th>
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden lg:table-cell">Resource</th>
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell">Date</th>
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell text-center">Priority</th>
-                                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
+                                <th className="px-4 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Ticket Id</th>
+                                <th className="px-4 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Type</th>
+                                <th className="px-4 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden xl:table-cell">Department</th>
+                                <th className="px-4 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden lg:table-cell">Resource Type</th>
+                                <th className="px-4 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden lg:table-cell">Resource</th>
+                                <th className="px-4 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell">Date</th>
+                                <th className="px-3 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
+                                <th className="px-3 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 hidden md:table-cell text-center">Priority</th>
+                                <th className="px-3 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200">
@@ -388,44 +387,39 @@ const AdminTickets = () => {
                                         hover:bg-indigo-50/50 hover:translate-x-1
                                     `}
                                 >
-                                    <td className="px-6 py-5 font-mono">
+                                    <td className="px-4 py-5 font-mono">
                                         <span className="text-sm font-semibold text-slate-700 uppercase tracking-tighter">
                                             {tkt.ticketId || tkt.id.substring(0, 8).toUpperCase()}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-5">
+                                    <td className="px-4 py-5">
                                         <span className="text-sm font-medium text-slate-600 uppercase tracking-tight">
                                             {tkt.category.replace('_', ' ')}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-5 hidden lg:table-cell max-w-[200px]">
-                                        <p className="text-sm font-medium text-slate-500 truncate" title={tkt.description}>
-                                            {tkt.description}
-                                        </p>
-                                    </td>
-                                    <td className="px-6 py-5 hidden xl:table-cell">
+                                    <td className="px-4 py-5 hidden xl:table-cell">
                                         <span className="text-sm font-medium text-slate-600 tracking-tight">
                                             {tkt.department
                                                 ? tkt.department.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
                                                 : 'General'}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-5 hidden lg:table-cell">
+                                    <td className="px-4 py-5 hidden lg:table-cell">
                                         <span className="text-sm font-medium text-slate-600 uppercase tracking-tight">
                                             {tkt.resourceType ? tkt.resourceType.replace(/_/g, ' ') : 'Uncategorized'}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-5 hidden lg:table-cell">
+                                    <td className="px-4 py-5 hidden lg:table-cell">
                                         <span className="text-sm font-medium text-slate-600 uppercase tracking-tight">
                                             {tkt.resourceName || 'Campus General'}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-5 hidden md:table-cell">
+                                    <td className="px-4 py-5 hidden md:table-cell">
                                         <span className="text-sm font-medium text-slate-500 uppercase tracking-tight">
                                             {new Date(tkt.createdAt).toLocaleDateString()}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-5">
+                                    <td className="px-3 py-5">
                                         <span className={`px-3 py-1.5 rounded-xl text-sm font-semibold uppercase tracking-tighter inline-flex items-center ${tkt.status === 'OPEN' ? 'bg-indigo-50 text-indigo-600' :
                                             tkt.status === 'IN_PROGRESS' ? 'bg-violet-50 text-violet-600' :
                                                 tkt.status === 'RESOLVED' ? 'bg-emerald-50 text-emerald-600' :
@@ -441,7 +435,7 @@ const AdminTickets = () => {
                                             {tkt.status.replace('_', ' ')}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-5 hidden md:table-cell text-center">
+                                    <td className="px-3 py-5 hidden md:table-cell text-center">
                                         <span className={`px-2.5 py-1 rounded-lg text-sm font-semibold uppercase tracking-tighter border ${tkt.priority === 'HIGH' ? 'bg-red-50 text-red-600 border-red-100' :
                                             tkt.priority === 'MEDIUM' ? 'bg-amber-50 text-amber-600 border-amber-100' :
                                                 'bg-sky-50 text-sky-600 border-sky-100'
@@ -449,7 +443,7 @@ const AdminTickets = () => {
                                             {tkt.priority}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-5 text-right flex items-center justify-end">
+                                    <td className="px-3 py-5 text-right flex items-center justify-end">
                                         <button className="p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
                                             <ChevronRight className="w-4 h-4" />
                                         </button>
