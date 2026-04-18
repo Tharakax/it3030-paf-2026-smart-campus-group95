@@ -44,7 +44,7 @@ public class IncidentTicketService {
         boolean hasActiveTicket = ticketRepository.existsByCreatedByAndResourceIdAndStatusIn(
                 currentUser.getId(), 
                 request.getResourceId(), 
-                List.of(TicketStatus.OPEN, TicketStatus.IN_PROGRESS, TicketStatus.RESOLVED)
+                List.of(TicketStatus.OPEN, TicketStatus.IN_PROGRESS)
         );
 
         if (hasActiveTicket) {
