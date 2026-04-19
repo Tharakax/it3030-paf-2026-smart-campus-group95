@@ -3,6 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import DashboardSidebar from '../components/Dashboard/DashboardSidebar';
+import DashboardHeader from '../components/Dashboard/DashboardHeader';
 import { useLocation } from 'react-router-dom';
 
 // Import View Components
@@ -78,6 +79,9 @@ const Dashboard = () => {
             {/* Content Area */}
             <main className={`flex-1 transition-all duration-300 ${isCollapsed ? 'md:ml-20' : 'md:ml-64'} p-4 md:p-10 pb-20 relative z-10`}>
                 <div className="max-w-6xl mx-auto">
+                    {/* Dashboard Header (Notifications & Profile) */}
+                    <DashboardHeader />
+
                     {/* Render current tab/tag */}
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-6">
