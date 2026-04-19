@@ -4,8 +4,9 @@ import {
     Calendar, RefreshCw, LayoutGrid, Layers, ArrowUpRight
 } from 'lucide-react';
 import { 
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
-    ResponsiveContainer, Cell, PieChart, Pie, Legend 
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, 
+    ResponsiveContainer, Area, RadarChart, PolarGrid, PolarAngleAxis,
+    PolarRadiusAxis, Radar, Legend
 } from 'recharts';
 import axiosInstance from '../../../api/axiosConfig';
 
@@ -35,6 +36,8 @@ const ResourceAnalyticsPanel = () => {
     }, []);
 
     const CHART_COLORS = ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+    const LINE_GRADIENT_ID = 'lineGradient';
+    const AREA_GRADIENT_ID = 'areaGradient';
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
@@ -83,6 +86,19 @@ const ResourceAnalyticsPanel = () => {
         );
     }
 
+    // Prepare data for line chart (Resource Distribution)
+    const lineData = Object.entries(analytics.resourcesByType).map(([name, value]) => ({
+        name: name.replace(/_/g, ' '),
+        value: value,
+    }));
+
+    // Prepare data for radar chart (Department Allocation)
+    const radarData = Object.entries(analytics.resourcesByDepartment).map(([name, value]) => ({
+        subject: name.replace(/_/g, ' '),
+        value: value,
+        fullMark: analytics.totalResources,
+    }));
+
     return (
         <div className="space-y-6 mb-10 animate-in fade-in slide-in-from-top-4 duration-700">
             {/* Header & Refresh */}
@@ -105,7 +121,7 @@ const ResourceAnalyticsPanel = () => {
                 </button>
             </div>
 
-            {/* Summary Cards */}
+            {/* Summary Cards (unchanged) */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div style={glassStyle} className="p-5 rounded-4xl group hover:scale-[1.02] transition-transform duration-300">
                     <div className="flex justify-between items-start mb-3">
@@ -152,94 +168,127 @@ const ResourceAnalyticsPanel = () => {
                 </div>
             </div>
 
-            {/* Simple Breakdown Sections */}
+            {/* New Chart Types Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Resources By Type - Horizontal Bar Chart */}
-                <div style={glassStyle} className="p-6 rounded-[2.5rem] min-h-[350px]">
-                    <div className="flex items-center justify-between mb-8">
+                {/* Resource Distribution - Line Chart with Area Fill */}
+                <div style={glassStyle} className="p-6 rounded-[2.5rem] min-h-[400px]">
+                    <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-indigo-50 text-indigo-500 rounded-xl">
-                                <LayoutGrid size={16} />
+                            <div className="p-2 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl shadow-md">
+                                <LayoutGrid size={16} className="text-white" />
                             </div>
                             <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Resource Distribution</h3>
                         </div>
+                        <span className="text-[9px] font-bold text-slate-400">trend across types</span>
                     </div>
-                    
-                    <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                            <BarChart 
-                                layout="vertical" 
-                                data={Object.entries(analytics.resourcesByType).map(([name, value]) => ({ 
-                                    name: name.replace(/_/g, ' '), 
-                                    value 
-                                }))}
-                                margin={{ top: 0, right: 30, left: 40, bottom: 0 }}
+
+                    <div className="h-72 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart
+                                data={lineData}
+                                margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
                             >
-                                <XAxis type="number" hide />
-                                <YAxis 
+                                <defs>
+                                    <linearGradient id={LINE_GRADIENT_ID} x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="#6366f1" stopOpacity={0.8} />
+                                        <stop offset="100%" stopColor="#6366f1" stopOpacity={0.1} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} />
+                                <XAxis 
                                     dataKey="name" 
-                                    type="category" 
-                                    axisLine={false}
+                                    tick={{ fontSize: 9, fontWeight: 600, fill: '#64748b' }}
                                     tickLine={false}
-                                    width={80}
-                                    tick={{ fontSize: 10, fontWeight: 900, fill: '#64748b', textTransform: 'uppercase' }}
+                                    axisLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
+                                    interval={0}
+                                    angle={-20}
+                                    textAnchor="end"
+                                    height={60}
                                 />
-                                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
-                                <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={12}>
-                                    {Object.entries(analytics.resourcesByType).map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
+                                <YAxis 
+                                    tick={{ fontSize: 10, fontWeight: 600, fill: '#64748b' }}
+                                    tickLine={false}
+                                    axisLine={false}
+                                />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Area
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="#6366f1"
+                                    strokeWidth={2.5}
+                                    fillOpacity={1}
+                                    fill={`url(#${LINE_GRADIENT_ID})`}
+                                    activeDot={{ r: 6, stroke: '#fff', strokeWidth: 2, fill: '#6366f1' }}
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="#6366f1"
+                                    strokeWidth={2.5}
+                                    dot={{ r: 4, fill: '#6366f1', strokeWidth: 0 }}
+                                    activeDot={{ r: 6 }}
+                                />
+                            </LineChart>
                         </ResponsiveContainer>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-4 mt-3 pt-2 border-t border-slate-100">
+                        {lineData.map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
+                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">{item.name}: {item.value}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                {/* Resources By Department - Donut Chart */}
-                <div style={glassStyle} className="p-6 rounded-[2.5rem] min-h-[350px]">
-                    <div className="flex items-center space-x-3 mb-6">
-                        <div className="p-2 bg-emerald-50 text-emerald-500 rounded-xl">
-                            <Layers size={16} />
+                {/* Department Allocation - Radar Chart */}
+                <div style={glassStyle} className="p-6 rounded-[2.5rem] min-h-[400px]">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-md">
+                                <Layers size={16} className="text-white" />
+                            </div>
+                            <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Department Allocation</h3>
                         </div>
-                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Department Allocation</h3>
+                        <span className="text-[9px] font-bold text-slate-400">balanced view</span>
                     </div>
 
-                    <div className="h-64 w-full relative">
-                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                            <PieChart>
-                                <Pie
-                                    data={Object.entries(analytics.resourcesByDepartment).map(([name, value]) => ({ 
-                                        name: name.replace(/_/g, ' '), 
-                                        value 
-                                    }))}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={80}
-                                    paddingAngle={8}
+                    <div className="h-72 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <RadarChart outerRadius={90} data={radarData}>
+                                <PolarGrid stroke="#cbd5e1" strokeOpacity={0.5} />
+                                <PolarAngleAxis 
+                                    dataKey="subject" 
+                                    tick={{ fontSize: 9, fontWeight: 600, fill: '#475569', textTransform: 'capitalize' }}
+                                />
+                                <PolarRadiusAxis 
+                                    angle={30} 
+                                    domain={[0, analytics.totalResources]} 
+                                    tick={{ fontSize: 8, fill: '#94a3b8' }}
+                                    axisLine={false}
+                                />
+                                <Radar
+                                    name="Resources"
                                     dataKey="value"
-                                >
-                                    {Object.entries(analytics.resourcesByDepartment).map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={CHART_COLORS[(index + 2) % CHART_COLORS.length]} />
-                                    ))}
-                                </Pie>
+                                    stroke="#10b981"
+                                    strokeWidth={2}
+                                    fill="#10b981"
+                                    fillOpacity={0.25}
+                                    dot={{ r: 3, fill: '#10b981', stroke: '#fff', strokeWidth: 1 }}
+                                />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend 
-                                    layout="vertical" 
-                                    align="right" 
-                                    verticalAlign="middle"
+                                    wrapperStyle={{ fontSize: 9, fontWeight: 700, paddingTop: 8 }}
                                     iconType="circle"
-                                    formatter={(value) => (
-                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-tight ml-1">{value}</span>
-                                    )}
+                                    formatter={(value) => <span className="text-slate-600 uppercase tracking-tight">{value}</span>}
                                 />
-                            </PieChart>
+                            </RadarChart>
                         </ResponsiveContainer>
-                        {/* Center Metric */}
-                        <div className="absolute top-1/2 left-[35%] -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-                            <p className="text-xl font-black text-slate-800">{analytics.totalResources}</p>
-                            <p className="text-[8px] font-black text-slate-400 uppercase">Total</p>
-                        </div>
+                    </div>
+                    <div className="text-center mt-2">
+                        <p className="text-[9px] font-bold text-slate-400">
+                            Total departments: {radarData.length} · Spread across campus
+                        </p>
                     </div>
                 </div>
             </div>
