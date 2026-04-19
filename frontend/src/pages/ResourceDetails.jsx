@@ -67,6 +67,8 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                 const response = await axiosInstance.get(`/resources/${id}`);
                 setResource(response.data);
                 setError(null);
+                // Scroll to top when resource is loaded
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } catch (err) {
                 console.error('Error fetching resource details:', err);
                 setError('Could not find the requested resource.');
@@ -108,7 +110,7 @@ const ResourceDetails = ({ resourceId, onClose }) => {
     }
 
     return (
-        <div className="details-root" style={{
+        <div className="details-root pt-4" style={{
             minHeight: '100vh',
             background: 'linear-gradient(135deg,#f8fafc 0%,#f1f5f9 40%,#e2e8f0 70%,#f8fafc 100%)',
             position: 'relative',
@@ -143,10 +145,10 @@ const ResourceDetails = ({ resourceId, onClose }) => {
                 }} />
             </div>
 
-            <div style={{ position: 'relative', zIndex: 1, maxWidth: 1200, margin: '0 auto', padding: '40px 24px 80px' }}>
+            <div style={{ position: 'relative', zIndex: 1, maxWidth: 1200, margin: '0 auto', padding: '10px 24px 80px' }}>
 
                 {/* ── Navigation ────────────────────────────────────── */}
-                <div className="flex flex-wrap items-center justify-between gap-4 mb-10 anim-0">
+                <div className="flex flex-wrap items-center justify-between gap-4 mb-6 anim-0">
                     <button 
                         onClick={() => onClose ? onClose() : navigate('/resources')}
                         className="group flex items-center px-4 py-2 bg-white/50 border border-slate-200 hover:border-slate-300 text-slate-600 rounded-xl transition-all font-semibold shadow-sm"
