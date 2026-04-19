@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
@@ -22,84 +22,93 @@ import Unauthorized from './pages/Unauthorized';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
+function AppContent() {
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Header />
+      <main style={{ flex: 1 }}>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
+
+          <Route path="/dashboard" element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          } />
+
+          <Route path="/home" element={
+            <PrivateRoute>
+              <Home />
+            </PrivateRoute>
+          } />
+
+          <Route path="/admin" element={
+            <RoleProtectedRoute requiredRole="ADMIN">
+              <AdminDashboard />
+            </RoleProtectedRoute>
+          } />
+
+          <Route path="/technician" element={
+            <RoleProtectedRoute requiredRole="TECHNICIAN">
+              <TechnicianDashboard />
+            </RoleProtectedRoute>
+          } />
+
+          <Route path="/resources" element={
+            <PrivateRoute>
+              <UserResourceCatalogue />
+            </PrivateRoute>
+          } />
+
+          <Route path="/resources/:id" element={
+            <PrivateRoute>
+              <ResourceDetails />
+            </PrivateRoute>
+          } />
+
+          <Route path="/resources/create" element={
+            <RoleProtectedRoute requiredRole="ADMIN">
+              <CreateResource />
+            </RoleProtectedRoute>
+          } />
+
+          <Route path="/resources/:id/edit" element={
+            <RoleProtectedRoute requiredRole="ADMIN">
+              <EditResource />
+            </RoleProtectedRoute>
+          } />
+
+          <Route path="/contact" element={<ContactUs />} />
+
+          <Route path="/bookings" element={
+            <PrivateRoute>
+              <Bookings />
+            </PrivateRoute>
+          } />
+
+          <Route path="/unauthorized" element={<Unauthorized />} />
+
+          {/* Catch all */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </main>
+      {!isLoginPage && <Footer />}
+    </div>
+  );
+}
+
 function App() {
   return (
     <AuthProvider>
       <Toaster position="top-center" reverseOrder={false} />
       <Router>
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          <Header />
-          <main style={{ flex: 1 }}>
-            <Routes>
-              <Route path="/" element={<Navigate to="/login" replace />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
-
-              <Route path="/dashboard" element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              } />
-
-              <Route path="/home" element={
-                <PrivateRoute>
-                  <Home />
-                </PrivateRoute>
-              } />
-
-              <Route path="/admin" element={
-                <RoleProtectedRoute requiredRole="ADMIN">
-                  <AdminDashboard />
-                </RoleProtectedRoute>
-              } />
-
-              <Route path="/technician" element={
-                <RoleProtectedRoute requiredRole="TECHNICIAN">
-                  <TechnicianDashboard />
-                </RoleProtectedRoute>
-              } />
-
-              <Route path="/resources" element={
-                <PrivateRoute>
-                  <UserResourceCatalogue />
-                </PrivateRoute>
-              } />
-
-              <Route path="/resources/:id" element={
-                <PrivateRoute>
-                  <ResourceDetails />
-                </PrivateRoute>
-              } />
-
-              <Route path="/resources/create" element={
-                <RoleProtectedRoute requiredRole="ADMIN">
-                  <CreateResource />
-                </RoleProtectedRoute>
-              } />
-
-              <Route path="/resources/:id/edit" element={
-                <RoleProtectedRoute requiredRole="ADMIN">
-                  <EditResource />
-                </RoleProtectedRoute>
-              } />
-
-              <Route path="/contact" element={<ContactUs />} />
-
-              <Route path="/bookings" element={
-                <PrivateRoute>
-                  <Bookings />
-                </PrivateRoute>
-              } />
-
-              <Route path="/unauthorized" element={<Unauthorized />} />
-
-              {/* Catch all */}
-              <Route path="*" element={<Navigate to="/login" replace />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
+        <AppContent />
       </Router>
     </AuthProvider>
   );
