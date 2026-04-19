@@ -5,6 +5,8 @@ import { Bell, UserCircle, LogOut, Menu, X, Settings, Shield, Wrench, LayoutDash
 import NotificationBell from './Dashboard/NotificationBell';
 import Swal from 'sweetalert2';
 
+import logo from '../assets/logo.png';
+
 
 const Header = () => {
     const { user, logout } = useContext(AuthContext);
@@ -52,9 +54,7 @@ const Header = () => {
                         className="flex items-center space-x-2 cursor-pointer group"
                         onClick={() => navigate('/home')}
                     >
-                        <div className="bg-blue-600 text-white p-2 rounded-xl group-hover:bg-blue-700 transition-colors shadow-md shadow-blue-500/20">
-                            <Layers className="w-5 h-5" />
-                        </div>
+                        <img src={logo} alt="UniSync Logo" className="w-9 h-9 object-contain" />
                         <h2 className="text-xl font-bold text-slate-800 tracking-tight">
                             UniSync <span className="text-blue-600 font-extrabold">Hub</span>
                         </h2>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { Layers, Github, Twitter, Linkedin, Mail } from 'lucide-react';
+import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 const Footer = () => {
     const location = useLocation();
@@ -16,9 +17,7 @@ const Footer = () => {
                     {/* Brand Section */}
                     <div className="col-span-1 md:col-span-2">
                         <div className="flex items-center justify-center md:justify-start space-x-2 mb-4">
-                            <div className="bg-blue-600 text-white p-1.5 rounded-lg shadow-sm">
-                                <Layers className="w-5 h-5" />
-                            </div>
+                            <img src={logo} alt="UniSync Logo" className="w-9 h-9 object-contain" />
                             <span className="text-xl font-bold text-slate-800 tracking-tight">
                                 UniSync <span className="text-blue-600">Hub</span>
                             </span>

@@ -4,6 +4,7 @@ import { Navigate, Link } from 'react-router-dom';
 import { Layers, Building, ShieldCheck, Zap, ArrowRight, Activity, Cpu, Mail, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../api/axiosConfig';
+import logo from '../assets/logo.png';
 
 const Login = () => {
     const { user, login } = useContext(AuthContext);
@@ -56,10 +57,8 @@ const Login = () => {
                     <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
 
                     <div className="relative z-10">
-                        <div className="flex items-center space-x-3 mb-16">
-                            <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm shadow-inner">
-                                <Layers className="w-8 h-8 text-white" />
-                            </div>
+                        <div className="flex items-center space-x-4 mb-16">
+                            <img src={logo} alt="UniSync Logo" className="w-12 h-12 object-contain filter drop-shadow-xl" />
                             <span className="text-3xl font-extrabold tracking-tight">UniSync</span>
                         </div>
 
@@ -110,9 +109,7 @@ const Login = () => {
                         {/* Mobile Logo Only */}
                         <div className="lg:hidden flex justify-center mb-8">
                             <div className="flex items-center space-x-3">
-                                <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg">
-                                    <Layers className="w-6 h-6 text-white" />
-                                </div>
+                                <img src={logo} alt="UniSync Logo" className="w-10 h-10 object-contain" />
                                 <span className="text-2xl font-extrabold text-slate-800 tracking-tight">UniSync</span>
                             </div>
                         </div>
