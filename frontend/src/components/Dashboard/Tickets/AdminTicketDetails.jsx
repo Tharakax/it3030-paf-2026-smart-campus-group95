@@ -225,6 +225,8 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
     const currentStepIndex = statusSteps.indexOf(ticket.status);
     const isRejected = ticket.status === 'REJECTED';
 
+    const filteredTechnicians = technicians.filter(tech => tech.specialization === ticket.category);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100/50 pb-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -547,10 +549,18 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                                 onChange={(e) => setSelectedTechnicianId(e.target.value)}
                                                 className="w-full bg-white border border-indigo-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 outline-none mb-3"
                                             >
-                                                <option value="">Select a technician...</option>
-                                                {technicians.map(tech => (
-                                                    <option key={tech.id} value={tech.id}>{tech.name}</option>
-                                                ))}
+                                                {filteredTechnicians.length > 0 ? (
+                                                    <>
+                                                        <option value="">Select a technician...</option>
+                                                        {filteredTechnicians.map(tech => (
+                                                            <option key={tech.id} value={tech.id}>
+                                                                {tech.name} ({tech.specialization?.replace(/_/g, ' ') || 'General Duty'})
+                                                            </option>
+                                                        ))}
+                                                    </>
+                                                ) : (
+                                                    <option value="">No {ticket.category?.replace(/_/g, ' ')} technicians found</option>
+                                                )}
                                             </select>
                                             <button
                                                 onClick={handleAssignTechnician}
