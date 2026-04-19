@@ -15,6 +15,7 @@ import {
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import notificationService from '../../api/notificationService';
+import logo from '../../assets/logo.png';
 
 const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed, setIsCollapsed }) => {
     const adminMenu = [
@@ -81,9 +82,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed
                     to="/"
                     className={`px-6 mb-8 flex items-center hover:opacity-80 transition-opacity ${isCollapsed ? 'justify-center' : 'space-x-3'}`}
                 >
-                    <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 shrink-0">
-                        <ShieldCheck className="text-white w-6 h-6" />
-                    </div>
+                    <img src={logo} alt="UniSync Logo" className="w-9 h-9 object-contain" />
                     {!isCollapsed && (
                         <span className="text-xl font-black text-slate-800 tracking-tighter">
                             UniSync <span className="text-blue-600">Admin</span>
