@@ -46,7 +46,7 @@ const Header = () => {
         });
     };
 
-    if (!user) return null;
+    if (!user || isDashboard) return null;
 
     return (
         <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-200 shadow-sm transition-all">

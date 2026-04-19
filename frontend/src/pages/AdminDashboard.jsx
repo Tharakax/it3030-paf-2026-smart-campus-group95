@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '../components/Dashboard/AdminSidebar';
+import DashboardHeader from '../components/Dashboard/DashboardHeader';
 import ResourceCatalogue from './ResourceCatalogue';
 import CreateResource from './CreateResource';
 import EditResource from './EditResource';
@@ -10,7 +11,6 @@ import AdminBookingManagement from '../components/Booking/AdminBookingManagement
 import ResourceAnalyticsPanel from '../components/Dashboard/Views/ResourceAnalyticsPanel';
 import UserManagement from '../components/Dashboard/Views/UserManagement';
 import NotificationCenter from '../components/Dashboard/Views/NotificationCenter';
-import NotificationBell from '../components/Dashboard/NotificationBell';
 import SendNotificationModal from '../components/Dashboard/SendNotificationModal';
 import { Bell, Globe, Send } from 'lucide-react';
 
@@ -49,6 +49,9 @@ const AdminDashboard = () => {
             {/* Main Control Area */}
             <main className={`transition-all duration-300 ${isCollapsed ? 'md:ml-20' : 'md:ml-64'} p-4 md:p-10 pb-20`}>
                 <div className="max-w-7xl mx-auto">
+                    {/* Dashboard Header (Notifications & Profile) */}
+                    <DashboardHeader />
+                    
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
                             <div className="w-16 h-16 border-4 border-blue-600 border-t-emerald-500 rounded-full animate-spin shadow-2xl shadow-blue-100" />
