@@ -221,6 +221,11 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
     const canAssign = !ticket.assignedTo && !['CLOSED', 'REJECTED'].includes(ticket.status);
     const canReject = ticket.status === 'OPEN' && !isRejecting;
     const canClose = ticket.status === 'RESOLVED';
+    const statusSteps = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
+    const currentStepIndex = statusSteps.indexOf(ticket.status);
+    const isRejected = ticket.status === 'REJECTED';
+
+    const filteredTechnicians = technicians.filter(tech => tech.specialization === ticket.category);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100/50 pb-12">
@@ -265,6 +270,44 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                             </div>
 
                             <div className="p-6">
+                                {/* Status Stepper */}
+                                {!isRejected && (
+                                    <div className="mb-8 px-4 py-6 bg-slate-50/50 rounded-xl">
+                                        <div className="relative">
+                                            <div className="absolute top-4 left-0 right-0 h-0.5 bg-slate-200 -translate-y-1/2" />
+                                            <div
+                                                className="absolute top-4 left-0 h-0.5 bg-indigo-500 -translate-y-1/2 transition-all duration-500"
+                                                style={{ width: `${(currentStepIndex / (statusSteps.length - 1)) * 100}%` }}
+                                            />
+                                            <div className="relative flex justify-between">
+                                                {statusSteps.map((step, idx) => {
+                                                    const isActive = idx <= currentStepIndex;
+                                                    const isCurrent = idx === currentStepIndex;
+                                                    return (
+                                                        <div key={step} className="flex flex-col items-center">
+                                                            <div
+                                                                className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all z-10
+                                                                    ${isActive ? 'border-indigo-500 bg-indigo-500' : 'border-slate-300 bg-white'}
+                                                                    ${isCurrent ? 'ring-4 ring-indigo-100' : ''}
+                                                                `}
+                                                            >
+                                                                {isActive ? (
+                                                                    <CheckCircle2 className="w-4 h-4 text-white" />
+                                                                ) : (
+                                                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                                                                )}
+                                                            </div>
+                                                            <span className={`text-[10px] font-semibold mt-2 ${isActive ? 'text-slate-700' : 'text-slate-400'}`}>
+                                                                {step.replace('_', ' ')}
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Details Grid */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     <div className="flex items-start gap-3">
@@ -506,10 +549,18 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                                 onChange={(e) => setSelectedTechnicianId(e.target.value)}
                                                 className="w-full bg-white border border-indigo-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300 outline-none mb-3"
                                             >
-                                                <option value="">Select a technician...</option>
-                                                {technicians.map(tech => (
-                                                    <option key={tech.id} value={tech.id}>{tech.name}</option>
-                                                ))}
+                                                {filteredTechnicians.length > 0 ? (
+                                                    <>
+                                                        <option value="">Select a technician...</option>
+                                                        {filteredTechnicians.map(tech => (
+                                                            <option key={tech.id} value={tech.id}>
+                                                                {tech.name} ({tech.specialization?.replace(/_/g, ' ') || 'General Duty'})
+                                                            </option>
+                                                        ))}
+                                                    </>
+                                                ) : (
+                                                    <option value="">No {ticket.category?.replace(/_/g, ' ')} technicians found</option>
+                                                )}
                                             </select>
                                             <button
                                                 onClick={handleAssignTechnician}

@@ -242,9 +242,9 @@ const TicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                 {!isRejected && (
                                     <div className="mb-8 px-4 py-6 bg-slate-50/50 rounded-xl">
                                         <div className="relative">
-                                            <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-slate-200 -translate-y-1/2" />
+                                            <div className="absolute top-4 left-0 right-0 h-0.5 bg-slate-200 -translate-y-1/2" />
                                             <div
-                                                className="absolute top-1/2 left-0 h-0.5 bg-blue-500 -translate-y-1/2 transition-all duration-500"
+                                                className="absolute top-4 left-0 h-0.5 bg-blue-500 -translate-y-1/2 transition-all duration-500"
                                                 style={{ width: `${(currentStepIndex / (statusSteps.length - 1)) * 100}%` }}
                                             />
                                             <div className="relative flex justify-between">
