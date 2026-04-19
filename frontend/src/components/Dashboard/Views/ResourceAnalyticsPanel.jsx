@@ -101,34 +101,20 @@ const ResourceAnalyticsPanel = () => {
 
     return (
         <div className="space-y-6 mb-10 animate-in fade-in slide-in-from-top-4 duration-700">
-            {/* Header & Refresh */}
-            <div className="flex items-center justify-between px-2">
-                <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-600 rounded-xl shadow-lg shadow-blue-200">
-                        <Activity size={18} className="text-white" />
-                    </div>
-                    <div>
-                        <h2 className="text-xl font-black text-slate-800 tracking-tight">Infrastructure Intelligence</h2>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Real-time resource utilization metrics</p>
-                    </div>
-                </div>
-                <button 
-                    onClick={fetchAnalytics}
-                    disabled={isRefreshing}
-                    className="p-2.5 bg-white border border-slate-100 rounded-xl text-slate-400 hover:text-blue-600 hover:border-blue-100 transition-all hover:rotate-180 duration-500 disabled:opacity-50"
-                >
-                    <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
-                </button>
-            </div>
-
-            {/* Summary Cards (unchanged) */}
+            {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div style={glassStyle} className="p-5 rounded-4xl group hover:scale-[1.02] transition-transform duration-300">
                     <div className="flex justify-between items-start mb-3">
                         <div className="p-2.5 bg-indigo-50 rounded-2xl text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
                             <Building2 size={18} />
                         </div>
-                        <ArrowUpRight size={14} className="text-slate-300" />
+                        <button 
+                            onClick={fetchAnalytics}
+                            disabled={isRefreshing}
+                            className="p-1.5 hover:text-blue-600 transition-all hover:rotate-180 duration-500 disabled:opacity-50"
+                        >
+                            <RefreshCw size={12} className={isRefreshing ? 'animate-spin text-blue-600' : 'text-slate-300'} />
+                        </button>
                     </div>
                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Total Assets</p>
                     <p className="text-2xl font-black text-slate-800 tracking-tight">{analytics.totalResources}</p>

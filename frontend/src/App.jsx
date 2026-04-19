@@ -24,7 +24,7 @@ import Footer from './components/Footer';
 
 function AppContent() {
   const location = useLocation();
-  const isLoginPage = location.pathname === '/login';
+  const isHideFooterPage = location.pathname === '/login' || location.pathname === '/signup';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -98,7 +98,7 @@ function AppContent() {
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </main>
-      {!isLoginPage && <Footer />}
+      {!isHideFooterPage && <Footer />}
     </div>
   );
 }

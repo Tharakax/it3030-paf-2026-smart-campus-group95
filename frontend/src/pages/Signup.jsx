@@ -4,6 +4,7 @@ import { Navigate, Link } from 'react-router-dom';
 import { Layers, UserPlus, Mail, Lock, User, ArrowRight, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../api/axiosConfig';
+import logo from '../assets/logo.png';
 
 const Signup = () => {
     const { user, login } = useContext(AuthContext);
@@ -77,9 +78,7 @@ const Signup = () => {
                     
                     <div className="relative z-10">
                         <Link to="/" className="flex items-center space-x-3 mb-12 group">
-                            <div className="bg-white/20 p-2.5 rounded-2xl backdrop-blur-md group-hover:bg-white/30 transition-all">
-                                <Layers className="w-8 h-8 text-white" />
-                            </div>
+                            <img src={logo} alt="UniSync Logo" className="w-12 h-12 object-contain filter drop-shadow-xl" />
                             <span className="text-3xl font-black text-white tracking-tighter uppercase">UniSync</span>
                         </Link>
 

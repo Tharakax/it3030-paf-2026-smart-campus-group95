@@ -61,11 +61,13 @@ const AdminDashboard = () => {
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                             {activeTab === 'overview' && (
                                 <div className="space-y-6">
-                                    <h1 className="text-4xl font-black text-slate-800 tracking-tighter">
+                                    <h1 className="text-4xl font-black text-slate-800 tracking-tighter mb-8">
                                         System <span className="text-blue-600 underline decoration-emerald-400 decoration-4">Dashboard</span>
                                     </h1>
                                     
-                                    <ResourceAnalyticsPanel />
+                                    <div className="mt-8">
+                                        <ResourceAnalyticsPanel />
+                                    </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div 
@@ -89,10 +91,6 @@ const AdminDashboard = () => {
                                             <p className="text-slate-800 font-bold text-lg">Send Broadcast</p>
                                             <p className="text-slate-400 font-medium text-sm mt-1">Dispatch custom alerts to users/techs</p>
                                         </div>
-                                    </div>
-                                    
-                                    <div className="p-20 text-center border-2 border-dashed border-slate-200 rounded-[3rem] bg-white group hover:border-slate-900 transition-colors cursor-help">
-                                        <p className="text-slate-400 font-bold group-hover:text-slate-600">Core administrative modules ready for deployment</p>
                                     </div>
                                 </div>
                             )}

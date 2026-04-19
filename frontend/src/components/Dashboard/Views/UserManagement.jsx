@@ -180,8 +180,8 @@ const UserManagement = () => {
             {/* Header Area */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                 <div>
-                    <h1 className="text-4xl font-black text-slate-800 tracking-tighter flex items-center gap-3">
-                        User <span className="text-blue-600 underline decoration-indigo-200 decoration-4">Management</span>
+                    <h1 className="text-4xl font-black text-slate-800 tracking-tighter">
+                        User <span className="text-blue-600 underline decoration-emerald-400 decoration-4">Management</span>
                     </h1>
                     <p className="text-slate-400 mt-2 font-bold uppercase tracking-widest text-[10px]">Security Node: Global Permission Control</p>
                 </div>
