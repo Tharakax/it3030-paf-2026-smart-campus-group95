@@ -33,7 +33,7 @@ UniSync is an advanced, unified campus operations platform designed to streamlin
 ### Backend
 - **Framework:** Spring Boot 3
 - **Security:** Spring Security + OAuth2 Client
-- **Persistence:** MySQL + Spring Data JPA
+- **Persistence:** MongoDB (NoSQL)
 - **Storage:** Supabase (Cloud Image & Media Hosting)
 
 ## 🛠️ Getting Started
@@ -45,11 +45,15 @@ UniSync is an advanced, unified campus operations platform designed to streamlin
 - **Maven:** For backend dependency management
 
 ### 1. Database Configuration
-1. Initialize a MySQL database:
-   ```sql
-   CREATE DATABASE unisync;
+1. The project uses **MongoDB** as its primary data store.
+2. Ensure you have a MongoDB instance running (locally or on Atlas).
+3. Update the connection URI in `backend/src/main/resources/application.yml`.
+   ```yaml
+   spring:
+     data:
+       mongodb:
+         uri: YOUR_MONGODB_URI
    ```
-2. The system utilizes Hibernate's `ddl-auto=update` to automatically generate the necessary schema upon first launch.
 
 ### 2. Google OAuth2 Integration
 1. Obtain credentials from the [Google Cloud Console](https://console.cloud.google.com/).
