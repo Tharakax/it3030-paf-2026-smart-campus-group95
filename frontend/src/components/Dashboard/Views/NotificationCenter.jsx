@@ -14,7 +14,8 @@ import {
     RefreshCcw,
     Send,
     Edit3,
-    Users
+    Users,
+    MessageSquare
 } from 'lucide-react';
 import { format } from 'date-fns';
 import notificationService from '../../../api/notificationService';
@@ -102,6 +103,7 @@ const NotificationCenter = () => {
             case 'INCIDENT_STATUS_UPDATE': return <AlertTriangle className="text-amber-500" />;
             case 'NEW_BOOKING_REQUEST': return <Calendar className="text-purple-500" />;
             case 'NEW_INCIDENT_REPORT': return <Bell className="text-orange-500" />;
+            case 'TICKET_COMMENT': return <MessageSquare className="text-blue-600" />;
             default: return <Bell className="text-slate-400" />;
         }
     };
@@ -110,7 +112,7 @@ const NotificationCenter = () => {
         if (filter === 'ALL') return true;
         if (filter === 'UNREAD') return !n.isRead;
         if (filter === 'BOOKING') return n.type.startsWith('BOOKING') || n.type === 'NEW_BOOKING_REQUEST';
-        if (filter === 'INCIDENT') return n.type.startsWith('INCIDENT') || n.type === 'NEW_INCIDENT_REPORT';
+        if (filter === 'INCIDENT') return n.type.startsWith('INCIDENT') || n.type === 'NEW_INCIDENT_REPORT' || n.type === 'TICKET_COMMENT';
         if (filter === 'CUSTOM') return n.type === 'CUSTOM';
         return true;
     });
