@@ -15,6 +15,9 @@ const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
+    // Detect if current route is a dashboard
+    const isDashboard = ['/dashboard', '/admin', '/technician'].includes(location.pathname);
+
 
 
     const handleLogout = () => {
@@ -49,46 +52,52 @@ const Header = () => {
         <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-200 shadow-sm transition-all">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
-                    {/* Brand Logo & Name */}
-                    <div
-                        className="flex items-center space-x-2 cursor-pointer group"
-                        onClick={() => navigate('/home')}
-                    >
-                        <img src={logo} alt="UniSync Logo" className="w-9 h-9 object-contain" />
-                        <h2 className="text-xl font-bold text-slate-800 tracking-tight">
-                            UniSync <span className="text-blue-600 font-extrabold">Hub</span>
-                        </h2>
-                    </div>
+                    {/* Brand Logo & Name - Hidden on Dashboards */}
+                    {!isDashboard && (
+                        <div
+                            className="flex items-center space-x-2 cursor-pointer group"
+                            onClick={() => navigate('/home')}
+                        >
+                            <img src={logo} alt="UniSync Logo" className="w-9 h-9 object-contain" />
+                            <h2 className="text-xl font-bold text-slate-800 tracking-tight">
+                                UniSync <span className="text-blue-600 font-extrabold">Hub</span>
+                            </h2>
+                        </div>
+                    )}
 
-                    {/* Desktop Navigation */}
-                    <nav className="hidden md:flex items-center space-x-1">
-                        <Link to="/home" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
-                            Home
-                        </Link>
-                        <Link to="/resources" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
-                            Catalogue
-                        </Link>
-                        <Link to="/contact" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
-                            Contact Us
-                        </Link>
+                    {isDashboard && <div className="flex-1" />} {/* Spacer to push icons to the right on dashboards */}
 
-                        {/* Role-Specific Badges/Links */}
-                        {user.role === 'ADMIN' && (
-                            <Link to="/admin" className="ml-2 flex items-center px-4 py-2 rounded-lg bg-indigo-50 text-indigo-700 font-semibold hover:bg-indigo-100 transition-all border border-indigo-100">
-                                <Shield className="w-4 h-4 mr-2" />
-                                Admin Panel
+                    {/* Desktop Navigation - Hidden on Dashboards */}
+                    {!isDashboard && (
+                        <nav className="hidden md:flex items-center space-x-1">
+                            <Link to="/home" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
+                                Home
                             </Link>
-                        )}
-                        {user.role === 'TECHNICIAN' && (
-                            <Link to="/technician" className="ml-2 flex items-center px-4 py-2 rounded-lg bg-orange-50 text-orange-700 font-semibold hover:bg-orange-100 transition-all border border-orange-100">
-                                <Wrench className="w-4 h-4 mr-2" />
-                                Tech Portal
+                            <Link to="/resources" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
+                                Catalogue
                             </Link>
-                        )}
-                    </nav>
+                            <Link to="/contact" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
+                                Contact Us
+                            </Link>
 
-                    {/* Actions & Profile */}
-                    <div className="hidden md:flex items-center space-x-4">
+                            {/* Role-Specific Badges/Links */}
+                            {user.role === 'ADMIN' && (
+                                <Link to="/admin" className="ml-2 flex items-center px-4 py-2 rounded-lg bg-indigo-50 text-indigo-700 font-semibold hover:bg-indigo-100 transition-all border border-indigo-100">
+                                    <Shield className="w-4 h-4 mr-2" />
+                                    Admin Panel
+                                </Link>
+                            )}
+                            {user.role === 'TECHNICIAN' && (
+                                <Link to="/technician" className="ml-2 flex items-center px-4 py-2 rounded-lg bg-orange-50 text-orange-700 font-semibold hover:bg-orange-100 transition-all border border-orange-100">
+                                    <Wrench className="w-4 h-4 mr-2" />
+                                    Tech Portal
+                                </Link>
+                            )}
+                        </nav>
+                    )}
+
+                    {/* Actions & Profile (Always Visible) */}
+                    <div className="flex items-center space-x-4">
                         {/* Notifications */}
                         <NotificationBell onViewAll={() => navigate('/dashboard')} />
 
@@ -105,7 +114,7 @@ const Header = () => {
                                 />
                                 <div className="text-left hidden lg:block">
                                     <p className="text-sm font-semibold text-slate-700 leading-tight">{user?.name?.split(' ')[0] || 'User'}</p>
-                                    <p className="text-xs text-slate-500 font-medium">{user?.role}</p>
+                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-widest text-[10px] font-black">{user?.role}</p>
                                 </div>
                             </button>
 
@@ -137,15 +146,17 @@ const Header = () => {
                         </div>
                     </div>
 
-                    {/* Mobile Menu Button */}
-                    <div className="md:hidden flex items-center">
-                        <button
-                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        >
-                            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                        </button>
-                    </div>
+                    {/* Mobile Menu Button - Hidden on Dashboards */}
+                    {!isDashboard && (
+                        <div className="md:hidden flex items-center">
+                            <button
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            >
+                                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
