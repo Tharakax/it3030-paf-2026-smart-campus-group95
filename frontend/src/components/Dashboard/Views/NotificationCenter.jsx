@@ -138,10 +138,10 @@ const NotificationCenter = () => {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-800 tracking-tighter">
-                        Notification <span className="text-blue-600 underline decoration-blue-200 decoration-4">Center</span>
+                    <h1 className="text-4xl font-black text-slate-800 tracking-tighter">
+                        Notification <span className="text-blue-600 underline decoration-emerald-400 decoration-4">Center</span>
                     </h1>
-                    <p className="text-slate-500 font-medium mt-1">Manage all your system alerts and activity.</p>
+                    <p className="text-slate-500 font-medium mt-2">Manage all your system alerts and activity.</p>
                 </div>
 
                 <div className="flex items-center gap-2">

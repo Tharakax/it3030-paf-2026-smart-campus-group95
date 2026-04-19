@@ -115,10 +115,10 @@ const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick, onRowClick
             {/* Header */}
             <div className="mb-10">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-800 tracking-tight">
-                        Infrastructure Management
+                    <h1 className="text-4xl font-black text-slate-800 tracking-tighter">
+                        Infrastructure <span className="text-blue-600 underline decoration-emerald-400 decoration-4">Management</span>
                     </h1>
-                    <p className="text-slate-500 mt-1 font-medium">
+                    <p className="text-slate-500 mt-2 font-medium">
                         Administrative control panel for campus resources
                     </p>
                 </div>
