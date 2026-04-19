@@ -6,20 +6,27 @@ UniSync is an advanced, unified campus operations platform designed to streamlin
 
 ## 🚀 Key Modules
 
-### 🛠️ Incident Management System
-- **Intelligent Ticketing:** Multi-step reporting flow with category-based routing.
-- **Smart Assignment:** Strict filtering that restricts technician assignment to their specific area of expertise (e.g., Electrical, IT Network, Plumbing).
-- **Real-time Status Stepper:** A visual progress indicator synchronized across all user roles (Reporter, Admin, Technician).
-- **Collaborative Flow:** Integrated comment system for real-time updates between technicians and users.
+### 🏛️ Module A – Facilities & Assets Catalogue
+- **Operational Registry:** Comprehensive database of all campus assets and facilities.
+- **Visual Insights:** High-fidelity galleries and resource descriptions for students and staff.
 
-### 📅 Resource Booking
-- **Campus-wide Management:** centralized control of campus resources and facilities.
-- **Booking Lifecycle:** Automated workflows for reservation requests and approvals.
+### 📅 Module B – Booking Management
+- **Integrated Scheduling:** Centralized system for reserving campus spaces and resources.
+- **Lifecycle Control:** Automated workflows for reservation requests, approvals, and scheduling conflicts.
 
-### 🔐 Security & Access Control
-- **Unified Identity:** Single Sign-On (SSO) via Google OAuth 2.0.
-- **Enterprise Security:** JWT-based authentication with role-specific authorization layers (ADMIN, TECHNICIAN, USER).
-- **Audit Logging:** Comprehensive tracking of status changes and administrative actions.
+### 🛠️ Module C – Maintenance & Incident Ticketing
+- **Intelligent Reporting:** Sophisticated multi-step reporting flow with category-based routing.
+- **Specialized Assignments:** Strict logic that ensures incidents are handled by technicians matching the specific domain (e.g., IT, Plumbing).
+- **Consolidated Tracking:** Visual progress steppers synchronized across all user roles.
+
+### 🔔 Module D – Notifications
+- **Automated Alerts:** Real-time system notifications for ticket status updates and assignment alerts.
+- **Broadcast System:** Administrative capabilities to send global notifications to campus users.
+
+### 🔐 Module E – Authentication & Authorization
+- **Secure Identity:** Multi-layered authentication via Google OAuth 2.0 and JWT.
+- **Granular Permissions:** Role-based access control (RBAC) defining clear boundaries for ADMIN, TECHNICIAN, and USER roles.
+
 
 ## 💻 Tech Stack
 
