@@ -1,5 +1,6 @@
 package com.unisync.controller;
 
+import com.unisync.dto.ResourceAnalyticsSummaryDTO;
 import com.unisync.dto.ResourceRequestDTO;
 import com.unisync.dto.ResourceResponseDTO;
 import com.unisync.entity.Resource;
@@ -30,6 +31,12 @@ public class ResourceController {
         Resource resource = mapToEntity(requestDTO);
         Resource savedResource = resourceService.createResource(resource);
         return new ResponseEntity<>(mapToResponseDTO(savedResource), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/analytics/summary")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ResourceAnalyticsSummaryDTO> getResourceAnalyticsSummary() {
+        return ResponseEntity.ok(resourceService.getResourceAnalyticsSummary());
     }
 
     @GetMapping
@@ -79,6 +86,7 @@ public class ResourceController {
                 .availabilityEndTime(dto.getAvailabilityEndTime())
                 .status(dto.getStatus())
                 .bookable(dto.isBookable())
+                .imageUrls(dto.getImageUrls())
                 .build();
     }
 
@@ -95,6 +103,7 @@ public class ResourceController {
                 .availabilityEndTime(resource.getAvailabilityEndTime())
                 .status(resource.getStatus())
                 .bookable(resource.isBookable())
+                .imageUrls(resource.getImageUrls())
                 .build();
     }
 }

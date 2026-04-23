@@ -5,6 +5,7 @@ import com.unisync.enums.Department;
 import com.unisync.enums.TicketCategory;
 import com.unisync.enums.TicketPriority;
 import com.unisync.enums.TicketStatus;
+import com.unisync.enums.ResourceType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class IncidentTicketResponseDTO {
     private String ticketId;
     private String resourceId;
     private String resourceName;
+    private ResourceType resourceType;
     private Department department;
     private TicketCategory category;
     private String description;
@@ -30,6 +32,7 @@ public class IncidentTicketResponseDTO {
     private TicketStatus status;
     private String createdBy;
     private String createdByName;
+    private String createdByEmail;
     private String assignedTo;
     private String assignedToName;
     private String rejectionReason;

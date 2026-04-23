@@ -1,0 +1,12 @@
+package com.unisync.enums;
+
+public enum NotificationType {
+    BOOKING_APPROVED,
+    BOOKING_REJECTED,
+    BOOKING_CANCELLED,
+    NEW_BOOKING_REQUEST,
+    INCIDENT_ASSIGNED,
+    INCIDENT_STATUS_UPDATE,
+    NEW_INCIDENT_REPORT,
+    CUSTOM
+}

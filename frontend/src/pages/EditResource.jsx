@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
-import { ArrowLeft, Save, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertCircle, ImagePlus, X, Upload, ImageIcon, Plus, Info } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import MediaUpload from '../utils/supabaseClient';
 
 const EditResource = ({ resourceId, onResourceUpdated }) => {
     const { id: paramId } = useParams();
@@ -12,7 +13,9 @@ const EditResource = ({ resourceId, onResourceUpdated }) => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [error, setError] = useState(null);
+    const fileInputRef = useRef(null);
 
     const [formData, setFormData] = useState({
         resourceCode: '',
@@ -24,8 +27,56 @@ const EditResource = ({ resourceId, onResourceUpdated }) => {
         availabilityStartTime: '',
         availabilityEndTime: '',
         status: '',
-        bookable: true
+        bookable: true,
+        imageUrls: []
     });
+
+    const [imageUrlInput, setImageUrlInput] = useState('');
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        try {
+            const publicUrl = await MediaUpload(file);
+            setFormData(prev => ({
+                ...prev,
+                imageUrls: [...prev.imageUrls, publicUrl]
+            }));
+            toast.success('Image uploaded successfully!');
+        } catch (err) {
+            console.error('Upload failed:', err);
+            toast.error('Failed to upload image');
+        } finally {
+            setUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    const addImageUrl = () => {
+        if (!imageUrlInput.trim()) return;
+        setFormData(prev => ({
+            ...prev,
+            imageUrls: [...prev.imageUrls, imageUrlInput.trim()]
+        }));
+        setImageUrlInput('');
+    };
+
+    const removeImageUrl = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            imageUrls: prev.imageUrls.filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleAddImage = () => {
+        addImageUrl();
+    };
+
+    const handleRemoveImage = (index) => {
+        removeImageUrl(index);
+    };
 
     useEffect(() => {
         const fetchResource = async () => {
@@ -42,7 +93,8 @@ const EditResource = ({ resourceId, onResourceUpdated }) => {
                     availabilityStartTime: data.availabilityStartTime || '08:00:00',
                     availabilityEndTime: data.availabilityEndTime || '18:00:00',
                     status: data.status || 'ACTIVE',
-                    bookable: data.bookable ?? true
+                    bookable: data.bookable ?? true,
+                    imageUrls: data.imageUrls || []
                 });
                 setError(null);
             } catch (err) {
@@ -61,10 +113,20 @@ const EditResource = ({ resourceId, onResourceUpdated }) => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+        
+        setFormData(prev => {
+            const nextData = {
+                ...prev,
+                [name]: type === 'checkbox' ? checked : value
+            };
+            
+            // If type changes to EQUIPMENT, set capacity to 1
+            if (name === 'type' && value === 'EQUIPMENT') {
+                nextData.capacity = '1';
+            }
+            
+            return nextData;
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -167,7 +229,7 @@ const EditResource = ({ resourceId, onResourceUpdated }) => {
                             />
                         </div>
 
-                        {/* <div className="space-y-1">
+                        <div className="space-y-1">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Type *</label>
                             <select
                                 name="type"
@@ -183,7 +245,7 @@ const EditResource = ({ resourceId, onResourceUpdated }) => {
                                 <option value="GROUND">Ground</option>
                                 <option value="EQUIPMENT">Equipment</option>
                             </select>
-                        </div> */}
+                        </div>
 
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Capacity *</label>
@@ -193,7 +255,10 @@ const EditResource = ({ resourceId, onResourceUpdated }) => {
                                 name="capacity"
                                 value={formData.capacity}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                disabled={formData.type === 'EQUIPMENT'}
+                                className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    formData.type === 'EQUIPMENT' ? 'bg-slate-50 text-slate-400 cursor-not-allowed' : ''
+                                }`}
                             />
                         </div>
 
@@ -276,6 +341,107 @@ const EditResource = ({ resourceId, onResourceUpdated }) => {
                         <label htmlFor="bookable" className="text-sm font-semibold text-slate-700 cursor-pointer">
                             Available for Public Booking
                         </label>
+                    </div>
+
+                    {/* Image Management Section */}
+                    <div className="space-y-4 pt-6 border-t border-slate-100">
+                        <div className="flex items-center justify-between">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center">
+                                <ImageIcon className="w-4 h-4 mr-2 text-blue-500" />
+                                Resource Images
+                            </label>
+                            <span className="text-xs text-slate-400 font-medium">{formData.imageUrls.length} images added</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* File Upload */}
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase">Upload From Computer</label>
+                                <div 
+                                    onClick={() => !uploading && fileInputRef.current?.click()}
+                                    className={`relative cursor-pointer group flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-xl transition-all duration-300 ${uploading ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-200 hover:border-blue-400 hover:bg-blue-50/30'}`}
+                                >
+                                    <input 
+                                        type="file" 
+                                        ref={fileInputRef}
+                                        onChange={handleFileUpload}
+                                        className="hidden" 
+                                        accept="image/*"
+                                    />
+                                    {uploading ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 text-blue-500 animate-spin mb-1" />
+                                            <span className="text-[11px] font-medium text-slate-500 text-center">Cloud Syncing...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="p-2 rounded-full bg-slate-50 group-hover:bg-blue-100 transition-colors mb-1">
+                                                <Upload className="w-4 h-4 text-slate-500 group-hover:text-blue-600" />
+                                            </div>
+                                            <span className="text-[11px] font-bold text-slate-600 group-hover:text-blue-700">Browse Photos</span>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* External URL */}
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase">External URL</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="url"
+                                        placeholder="Paste image URL..."
+                                        value={imageUrlInput}
+                                        onChange={(e) => setImageUrlInput(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
+                                        className="flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition text-sm bg-white"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={addImageUrl}
+                                        className="px-4 py-2 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-900 transition flex items-center"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                    </button>
+                                </div>
+                                <p className="text-[10px] text-slate-400 italic">Adds link without uploading</p>
+                            </div>
+                        </div>
+
+                        {formData.imageUrls.length > 0 ? (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                                {formData.imageUrls.map((url, index) => (
+                                    <div key={index} className="group relative aspect-[4/3] bg-slate-100 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+                                        <img
+                                            src={url}
+                                            alt={`Preview ${index + 1}`}
+                                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = 'https://blue-realistic-lemur-444.mypinata.cloud/ipfs/bafkreieat76mqk7shizue7a7c7m3vshov5k5ywyv2onhnuve4pwn5lyq2e';
+                                            }}
+                                        />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImageUrl(index)}
+                                                className="p-2 bg-rose-500 text-white rounded-full hover:bg-rose-600 transition shadow-lg scale-90 group-hover:scale-100"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                        <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded backdrop-blur-sm font-bold">
+                                            #{index + 1}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="py-6 border-2 border-dashed border-slate-100 rounded-xl flex flex-col items-center justify-center text-slate-400 bg-slate-50/30">
+                                <ImageIcon className="w-6 h-6 mb-2 opacity-20" />
+                                <p className="text-[11px] font-medium italic">No media attached to this resource.</p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="pt-4 flex justify-end">

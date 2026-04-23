@@ -8,22 +8,40 @@ import {
     LogOut,
     ChevronLeft,
     ChevronRight,
-    Circle
+    Circle,
+    Bell
 } from 'lucide-react';
+import React from 'react';
 import Swal from 'sweetalert2';
+import logo from '../../assets/logo.png';
+import notificationService from '../../api/notificationService';
 
 const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed, setIsCollapsed }) => {
     const mainNav = [
-        { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-        { id: 'tasks', label: 'Ticket Hub', icon: ListTodo },
+        { id: 'tasks', label: 'Tasks', icon: ListTodo },
+        { id: 'notifications', label: 'Notifications', icon: Bell },
         { id: 'history', label: 'Work History', icon: History },
-        { id: 'tools', label: 'Equipment & Tools', icon: Wrench },
     ];
 
     const secondaryNav = [
         { id: 'profile', label: 'My Profile', icon: User },
-        { id: 'settings', label: 'Settings', icon: Settings },
     ];
+
+    const [unreadCount, setUnreadCount] = React.useState(0);
+
+    React.useEffect(() => {
+        const fetchUnread = async () => {
+            try {
+                const data = await notificationService.getUnreadCount();
+                setUnreadCount(data.count);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchUnread();
+        const interval = setInterval(fetchUnread, 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     const confirmLogout = () => {
         Swal.fire({
@@ -52,15 +70,13 @@ const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColl
 
     return (
         <aside
-            className={`fixed left-0 top-0 bottom-0 z-40 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'
+            className={`fixed left-0 top-16 bottom-0 z-40 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'
                 } hidden md:block`}
         >
             <div className="flex flex-col h-full py-4">
                 {/* Branding Section */}
                 <div className={`px-6 mb-8 flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
-                    <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 shrink-0">
-                        <Wrench className="text-white w-6 h-6" />
-                    </div>
+                    <img src={logo} alt="UniSync Logo" className="w-9 h-9 object-contain" />
                     {!isCollapsed && (
                         <span className="text-xl font-black text-slate-800 tracking-tighter">
                             UniSync <span className="text-blue-600">Tech</span>
@@ -126,7 +142,16 @@ const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColl
                                             : 'text-slate-500 hover:bg-slate-50 hover:text-blue-600'
                                         }`}
                                 >
-                                    <Icon size={isCollapsed ? 24 : 18} className={!isCollapsed ? 'mr-3' : ''} />
+                                    <div className="relative">
+                                        <Icon size={isCollapsed ? 24 : 18} className={!isCollapsed ? 'mr-3' : ''} />
+                                        {item.id === 'notifications' && unreadCount > 0 && (
+                                            <span className={`absolute ${isCollapsed ? '-top-1 -right-1' : '-top-1 left-3'} flex h-4 w-4`}>
+                                                <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-white text-[9px] font-black text-white items-center justify-center">
+                                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                                </span>
+                                            </span>
+                                        )}
+                                    </div>
                                     {!isCollapsed && <span className="text-sm font-bold">{item.label}</span>}
 
                                     {isCollapsed && (

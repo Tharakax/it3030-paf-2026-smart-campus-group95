@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import {
     Calendar,
@@ -22,46 +22,175 @@ import {
     Star
 } from 'lucide-react';
 
+/* ─── Google Fonts injection ─────────────────────────────────── */
+const fontLink = document.createElement('link');
+fontLink.rel = 'stylesheet';
+fontLink.href =
+    'https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&display=swap';
+if (!document.head.querySelector('[href*="Sora"]')) document.head.appendChild(fontLink);
+
+/* ─── Animated counter hook ──────────────────────────────────── */
+function useCountUp(target, duration = 1200) {
+    const [value, setValue] = useState(0);
+    useEffect(() => {
+        const numeric = parseFloat(String(target).replace(/[^0-9.]/g, ''));
+        if (!numeric) return;
+        let start = null;
+        const step = (ts) => {
+            if (!start) start = ts;
+            const progress = Math.min((ts - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - progress, 3);
+            setValue(Math.floor(ease * numeric));
+            if (progress < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+    }, [target, duration]);
+    return value;
+}
+
+/* ─── Inline styles (CSS-in-JS) ──────────────────────────────── */
+const css = `
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-18px)} }
+  @keyframes pulse-ring { 0%{transform:scale(.9);opacity:.8} 70%{transform:scale(1.3);opacity:0} 100%{opacity:0} }
+  @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
+  @keyframes orb1 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(40px,-30px) scale(1.1)} 66%{transform:translate(-20px,20px) scale(.95)} }
+  @keyframes orb2 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-30px,40px) scale(.9)} 66%{transform:translate(20px,-20px) scale(1.05)} }
+  @keyframes orb3 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(20px,30px) scale(1.08)} 66%{transform:translate(-40px,-10px) scale(.92)} }
+  @keyframes fadeSlideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes lineGrow { from{transform:scaleX(0)} to{transform:scaleX(1)} }
+  @keyframes tickerSlide { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .home-root *{box-sizing:border-box;font-family:'Outfit',sans-serif}
+  .home-root h1,.home-root h2,.home-root h3{font-family:'Sora',sans-serif}
+  
+  /* Scroll reveal base (hidden until visible) */
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  }
+  .scroll-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Individual delays for child elements (optional) */
+  .reveal-delay-1 { transition-delay: 0.05s; }
+  .reveal-delay-2 { transition-delay: 0.1s; }
+  .reveal-delay-3 { transition-delay: 0.15s; }
+  .reveal-delay-4 { transition-delay: 0.2s; }
+  
+  .service-card{transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s ease,border-color .35s ease}
+  .service-card:hover{transform:translateY(-8px) scale(1.015);box-shadow:0 32px 64px rgba(0,0,0,.08),0 0 0 1px rgba(59,130,246,.2)!important;border-color:rgba(59,130,246,.2)!important}
+  .service-card:hover .card-icon-wrap{transform:scale(1.1) rotate(4deg)}
+  .service-card:hover .card-arrow{transform:translateX(5px)}
+  .service-card:hover .card-line{animation:lineGrow .4s ease forwards}
+  .card-icon-wrap{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+  .card-arrow{transition:transform .3s ease}
+  .card-line{transform-origin:left;transform:scaleX(0)}
+  .stat-mini:hover{border-color:rgba(59,130,246,.3)!important;background:rgba(59,130,246,.04)!important}
+  .quick-btn:hover{background:rgba(59,130,246,.08)!important;transform:scale(1.02)}
+  .activity-row:hover{background:rgba(59,130,246,.05)!important}
+  .activity-row:hover .act-chevron{transform:translateX(4px);color:#3b82f6!important}
+  .act-chevron{transition:transform .25s ease,color .25s ease}
+  .hero-btn-primary:hover{background:#0f172a!important;box-shadow:0 12px 28px rgba(0,0,0,.08)!important;transform:translateY(-2px)}
+  .hero-btn-secondary:hover{background:rgba(59,130,246,.08)!important;border-color:rgba(59,130,246,.2)!important;color:#1e40af}
+  .footer-stat:hover{border-color:rgba(59,130,246,.2)!important;background:rgba(59,130,246,.02)!important}
+  .ticker-item{animation:tickerSlide .4s ease}
+`;
+
+/* ═══════════════════════════════════════════════════════════════ */
 const Home = () => {
     const { user } = useContext(AuthContext);
     const [isVisible, setIsVisible] = useState(false);
     const [activeFeature, setActiveFeature] = useState(0);
+    
+    // Refs for scroll‑reveal sections
+    const headerRef = useRef(null);
+    const heroRef = useRef(null);
+    const servicesRef = useRef(null);
+    const footerRef = useRef(null);
+    
+    const [headerVisible, setHeaderVisible] = useState(false);
+    const [heroVisible, setHeroVisible] = useState(false);
+    const [servicesVisible, setServicesVisible] = useState(false);
+    const [footerVisible, setFooterVisible] = useState(false);
 
     useEffect(() => {
         setIsVisible(true);
-
-        // Rotating features animation
         const interval = setInterval(() => {
             setActiveFeature(prev => (prev + 1) % 3);
         }, 3000);
-
         return () => clearInterval(interval);
     }, []);
 
+    // Intersection Observer for scroll animations
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        switch (entry.target) {
+                            case headerRef.current:
+                                setHeaderVisible(true);
+                                break;
+                            case heroRef.current:
+                                setHeroVisible(true);
+                                break;
+                            case servicesRef.current:
+                                setServicesVisible(true);
+                                break;
+                            case footerRef.current:
+                                setFooterVisible(true);
+                                break;
+                            default:
+                                break;
+                        }
+                        // Unobserve after becoming visible for performance
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+        );
+
+        if (headerRef.current) observer.observe(headerRef.current);
+        if (heroRef.current) observer.observe(heroRef.current);
+        if (servicesRef.current) observer.observe(servicesRef.current);
+        if (footerRef.current) observer.observe(footerRef.current);
+
+        return () => observer.disconnect();
+    }, []);
+
+    /* ── unchanged data ── */
     const services = [
         {
             title: 'My Bookings',
-            icon: <Calendar className="w-8 h-8 text-white" />,
+            icon: <Calendar className="w-7 h-7" style={{ color: '#fff' }} />,
             description: 'Effortlessly reserve facilities, study rooms, and campus resources.',
-            color: 'from-blue-500 to-blue-600',
+            gradient: 'linear-gradient(135deg,#3b82f6,#2563eb)',
+            glow: 'rgba(59,130,246,.35)',
+            accent: '#3b82f6',
             stats: '12 active',
             bgIcon: Calendar,
             features: ['Real-time availability', 'Instant confirmation', 'Flexible scheduling']
         },
         {
             title: 'My Tickets',
-            icon: <Ticket className="w-8 h-8 text-white" />,
+            icon: <Ticket className="w-7 h-7" style={{ color: '#fff' }} />,
             description: 'Streamlined IT and maintenance support with priority tracking.',
-            color: 'from-indigo-500 to-blue-600',
+            gradient: 'linear-gradient(135deg,#6366f1,#4f46e5)',
+            glow: 'rgba(99,102,241,.35)',
+            accent: '#6366f1',
             stats: '3 pending',
             bgIcon: Ticket,
             features: ['Priority queue', 'Live updates', 'History tracking']
         },
         {
             title: 'Announcements',
-            icon: <Bell className="w-8 h-8 text-white" />,
+            icon: <Bell className="w-7 h-7" style={{ color: '#fff' }} />,
             description: 'Real-time campus updates, events, and important notifications.',
-            color: 'from-blue-600 to-cyan-500',
+            gradient: 'linear-gradient(135deg,#06b6d4,#0891b2)',
+            glow: 'rgba(6,182,212,.35)',
+            accent: '#06b6d4',
             stats: '5 new',
             bgIcon: Bell,
             features: ['Push notifications', 'Event reminders', 'Emergency alerts']
@@ -69,167 +198,291 @@ const Home = () => {
     ];
 
     const quickStats = [
-        { icon: Clock, label: 'Upcoming', value: '3 bookings', color: 'blue' },
-        { icon: CheckCircle, label: 'Completed', value: '28 tasks', color: 'green' },
-        { icon: TrendingUp, label: 'Activity', value: '+12%', color: 'purple' }
+        { icon: Clock, label: 'Upcoming', value: '3 bookings', color: '#3b82f6', bg: 'rgba(59,130,246,.12)' },
+        { icon: CheckCircle, label: 'Completed', value: '28 tasks', color: '#10b981', bg: 'rgba(16,185,129,.12)' },
+        { icon: TrendingUp, label: 'Activity', value: '+12%', color: '#a78bfa', bg: 'rgba(167,139,250,.12)' }
     ];
 
     const campusHighlights = [
-        { icon: MapPin, text: 'Library Study Room 204 - Available', time: '2 min ago' },
-        { icon: Coffee, text: 'Cafeteria Special: 20% off today', time: '15 min ago' },
-        { icon: Wifi, text: 'Network maintenance scheduled', time: '1 hour ago' }
+        { icon: MapPin, text: 'Library Study Room 204 - Available', time: '2 min ago', color: '#3b82f6' },
+        { icon: Coffee, text: 'Cafeteria Special: 20% off today', time: '15 min ago', color: '#f59e0b' },
+        { icon: Wifi, text: 'Network maintenance scheduled', time: '1 hour ago', color: '#06b6d4' }
     ];
 
+    const footerStats = [
+        { icon: Users, label: 'Active Users', value: '1,234', change: '+12%', changeColor: '#10b981' },
+        { icon: BookOpen, label: 'Resources', value: '56', change: 'available', changeColor: '#3b82f6' },
+        { icon: Shield, label: 'System Uptime', value: '99.9%', change: 'this month', changeColor: '#a78bfa' },
+        { icon: Star, label: 'Satisfaction', value: '4.8/5', change: 'rating', changeColor: '#f59e0b' }
+    ];
+
+    /* ── shared light glass style ── */
+    const glass = {
+        background: 'rgba(255,255,255,.85)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(0,0,0,.05)',
+        borderRadius: 20,
+        boxShadow: '0 8px 24px rgba(0,0,0,.02)'
+    };
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
-            {/* Floating Background Elements */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" />
-                <div className="absolute top-40 right-10 w-72 h-72 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000" />
-                <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" />
+        <div
+            className="home-root"
+            style={{
+                minHeight: '100vh',
+                background: 'linear-gradient(145deg, #f9fafc 0%, #f1f4f9 100%)',
+                position: 'relative',
+                overflowX: 'hidden'
+            }}
+        >
+            <style>{css}</style>
+
+            {/* ── Animated Orbs (lighter, softer) ────────────────── */}
+            <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+                <div style={{
+                    position: 'absolute', top: '8%', left: '5%',
+                    width: 520, height: 520,
+                    background: 'radial-gradient(circle,rgba(59,130,246,.04) 0%,transparent 70%)',
+                    borderRadius: '50%', animation: 'orb1 18s ease-in-out infinite'
+                }} />
+                <div style={{
+                    position: 'absolute', top: '30%', right: '3%',
+                    width: 420, height: 420,
+                    background: 'radial-gradient(circle,rgba(99,102,241,.04) 0%,transparent 70%)',
+                    borderRadius: '50%', animation: 'orb2 22s ease-in-out infinite'
+                }} />
+                <div style={{
+                    position: 'absolute', bottom: '10%', left: '35%',
+                    width: 360, height: 360,
+                    background: 'radial-gradient(circle,rgba(6,182,212,.03) 0%,transparent 70%)',
+                    borderRadius: '50%', animation: 'orb3 15s ease-in-out infinite'
+                }} />
+                <div style={{
+                    position: 'absolute', inset: 0,
+                    backgroundImage: `
+                      linear-gradient(rgba(0,0,0,.02) 1px,transparent 1px),
+                      linear-gradient(90deg,rgba(0,0,0,.02) 1px,transparent 1px)`,
+                    backgroundSize: '60px 60px'
+                }} />
             </div>
 
-            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
-                {/* Header with Quick Stats */}
-                <div className={`transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-                        <div>
-                            <div className="flex items-center space-x-2 mb-2">
-                                <Sparkles className="w-5 h-5 text-blue-500" />
-                                <span className="text-sm font-semibold text-blue-600 uppercase tracking-wider">
+            {/* ── Main Content ──────────────────────────────────── */}
+            <div style={{ position: 'relative', zIndex: 1, maxWidth: 1280, margin: '0 auto', padding: '40px 24px 80px' }}>
+
+                {/* ── Header (scroll reveal) ──────────────────────── */}
+                <div
+                    ref={headerRef}
+                    className={`scroll-reveal ${headerVisible ? 'visible' : ''}`}
+                    style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, marginBottom: 52 }}
+                >
+                    <div className="reveal-delay-1" style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                            <div style={{
+                                padding: '4px 14px', borderRadius: 999,
+                                background: 'rgba(59,130,246,.08)',
+                                border: '1px solid rgba(59,130,246,.15)',
+                                display: 'flex', alignItems: 'center', gap: 6
+                            }}>
+                                <Sparkles size={13} style={{ color: '#3b82f6' }} />
+                                <span style={{ fontSize: 11, fontWeight: 600, color: '#3b82f6', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'Outfit,sans-serif' }}>
                                     Smart Campus Dashboard
                                 </span>
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-2">
-                                Welcome back,{' '}
-                                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                                    {user?.name?.split(' ')[0] || 'Student'}
-                                </span>
-                            </h1>
-                            <p className="text-lg text-slate-600 max-w-2xl">
-                                Your centralized hub for campus operations and resources
-                            </p>
                         </div>
+                        <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', fontWeight: 800, color: '#1e293b', lineHeight: 1.1, margin: '0 0 10px', letterSpacing: '-0.02em' }}>
+                            Welcome back,{' '}
+                            <span style={{
+                                background: 'linear-gradient(90deg,#3b82f6,#8b5cf6,#06b6d4)',
+                                backgroundSize: '200% auto',
+                                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                                animation: 'shimmer 4s linear infinite'
+                            }}>
+                                {user?.name?.split(' ')[0] || 'Student'}
+                            </span>
+                        </h1>
+                        <p style={{ fontSize: 16, color: '#5b6e8c', margin: 0, fontWeight: 400, maxWidth: 460 }}>
+                            Your centralized hub for campus operations and resources
+                        </p>
+                    </div>
 
-                        {/* Quick Stats */}
-                        <div className="flex gap-4 mt-4 md:mt-0">
-                            {quickStats.map((stat, index) => {
-                                const Icon = stat.icon;
-                                return (
-                                    <div
-                                        key={index}
-                                        className="bg-white rounded-xl px-4 py-3 shadow-sm border border-slate-100 flex items-center space-x-3 hover:shadow-md transition-shadow"
-                                    >
-                                        <div className={`p-2 bg-${stat.color}-100 rounded-lg`}>
-                                            <Icon className={`w-4 h-4 text-${stat.color}-600`} />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-slate-500">{stat.label}</p>
-                                            <p className="font-semibold text-slate-800">{stat.value}</p>
-                                        </div>
+                    {/* Quick stats row */}
+                    <div className="reveal-delay-2" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                        {quickStats.map((stat, i) => {
+                            const Icon = stat.icon;
+                            return (
+                                <div key={i} className="stat-mini" style={{
+                                    ...glass,
+                                    padding: '12px 18px',
+                                    display: 'flex', alignItems: 'center', gap: 12,
+                                    cursor: 'default',
+                                    transition: 'border-color .25s,background .25s',
+                                    borderRadius: 14,
+                                    background: 'white'
+                                }}>
+                                    <div style={{ padding: 8, borderRadius: 10, background: stat.bg }}>
+                                        <Icon size={16} style={{ color: stat.color, display: 'block' }} />
                                     </div>
-                                );
-                            })}
-                        </div>
+                                    <div>
+                                        <p style={{ margin: 0, fontSize: 11, color: '#6c7a91', fontWeight: 500 }}>{stat.label}</p>
+                                        <p style={{ margin: 0, fontSize: 14, color: '#1e293b', fontWeight: 600 }}>{stat.value}</p>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 
-                {/* Hero Section with Animated Feature Cards */}
-                <div className={`grid lg:grid-cols-2 gap-8 mb-16 transform transition-all duration-1000 delay-300 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-                    {/* Main Hero Card */}
-                    <div className="relative group">
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity" />
-                        <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-3xl p-8 text-white overflow-hidden">
-                            {/* Animated Background */}
-                            <div className="absolute inset-0">
-                                <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl animate-pulse" />
-                                <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-400/20 rounded-full blur-2xl" />
+                {/* ── Hero 2-col (scroll reveal) ───────────────────── */}
+                <div
+                    ref={heroRef}
+                    className={`scroll-reveal ${heroVisible ? 'visible' : ''}`}
+                    style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.15fr) minmax(0,.85fr)', gap: 24, marginBottom: 56, alignItems: 'stretch' }}
+                >
+                    {/* Left — Main hero card (Light, modern, no dark) */}
+                    <div className="reveal-delay-1" style={{
+                        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                        borderRadius: 28,
+                        padding: '44px 48px',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        border: '1px solid rgba(0,0,0,.04)',
+                        boxShadow: '0 20px 35px -12px rgba(0,0,0,.08)'
+                    }}>
+                        {/* inner glow (subtle) */}
+                        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 80% 10%,rgba(59,130,246,.06) 0%,transparent 60%)', pointerEvents: 'none' }} />
+
+                        <div style={{ position: 'relative', zIndex: 1 }}>
+                            {/* Status pill */}
+                            <div style={{
+                                display: 'inline-flex', alignItems: 'center', gap: 8,
+                                padding: '6px 16px', borderRadius: 999, marginBottom: 28,
+                                background: 'rgba(16,185,129,.1)',
+                                border: '1px solid rgba(16,185,129,.15)'
+                            }}>
+                                <span style={{ position: 'relative', display: 'inline-block', width: 8, height: 8 }}>
+                                    <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981', animation: 'pulse-ring 1.8s ease-out infinite' }} />
+                                    <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981' }} />
+                                </span>
+                                <Activity size={13} style={{ color: '#10b981' }} />
+                                <span style={{ fontSize: 12, fontWeight: 600, color: '#2c7a4d', letterSpacing: '.06em' }}>System Status: Optimal</span>
                             </div>
 
-                            {/* Content */}
-                            <div className="relative z-10">
-                                <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 w-fit mb-6">
-                                    <Activity className="w-4 h-4 animate-pulse" />
-                                    <span className="text-sm font-medium">System Status: Optimal</span>
+                            <h2 style={{ fontSize: 'clamp(26px,2.8vw,38px)', fontWeight: 700, color: '#1e293b', lineHeight: 1.2, margin: '0 0 16px', letterSpacing: '-0.015em' }}>
+                                Everything you need,{' '}
+                                <span style={{ color: '#5b6e8c' }}>one platform</span>
+                            </h2>
+
+                            <p style={{ fontSize: 15, color: '#5b6e8c', lineHeight: 1.65, margin: '0 0 32px', maxWidth: 460, fontWeight: 400 }}>
+                                Access bookings, track tickets, and stay informed with real-time
+                                campus updates. Your seamless campus experience starts here.
+                            </p>
+
+                            {/* Rotating feature ticker */}
+                            <div style={{
+                                background: 'rgba(59,130,246,.03)',
+                                borderRadius: 16, padding: '18px 22px',
+                                border: '1px solid rgba(59,130,246,.1)',
+                                marginBottom: 32
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                                    <Zap size={14} style={{ color: '#eab308' }} />
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: '#7e8b9f', letterSpacing: '.12em', textTransform: 'uppercase' }}>
+                                        Featured Service
+                                    </span>
                                 </div>
-
-                                <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                                    Everything you need,{' '}
-                                    <span className="text-blue-200">one platform</span>
-                                </h2>
-
-                                <p className="text-blue-100 mb-8 leading-relaxed">
-                                    Access bookings, track tickets, and stay informed with real-time
-                                    campus updates. Your seamless campus experience starts here.
-                                </p>
-
-                                {/* Rotating Feature Highlights */}
-                                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-8">
-                                    <div className="flex items-center space-x-3 mb-4">
-                                        <Zap className="w-5 h-5 text-yellow-300" />
-                                        <span className="text-sm font-medium uppercase tracking-wider text-blue-200">
-                                            Featured Service
-                                        </span>
-                                    </div>
-                                    <div className="relative h-16">
-                                        {services.map((service, index) => (
-                                            <div
-                                                key={index}
-                                                className={`absolute inset-0 transform transition-all duration-500 ${activeFeature === index
-                                                    ? 'translate-x-0 opacity-100'
-                                                    : 'translate-x-4 opacity-0'
-                                                    }`}
-                                            >
-                                                <p className="text-xl font-semibold mb-1">{service.title}</p>
-                                                <p className="text-blue-200 text-sm">{service.features[0]}</p>
-                                            </div>
-                                        ))}
-                                    </div>
+                                <div style={{ position: 'relative', height: 56, overflow: 'hidden' }}>
+                                    {services.map((svc, i) => (
+                                        <div key={i} style={{
+                                            position: 'absolute', inset: 0,
+                                            transition: 'opacity .5s ease, transform .5s ease',
+                                            opacity: activeFeature === i ? 1 : 0,
+                                            transform: activeFeature === i ? 'translateY(0)' : 'translateY(10px)',
+                                            pointerEvents: activeFeature === i ? 'auto' : 'none'
+                                        }}>
+                                            <p style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 700, color: '#1e293b', fontFamily: 'Sora,sans-serif' }}>{svc.title}</p>
+                                            <p style={{ margin: 0, fontSize: 13, color: '#6c7a91' }}>{svc.features[0]}</p>
+                                        </div>
+                                    ))}
                                 </div>
-
-                                <div className="flex flex-wrap gap-4">
-                                    <button className="group bg-white text-blue-700 hover:bg-blue-50 px-8 py-4 rounded-xl font-semibold transition-all shadow-xl hover:shadow-2xl flex items-center">
-                                        Quick Booking
-                                        <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                    </button>
-                                    <button className="bg-blue-500/30 hover:bg-blue-500/40 text-white border border-white/30 px-8 py-4 rounded-xl font-semibold transition-all backdrop-blur-sm">
-                                        View Schedule
-                                    </button>
+                                <div style={{ display: 'flex', gap: 6, marginTop: 14 }}>
+                                    {services.map((_, i) => (
+                                        <div key={i} style={{
+                                            height: 3, borderRadius: 99,
+                                            width: activeFeature === i ? 24 : 8,
+                                            background: activeFeature === i ? '#3b82f6' : 'rgba(59,130,246,.2)',
+                                            transition: 'width .4s ease, background .4s ease'
+                                        }} />
+                                    ))}
                                 </div>
                             </div>
 
-                            {/* Decorative Icons */}
-                            <Layers className="absolute right-0 bottom-0 w-48 h-48 text-white/5 transform rotate-12" />
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+                                <button className="hero-btn-primary" style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: 8,
+                                    padding: '14px 28px', borderRadius: 12, border: 'none',
+                                    background: '#1e293b', color: '#ffffff',
+                                    fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,.05)',
+                                    transition: 'all .25s ease', fontFamily: 'Outfit,sans-serif'
+                                }}>
+                                    Quick Booking
+                                    <ArrowRight size={16} />
+                                </button>
+                                <button className="hero-btn-secondary" style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: 8,
+                                    padding: '14px 28px', borderRadius: 12,
+                                    background: 'transparent',
+                                    border: '1px solid #cbd5e1',
+                                    color: '#475569', fontWeight: 600, fontSize: 14,
+                                    cursor: 'pointer', transition: 'all .25s', fontFamily: 'Outfit,sans-serif'
+                                }}>
+                                    View Schedule
+                                </button>
+                            </div>
                         </div>
+
+                        {/* decorative */}
+                        <Layers style={{ position: 'absolute', right: -24, bottom: -20, width: 180, height: 180, color: 'rgba(0,0,0,.02)', transform: 'rotate(15deg)' }} />
                     </div>
 
-                    {/* Right Side - Campus Highlights */}
-                    <div className="space-y-6">
-                        {/* Live Activity Feed */}
-                        <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-100">
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="font-semibold text-slate-800">Live Activity</h3>
-                                <span className="flex items-center space-x-1">
-                                    <span className="relative flex h-3 w-3">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    {/* Right — Activity + Quick actions */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                        {/* Live Activity */}
+                        <div className="reveal-delay-2" style={{ ...glass, padding: '24px 26px', flex: 1, background: 'white' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
+                                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#1e293b' }}>Live Activity</h3>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <span style={{ position: 'relative', width: 8, height: 8, display: 'inline-block' }}>
+                                        <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981', animation: 'pulse-ring 1.8s ease-out infinite' }} />
+                                        <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981' }} />
                                     </span>
-                                    <span className="text-xs text-slate-500">Live</span>
-                                </span>
+                                    <span style={{ fontSize: 11, color: '#10b981', fontWeight: 600 }}>Live</span>
+                                </div>
                             </div>
-                            <div className="space-y-4">
-                                {campusHighlights.map((item, index) => {
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                {campusHighlights.map((item, i) => {
                                     const Icon = item.icon;
                                     return (
-                                        <div key={index} className="flex items-start space-x-3 group hover:bg-slate-50 p-2 rounded-lg transition-colors">
-                                            <div className="p-2 bg-blue-100 rounded-lg group-hover:scale-110 transition-transform">
-                                                <Icon className="w-4 h-4 text-blue-600" />
+                                        <div key={i} className="activity-row" style={{
+                                            display: 'flex', alignItems: 'center', gap: 12,
+                                            padding: '10px 10px', borderRadius: 12, cursor: 'pointer',
+                                            transition: 'background .2s'
+                                        }}>
+                                            <div style={{
+                                                padding: 9, borderRadius: 10,
+                                                background: `${item.color}10`,
+                                                border: `1px solid ${item.color}15`,
+                                                flexShrink: 0
+                                            }}>
+                                                <Icon size={14} style={{ color: item.color, display: 'block' }} />
                                             </div>
-                                            <div className="flex-1">
-                                                <p className="text-sm text-slate-700">{item.text}</p>
-                                                <p className="text-xs text-slate-400">{item.time}</p>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <p style={{ margin: 0, fontSize: 13, color: '#334155', lineHeight: 1.4, fontWeight: 400 }}>{item.text}</p>
+                                                <p style={{ margin: 0, fontSize: 11, color: '#6c7a91', marginTop: 2 }}>{item.time}</p>
                                             </div>
-                                            <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                                            <ChevronRight size={14} className="act-chevron" style={{ color: '#94a3b8', flexShrink: 0 }} />
                                         </div>
                                     );
                                 })}
@@ -237,14 +490,23 @@ const Home = () => {
                         </div>
 
                         {/* Quick Actions */}
-                        <div className="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl p-6 shadow-lg">
-                            <h3 className="text-white font-semibold mb-4">Quick Actions</h3>
-                            <div className="grid grid-cols-2 gap-3">
-                                {['Book Room', 'Raise Ticket', 'Check Events', 'View Map'].map((action, index) => (
-                                    <button
-                                        key={index}
-                                        className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-xl py-3 px-4 text-sm font-medium transition-all hover:scale-105"
-                                    >
+                        <div className="reveal-delay-3" style={{
+                            borderRadius: 20, padding: '22px 24px',
+                            background: 'white',
+                            border: '1px solid rgba(59,130,246,.1)',
+                            boxShadow: '0 10px 25px -8px rgba(59,130,246,.1)'
+                        }}>
+                            <h3 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 700, color: '#3b82f6', letterSpacing: '.02em' }}>Quick Actions</h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                                {['Book Room', 'Raise Ticket', 'Check Events', 'View Map'].map((action, i) => (
+                                    <button key={i} className="quick-btn" style={{
+                                        padding: '11px 14px', borderRadius: 12,
+                                        background: '#f8fafc',
+                                        border: '1px solid #e2e8f0',
+                                        color: '#334155', fontSize: 13, fontWeight: 500,
+                                        cursor: 'pointer', transition: 'all .2s ease',
+                                        fontFamily: 'Outfit,sans-serif', textAlign: 'center'
+                                    }}>
                                         {action}
                                     </button>
                                 ))}
@@ -253,92 +515,129 @@ const Home = () => {
                     </div>
                 </div>
 
-                {/* Services Grid */}
-                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transform transition-all duration-1000 delay-500 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-                    {services.map((service, index) => {
-                        const BgIcon = service.bgIcon;
+                {/* ── Service Cards (scroll reveal) ───────────────────── */}
+                <div
+                    ref={servicesRef}
+                    className={`scroll-reveal ${servicesVisible ? 'visible' : ''}`}
+                    style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 24, marginBottom: 56 }}
+                >
+                    {services.map((svc, i) => {
+                        const BgIcon = svc.bgIcon;
                         return (
                             <div
-                                key={index}
-                                className="group relative bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden cursor-pointer"
-                                style={{ animationDelay: `${index * 150}ms` }}
+                                key={i}
+                                className={`service-card reveal-delay-${(i % 3) + 1}`}
+                                style={{
+                                    ...glass,
+                                    background: 'white',
+                                    padding: '32px 28px',
+                                    cursor: 'pointer',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    boxShadow: '0 8px 20px rgba(0,0,0,.02)'
+                                }}
                             >
-                                {/* Background Pattern */}
-                                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-5`} />
-                                    <BgIcon className="absolute -right-8 -bottom-8 w-32 h-32 text-slate-100 transform rotate-12 group-hover:rotate-45 transition-transform duration-700" />
+                                <BgIcon style={{
+                                    position: 'absolute', right: -18, bottom: -18,
+                                    width: 110, height: 110,
+                                    color: 'rgba(59,130,246,.03)'
+                                }} />
+
+                                <div style={{
+                                    position: 'absolute', top: 0, left: 0,
+                                    width: '100%', height: 2,
+                                    background: svc.gradient, borderRadius: '20px 20px 0 0'
+                                }} />
+
+                                <div style={{ position: 'relative', display: 'inline-block', marginBottom: 22 }}>
+                                    <div style={{
+                                        position: 'absolute', inset: -4, borderRadius: 18,
+                                        background: svc.glow, filter: 'blur(12px)',
+                                        opacity: 0.4
+                                    }} />
+                                    <div className="card-icon-wrap" style={{
+                                        position: 'relative',
+                                        background: svc.gradient,
+                                        borderRadius: 16, padding: 14,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        {svc.icon}
+                                    </div>
                                 </div>
 
-                                {/* Content */}
-                                <div className="relative p-8">
-                                    {/* Icon Container */}
-                                    <div className={`relative mb-6 inline-block`}>
-                                        <div className={`absolute inset-0 bg-gradient-to-br ${service.color} rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity`} />
-                                        <div className={`relative bg-gradient-to-br ${service.color} rounded-2xl p-4 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
-                                            {service.icon}
+                                <span style={{
+                                    position: 'absolute', top: 26, right: 24,
+                                    background: 'rgba(59,130,246,.08)',
+                                    border: '1px solid rgba(59,130,246,.1)',
+                                    color: '#3b82f6', fontSize: 11, fontWeight: 600,
+                                    padding: '4px 12px', borderRadius: 999
+                                }}>{svc.stats}</span>
+
+                                <h3 style={{ margin: '0 0 10px', fontSize: 20, fontWeight: 700, color: '#1e293b' }}>{svc.title}</h3>
+                                <p style={{ margin: '0 0 20px', fontSize: 14, color: '#5b6e8c', lineHeight: 1.6, fontWeight: 400 }}>{svc.description}</p>
+
+                                <div style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                    {svc.features.map((f, fi) => (
+                                        <div key={fi} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <div style={{ width: 5, height: 5, borderRadius: '50%', background: svc.accent, flexShrink: 0 }} />
+                                            <span style={{ fontSize: 13, color: '#475569', fontWeight: 400 }}>{f}</span>
                                         </div>
-                                    </div>
-
-                                    {/* Stats Badge */}
-                                    <span className="absolute top-6 right-6 bg-blue-100 text-blue-600 text-xs font-semibold px-3 py-1 rounded-full">
-                                        {service.stats}
-                                    </span>
-
-                                    <h3 className="text-2xl font-bold text-slate-800 mb-3 group-hover:text-blue-600 transition-colors">
-                                        {service.title}
-                                    </h3>
-
-                                    <p className="text-slate-600 mb-6 leading-relaxed">
-                                        {service.description}
-                                    </p>
-
-                                    {/* Feature List */}
-                                    <div className="space-y-2 mb-6">
-                                        {service.features.map((feature, idx) => (
-                                            <div key={idx} className="flex items-center text-sm text-slate-500">
-                                                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-2" />
-                                                {feature}
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Action Button */}
-                                    <div className="flex items-center text-blue-600 font-semibold group-hover:text-blue-700">
-                                        Access Portal
-                                        <ChevronRight className="w-5 h-5 ml-1 group-hover:translate-x-2 transition-transform duration-300" />
-                                    </div>
+                                    ))}
                                 </div>
 
-                                {/* Hover Border Animation */}
-                                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    <span style={{ fontSize: 14, fontWeight: 600, color: svc.accent }}>Access Portal</span>
+                                    <ChevronRight size={16} className="card-arrow" style={{ color: svc.accent }} />
+                                </div>
+
+                                <div className="card-line" style={{
+                                    position: 'absolute', bottom: 0, left: 0,
+                                    width: '100%', height: 2,
+                                    background: svc.gradient
+                                }} />
                             </div>
                         );
                     })}
                 </div>
 
-                {/* Footer Stats Section */}
-                <div className={`mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 transform transition-all duration-1000 delay-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-                    {[
-                        { icon: Users, label: 'Active Users', value: '1,234', change: '+12%' },
-                        { icon: BookOpen, label: 'Resources', value: '56', change: 'available' },
-                        { icon: Shield, label: 'System Uptime', value: '99.9%', change: 'this month' },
-                        { icon: Star, label: ' Satisfaction', value: '4.8/5', change: 'rating' }
-                    ].map((stat, index) => {
+                {/* ── Footer Stats (scroll reveal) ───────────────────── */}
+                <div
+                    ref={footerRef}
+                    className={`scroll-reveal ${footerVisible ? 'visible' : ''}`}
+                    style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16 }}
+                >
+                    {footerStats.map((stat, i) => {
                         const Icon = stat.icon;
                         return (
-                            <div key={index} className="bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                                <div className="flex items-center justify-between mb-3">
-                                    <Icon className="w-5 h-5 text-blue-500" />
-                                    <span className="text-xs text-green-600 font-medium">{stat.change}</span>
+                            <div
+                                key={i}
+                                className={`footer-stat reveal-delay-${(i % 3) + 1}`}
+                                style={{
+                                    ...glass,
+                                    background: 'white',
+                                    padding: '22px 24px',
+                                    cursor: 'default',
+                                    transition: 'border-color .25s,background .25s',
+                                    borderRadius: 16,
+                                    boxShadow: '0 4px 12px rgba(0,0,0,.02)'
+                                }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                                    <Icon size={18} style={{ color: '#3b82f6' }} />
+                                    <span style={{ fontSize: 11, fontWeight: 600, color: stat.changeColor, background: `${stat.changeColor}10`, padding: '3px 10px', borderRadius: 999 }}>
+                                        {stat.change}
+                                    </span>
                                 </div>
-                                <p className="text-2xl font-bold text-slate-800 mb-1">{stat.value}</p>
-                                <p className="text-sm text-slate-500">{stat.label}</p>
+                                <p style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 700, color: '#1e293b', fontFamily: 'Sora,sans-serif', letterSpacing: '-0.02em' }}>
+                                    {stat.value}
+                                </p>
+                                <p style={{ margin: 0, fontSize: 13, color: '#6c7a91', fontWeight: 400 }}>{stat.label}</p>
                             </div>
                         );
                     })}
                 </div>
-            </div>
 
+            </div>
         </div>
     );
 };

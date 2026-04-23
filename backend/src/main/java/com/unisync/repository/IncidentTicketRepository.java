@@ -14,4 +14,5 @@ public interface IncidentTicketRepository extends MongoRepository<IncidentTicket
     List<IncidentTicket> findByAssignedTo(String assignedTo);
     List<IncidentTicket> findByStatus(TicketStatus status);
     boolean existsByResourceIdAndStatusIn(String resourceId, Collection<TicketStatus> statuses);
+    boolean existsByCreatedByAndResourceIdAndStatusIn(String createdBy, String resourceId, Collection<TicketStatus> statuses);
 }

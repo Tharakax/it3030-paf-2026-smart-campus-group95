@@ -43,7 +43,8 @@ const TicketForm = ({ onSubmit, onClose, submitting }) => {
         'FACULTY_OF_ENGINEERING',
         'FACULTY_OF_BUSINESS',
         'FACULTY_OF_HUMANITIES',
-        'FACULTY_OF_SCIENCE'
+        'FACULTY_OF_SCIENCE',
+        'COMMON_AREA'
     ];
 
     const resourceTypeEnums = [
@@ -256,13 +257,14 @@ const TicketForm = ({ onSubmit, onClose, submitting }) => {
                 <SearchableDropdown 
                     label="Resource Type"
                     options={formData.department ? resourceTypes : []}
-                    placeholder={formData.department ? "Select Resource Type" : "Select Dept First"}
+                    placeholder={formData.department ? "Select Resource Type" : "Waiting for Department..."}
                     value={formData.resourceType}
                     onSelect={(val) => {
                         setFormData({ ...formData, resourceType: val, resourceId: '', resourceName: '' });
                         setErrors({ ...errors, resourceType: null });
                     }}
                     error={errors.resourceType}
+                    disabled={!formData.department}
                 />
             </div>
 
@@ -273,11 +275,11 @@ const TicketForm = ({ onSubmit, onClose, submitting }) => {
                     options={resourceOptions}
                     placeholder={
                         !formData.department 
-                            ? "Select Department First" 
+                            ? "Waiting for Department..." 
                             : !formData.resourceType 
-                                ? "Select Resource Type First" 
+                                ? "Waiting for Resource Type..." 
                                 : loadingResources 
-                                    ? "Loading resources..." 
+                                    ? "Loading available resources..." 
                                     : "Select Resource"
                     }
                     value={formData.resourceName}
@@ -294,6 +296,7 @@ const TicketForm = ({ onSubmit, onClose, submitting }) => {
                         setErrors({ ...errors, resource: null });
                     }}
                     error={errors.resource}
+                    disabled={!formData.resourceType}
                 />
                 {loadingResources && (
                     <div className="absolute right-4 top-9">
@@ -424,7 +427,7 @@ const TicketForm = ({ onSubmit, onClose, submitting }) => {
                 <button 
                     type="submit"
                     disabled={submitting || uploading}
-                    className="flex-[2] py-4 px-6 rounded-3xl bg-blue-600 text-white font-bold flex items-center justify-center shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="flex-[2] py-4 px-6 rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold flex items-center justify-center shadow-xl shadow-blue-200 transition-all active:scale-[0.97] disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     {uploading ? (
                         <><Loader2 size={18} className="mr-2 animate-spin" /> Uploading images...</>

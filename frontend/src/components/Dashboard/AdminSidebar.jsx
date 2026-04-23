@@ -8,21 +8,42 @@ import {
     LogOut,
     ChevronLeft,
     ChevronRight,
-    Circle,
-    AlertCircle
+    AlertCircle,
+    Calendar,
+    Bell
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import notificationService from '../../api/notificationService';
+import logo from '../../assets/logo.png';
 
 const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed, setIsCollapsed }) => {
     const adminMenu = [
         { id: 'overview', label: 'Admin Overview', icon: BarChart3 },
-        { id: 'tickets', label: 'Incident Management', icon: AlertCircle },
+        { id: 'notifications', label: 'Notifications', icon: Bell },
+        { id: 'tickets', label: 'Ticket Management', icon: AlertCircle },
+        { id: 'bookings', label: 'Resource Bookings', icon: Calendar },
         { id: 'users', label: 'User Management', icon: Users },
         { id: 'campus', label: 'Campus Infrastructure', icon: Building2 },
         { id: 'security', label: 'System Security', icon: ShieldCheck },
         { id: 'settings', label: 'Global Settings', icon: Settings },
     ];
+
+    const [unreadCount, setUnreadCount] = React.useState(0);
+
+    React.useEffect(() => {
+        const fetchUnread = async () => {
+            try {
+                const data = await notificationService.getUnreadCount();
+                setUnreadCount(data.count);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchUnread();
+        const interval = setInterval(fetchUnread, 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     const confirmLogout = () => {
         Swal.fire({
@@ -52,7 +73,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed
 
     return (
         <aside
-            className={`fixed left-0 top-0 bottom-0 z-40 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'
+            className={`fixed left-0 top-16 bottom-0 z-40 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'
                 } hidden md:block`}
         >
             <div className="flex flex-col h-full py-4">
@@ -61,9 +82,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed
                     to="/"
                     className={`px-6 mb-8 flex items-center hover:opacity-80 transition-opacity ${isCollapsed ? 'justify-center' : 'space-x-3'}`}
                 >
-                    <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 shrink-0">
-                        <ShieldCheck className="text-white w-6 h-6" />
-                    </div>
+                    <img src={logo} alt="UniSync Logo" className="w-9 h-9 object-contain" />
                     {!isCollapsed && (
                         <span className="text-xl font-black text-slate-800 tracking-tighter">
                             UniSync <span className="text-blue-600">Admin</span>
@@ -126,7 +145,16 @@ const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed
                                         : 'text-slate-500 hover:bg-blue-50 hover:text-blue-600'
                                     }`}
                             >
-                                <Icon size={isCollapsed ? 24 : 18} className={!isCollapsed ? 'mr-3' : ''} />
+                                <div className="relative">
+                                    <Icon size={isCollapsed ? 24 : 18} className={!isCollapsed ? 'mr-3' : ''} />
+                                    {item.id === 'notifications' && unreadCount > 0 && (
+                                        <span className={`absolute ${isCollapsed ? '-top-1 -right-1' : '-top-1 left-3'} flex h-4 w-4`}>
+                                            <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-white text-[9px] font-black text-white items-center justify-center">
+                                                {unreadCount > 9 ? '9+' : unreadCount}
+                                            </span>
+                                        </span>
+                                    )}
+                                </div>
                                 {!isCollapsed && <span className="text-sm font-bold">{item.label}</span>}
 
                                 {isActive && !isCollapsed && (

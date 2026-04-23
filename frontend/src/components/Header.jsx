@@ -2,6 +2,10 @@ import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Bell, UserCircle, LogOut, Menu, X, Settings, Shield, Wrench, LayoutDashboard, Layers, Box } from 'lucide-react';
+import NotificationBell from './Dashboard/NotificationBell';
+import Swal from 'sweetalert2';
+
+import logo from '../assets/logo.png';
 
 
 const Header = () => {
@@ -11,19 +15,32 @@ const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-    // Hide header on dashboard, admin and technician routes
-    const hideHeaderRoutes = ['/dashboard', '/admin', '/technician'];
-    
-    // Show header even on admin sub-routes if they are resource related
-    const isResourceRoute = location.pathname.startsWith('/resources');
-    
-    if (hideHeaderRoutes.includes(location.pathname) && !isResourceRoute) {
-        return null;
-    }
+
 
     const handleLogout = () => {
-        logout();
-        navigate('/login');
+        Swal.fire({
+            title: 'Logout?',
+            text: "Are you sure you want to end your session?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb',
+            cancelButtonColor: '#cbd5e1',
+            confirmButtonText: 'Yes, logout',
+            cancelButtonText: 'Cancel',
+            background: '#ffffff',
+            customClass: {
+                popup: 'rounded-[1.5rem] border-none shadow-2xl',
+                title: 'text-slate-800 font-bold',
+                htmlContainer: 'text-slate-600 font-medium',
+                confirmButton: 'rounded-xl font-bold px-6 py-3',
+                cancelButton: 'rounded-xl font-bold px-6 py-3 text-slate-500'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                logout();
+                navigate('/login');
+            }
+        });
     };
 
     if (!user) return null;
@@ -37,9 +54,7 @@ const Header = () => {
                         className="flex items-center space-x-2 cursor-pointer group"
                         onClick={() => navigate('/home')}
                     >
-                        <div className="bg-blue-600 text-white p-2 rounded-xl group-hover:bg-blue-700 transition-colors shadow-md shadow-blue-500/20">
-                            <Layers className="w-5 h-5" />
-                        </div>
+                        <img src={logo} alt="UniSync Logo" className="w-9 h-9 object-contain" />
                         <h2 className="text-xl font-bold text-slate-800 tracking-tight">
                             UniSync <span className="text-blue-600 font-extrabold">Hub</span>
                         </h2>
@@ -52,9 +67,6 @@ const Header = () => {
                         </Link>
                         <Link to="/resources" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
                             Catalogue
-                        </Link>
-                        <Link to="/bookings" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
-                            Bookings
                         </Link>
                         <Link to="/contact" className="px-4 py-2 rounded-lg text-slate-600 font-medium hover:text-blue-600 hover:bg-blue-50 transition-all">
                             Contact Us
@@ -78,13 +90,7 @@ const Header = () => {
                     {/* Actions & Profile */}
                     <div className="hidden md:flex items-center space-x-4">
                         {/* Notifications */}
-                        <button className="relative p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors">
-                            <Bell className="w-5 h-5" />
-                            <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500 border-2 border-white"></span>
-                            </span>
-                        </button>
+                        <NotificationBell onViewAll={() => navigate('/dashboard')} />
 
                         {/* Profile Dropdown */}
                         <div className="relative">
@@ -93,9 +99,9 @@ const Header = () => {
                                 className="flex items-center space-x-3 p-1 pr-3 rounded-full border border-slate-200 hover:bg-slate-50 hover:border-blue-200 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                             >
                                 <img
-                                    src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=eff6ff&color=2563eb`}
+                                    src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=eff6ff&color=2563eb`}
                                     alt="User Avatar"
-                                    className="w-8 h-8 rounded-full"
+                                    className="w-8 h-8 rounded-full object-cover border border-slate-100 shadow-sm"
                                 />
                                 <div className="text-left hidden lg:block">
                                     <p className="text-sm font-semibold text-slate-700 leading-tight">{user?.name?.split(' ')[0] || 'User'}</p>
@@ -170,7 +176,11 @@ const Header = () => {
 
                         <div className="border-t border-slate-100 mt-4 pt-4">
                             <div className="flex items-center px-3 mb-4">
-                                <img src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=eff6ff&color=2563eb`} alt="Avatar" className="w-10 h-10 rounded-full" />
+                                <img 
+                                    src={user?.picture || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=eff6ff&color=2563eb`} 
+                                    alt="Avatar" 
+                                    className="w-10 h-10 rounded-full object-cover border border-slate-100 shadow-sm" 
+                                />
                                 <div className="ml-3">
                                     <p className="text-base font-medium text-slate-800">{user?.name || 'User'}</p>
                                     <p className="text-sm font-medium text-slate-500">{user?.email}</p>

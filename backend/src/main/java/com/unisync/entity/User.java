@@ -23,6 +23,8 @@ public class User {
  
     private String profilePictureUrl;
  
+    private String password;
+
     private Role role;
 
     private TicketCategory specialization;

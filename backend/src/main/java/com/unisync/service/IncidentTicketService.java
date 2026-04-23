@@ -8,11 +8,13 @@ import com.unisync.entity.ResolutionRecord;
 import com.unisync.entity.Resource;
 import com.unisync.entity.Role;
 import com.unisync.entity.User;
+import com.unisync.enums.NotificationType;
 import com.unisync.enums.ResourceStatus;
 import com.unisync.enums.TicketStatus;
 import com.unisync.enums.Department;
 import com.unisync.exception.ResourceNotFoundException;
 import com.unisync.exception.UnauthorizedException;
+import com.unisync.exception.DuplicateTicketException;
 import com.unisync.repository.IncidentTicketRepository;
 import com.unisync.repository.ResourceRepository;
 import com.unisync.repository.UserRepository;
@@ -32,12 +34,24 @@ public class IncidentTicketService {
     private final UserRepository userRepository;
     private final ResourceRepository resourceRepository;
     private final SequenceGeneratorService sequenceGenerator;
+    private final NotificationService notificationService;
 
     @Transactional
     public IncidentTicketResponseDTO createTicket(IncidentTicketRequestDTO request, User currentUser) {
         // Validate resource existence
         Resource resource = resourceRepository.findById(request.getResourceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Resource not found with id: " + request.getResourceId()));
+
+        // Prevention Protocol: Detect duplicate active tickets for this user and resource
+        boolean hasActiveTicket = ticketRepository.existsByCreatedByAndResourceIdAndStatusIn(
+                currentUser.getId(), 
+                request.getResourceId(), 
+                List.of(TicketStatus.OPEN, TicketStatus.IN_PROGRESS)
+        );
+
+        if (hasActiveTicket) {
+            throw new DuplicateTicketException("You have already submitted a ticket for this resource.");
+        }
 
         IncidentTicket ticket = IncidentTicket.builder()
                 .ticketId("#TCK" + sequenceGenerator.generateSequence("incident_tickets_sequence"))
@@ -59,6 +73,17 @@ public class IncidentTicketService {
         resourceRepository.save(resource);
 
         IncidentTicket savedTicket = ticketRepository.save(ticket);
+
+        // Notify all admins of the new incident report
+        notificationService.createBroadcastNotification(
+                Role.ADMIN,
+                "New Incident Report",
+                "A new incident report (" + savedTicket.getTicketId() + ") has been submitted for \"" + resource.getName() + "\" and requires your attention.",
+                NotificationType.NEW_INCIDENT_REPORT,
+                savedTicket.getId(),
+                null, null, "All Administrators"
+        );
+
         return convertToResponseDTO(savedTicket);
     }
 
@@ -68,7 +93,7 @@ public class IncidentTicketService {
         if (currentUser.getRole() == Role.ADMIN) {
             tickets = ticketRepository.findAll();
         } else if (currentUser.getRole() == Role.TECHNICIAN) {
-            tickets = ticketRepository.findAll();
+            tickets = ticketRepository.findByAssignedTo(currentUser.getId());
         } else {
             tickets = ticketRepository.findByCreatedBy(currentUser.getId());
         }
@@ -84,6 +109,10 @@ public class IncidentTicketService {
             throw new UnauthorizedException("You don't have permission to view this ticket");
         }
 
+        if (currentUser.getRole() == Role.TECHNICIAN && (ticket.getAssignedTo() == null || !ticket.getAssignedTo().equals(currentUser.getId()))) {
+            throw new UnauthorizedException("You are not authorized to access this incident report");
+        }
+
         return convertToResponseDTO(ticket);
     }
 
@@ -97,12 +126,18 @@ public class IncidentTicketService {
 
         // Role-based transition logic
         if (currentUser.getRole() == Role.USER) {
-            if (newStatus == TicketStatus.CLOSED && oldStatus == TicketStatus.RESOLVED) {
+            // Allow closing if already resolved OR if still open and unassigned
+            if (newStatus == TicketStatus.CLOSED && 
+               (oldStatus == TicketStatus.RESOLVED || (oldStatus == TicketStatus.OPEN && ticket.getAssignedTo() == null))) {
                 ticket.setStatus(TicketStatus.CLOSED);
             } else {
-                throw new UnauthorizedException("Users can only close resolved tickets");
+                throw new UnauthorizedException("Users can only close resolved tickets or their own unassigned tickets");
             }
         } else if (currentUser.getRole() == Role.TECHNICIAN) {
+            if (ticket.getAssignedTo() == null || !ticket.getAssignedTo().equals(currentUser.getId())) {
+                throw new UnauthorizedException("You can only update tickets assigned to you");
+            }
+
             if (newStatus == TicketStatus.IN_PROGRESS || newStatus == TicketStatus.RESOLVED) {
                 ticket.setStatus(newStatus);
                 if (newStatus == TicketStatus.RESOLVED && update.getResolutionNotes() != null) {
@@ -126,6 +161,19 @@ public class IncidentTicketService {
 
         ticket.setUpdatedAt(LocalDateTime.now());
         IncidentTicket savedTicket = ticketRepository.save(ticket);
+
+        // Notify the ticket creator of the status change (if actor is not the creator)
+        if (!ticket.getCreatedBy().equals(currentUser.getId())) {
+            String statusLabel = newStatus.name().replace("_", " ");
+            notificationService.createNotification(
+                    ticket.getCreatedBy(),
+                    "Incident Status Updated",
+                    "Your incident report (" + ticket.getTicketId() + ") status has been updated to: " + statusLabel + ".",
+                    NotificationType.INCIDENT_STATUS_UPDATE,
+                    savedTicket.getId(),
+                    null, null, null, "Ticket Creator"
+            );
+        }
 
         // SYNC RESOURCE STATUS IF TERMINAL
         if (isTerminalStatus(newStatus)) {
@@ -168,14 +216,42 @@ public class IncidentTicketService {
             throw new IllegalArgumentException("User is not a technician");
         }
 
+        if (ticket.getStatus() != TicketStatus.OPEN) {
+            throw new IllegalStateException("Protocol Violation: Cannot reassign technician once the incident transition has reached " + ticket.getStatus());
+        }
+
         ticket.setAssignedTo(technicianId);
         ticket.setUpdatedAt(LocalDateTime.now());
-        return convertToResponseDTO(ticketRepository.save(ticket));
+        IncidentTicket savedTicket = ticketRepository.save(ticket);
+
+        // Notify the assigned technician
+        notificationService.createNotification(
+                technicianId,
+                "Incident Assigned to You",
+                "You have been assigned to incident report " + ticket.getTicketId() + ". Please review and take action.",
+                NotificationType.INCIDENT_ASSIGNED,
+                savedTicket.getId(),
+                null, null, null, "Assigned Technician"
+        );
+
+        // Notify the ticket creator that a technician has been assigned
+        notificationService.createNotification(
+                ticket.getCreatedBy(),
+                "Technician Assigned",
+                "A technician has been assigned to your incident report (" + ticket.getTicketId() + ") and will be in touch shortly.",
+                NotificationType.INCIDENT_ASSIGNED,
+                savedTicket.getId(),
+                null, null, null, "Ticket Creator"
+        );
+
+        return convertToResponseDTO(savedTicket);
     }
 
     private IncidentTicketResponseDTO convertToResponseDTO(IncidentTicket ticket) {
-        String createdByName = userRepository.findById(ticket.getCreatedBy())
-                .map(User::getName).orElse("Unknown");
+        User creator = userRepository.findById(ticket.getCreatedBy()).orElse(null);
+        String createdByName = creator != null ? creator.getName() : "Unknown";
+        String createdByEmail = creator != null ? creator.getEmail() : "Unknown";
+        
         String assignedToName = ticket.getAssignedTo() != null ?
                 userRepository.findById(ticket.getAssignedTo()).map(User::getName).orElse("Unknown") : null;
         
@@ -189,6 +265,7 @@ public class IncidentTicketService {
                 .ticketId(ticket.getTicketId())
                 .resourceId(ticket.getResourceId())
                 .resourceName(resourceName)
+                .resourceType(resource != null ? resource.getType() : null)
                 .department(department)
                 .category(ticket.getCategory())
                 .description(ticket.getDescription())
@@ -197,6 +274,7 @@ public class IncidentTicketService {
                 .status(ticket.getStatus())
                 .createdBy(ticket.getCreatedBy())
                 .createdByName(createdByName)
+                .createdByEmail(createdByEmail)
                 .assignedTo(ticket.getAssignedTo())
                 .assignedToName(assignedToName)
                 .rejectionReason(ticket.getRejectionReason())
