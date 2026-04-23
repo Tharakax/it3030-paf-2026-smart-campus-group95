@@ -236,7 +236,7 @@ const Bookings = () => {
                     
                     <div style={glass} className="flex p-1.5 self-start shadow-sm border-slate-100">
                         <button 
-                            onClick={() => setActiveTab('my')}
+                            onClick={() => navigate('/dashboard', { state: { activeTab: 'bookings' } })}
                             className={`px-6 py-2.5 rounded-xl font-bold transition-all duration-300 ${activeTab === 'my' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`}
                         >
                             My Bookings
