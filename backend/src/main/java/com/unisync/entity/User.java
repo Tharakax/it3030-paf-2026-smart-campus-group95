@@ -30,4 +30,7 @@ public class User {
      private TicketCategory specialization;
  
      private String contactNumber;
+
+     @Builder.Default
+     private boolean notificationsEnabled = true;
  }

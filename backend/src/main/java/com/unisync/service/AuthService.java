@@ -75,6 +75,7 @@ public class AuthService {
 
         if (update.getName() != null) user.setName(update.getName());
         if (update.getContactNumber() != null) user.setContactNumber(update.getContactNumber());
+        user.setNotificationsEnabled(update.isNotificationsEnabled());
 
         User updatedUser = userRepository.save(user);
         return convertToDTO(updatedUser);
@@ -89,6 +90,7 @@ public class AuthService {
                 .role(user.getRole())
                 .specialization(user.getSpecialization())
                 .contactNumber(user.getContactNumber())
+                .notificationsEnabled(user.isNotificationsEnabled())
                 .build();
     }
 }

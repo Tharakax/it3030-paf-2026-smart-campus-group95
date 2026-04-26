@@ -19,4 +19,5 @@ public class UserProfileDTO {
     private Role role;
     private TicketCategory specialization;
     private String contactNumber;
+    private boolean notificationsEnabled;
 }

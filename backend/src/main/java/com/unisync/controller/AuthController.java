@@ -50,6 +50,7 @@ public class AuthController {
                 .role(user.getRole())
                 .specialization(user.getSpecialization())
                 .contactNumber(user.getContactNumber())
+                .notificationsEnabled(user.isNotificationsEnabled())
                 .build();
  
          return ResponseEntity.ok(userProfileDTO);
@@ -67,6 +68,7 @@ public class AuthController {
          UserProfileDTO update = UserProfileDTO.builder()
                  .name(profileUpdate.getName())
                  .contactNumber(profileUpdate.getContactNumber())
+                 .notificationsEnabled(profileUpdate.isNotificationsEnabled())
                  .build();
                  
          return ResponseEntity.ok(authService.updateProfile(userPrincipal.getId(), update));

@@ -43,6 +43,7 @@ public class UserServiceImpl implements UserService {
         // but typically role and specialization are the main administrative changes.
         if (userDetails.getName() != null) user.setName(userDetails.getName());
         if (userDetails.getContactNumber() != null) user.setContactNumber(userDetails.getContactNumber());
+        user.setNotificationsEnabled(userDetails.isNotificationsEnabled());
  
          User updatedUser = userRepository.save(user);
          return convertToDTO(updatedUser);
@@ -90,6 +91,7 @@ public class UserServiceImpl implements UserService {
                 .role(user.getRole())
                 .specialization(user.getSpecialization())
                 .contactNumber(user.getContactNumber())
+                .notificationsEnabled(user.isNotificationsEnabled())
                 .build();
     }
 }

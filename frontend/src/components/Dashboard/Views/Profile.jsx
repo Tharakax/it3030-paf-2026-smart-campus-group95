@@ -12,18 +12,24 @@ import {
     Phone,
     X,
     Save,
-    Loader2
+    Loader2,
+    Bell,
+    BellOff
 } from 'lucide-react';
 import api from '../../../api/axiosConfig';
 import toast from 'react-hot-toast';
+import { AuthContext } from '../../../context/AuthContext';
+import { useContext } from 'react';
 
 const Profile = ({ user: initialUser }) => {
+    const { setUser: setGlobalUser } = useContext(AuthContext);
     const [user, setUser] = useState(initialUser);
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: initialUser?.name || '',
-        contactNumber: initialUser?.contactNumber || ''
+        contactNumber: initialUser?.contactNumber || '',
+        notificationsEnabled: initialUser?.notificationsEnabled ?? true
     });
 
     useEffect(() => {
@@ -33,8 +39,10 @@ const Profile = ({ user: initialUser }) => {
                 setUser(response.data);
                 setFormData({
                     name: response.data.name,
-                    contactNumber: response.data.contactNumber || ''
+                    contactNumber: response.data.contactNumber || '',
+                    notificationsEnabled: response.data.notificationsEnabled ?? true
                 });
+                setGlobalUser(prev => ({ ...prev, ...response.data }));
             } catch (err) {
                 console.error("Failed to fetch latest profile", err);
             }
@@ -48,10 +56,34 @@ const Profile = ({ user: initialUser }) => {
         try {
             const response = await api.put('/auth/me', formData);
             setUser(response.data);
+            setGlobalUser(prev => ({ ...prev, ...response.data }));
             setIsEditing(false);
             toast.success('Profile updated successfully');
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to update profile');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleQuickToggleNotifications = async () => {
+        setIsLoading(true);
+        console.log('Current notification state:', user?.notificationsEnabled);
+        try {
+            const updatedNotifications = !(user?.notificationsEnabled ?? true);
+            console.log('Toggling to:', updatedNotifications);
+            const response = await api.put('/auth/me', {
+                ...formData,
+                notificationsEnabled: updatedNotifications
+            });
+            console.log('Update response:', response.data);
+            setUser(response.data);
+            setGlobalUser(prev => ({ ...prev, ...response.data }));
+            setFormData(prev => ({ ...prev, notificationsEnabled: updatedNotifications }));
+            toast.success(`Notifications ${updatedNotifications ? 'enabled' : 'disabled'}`);
+        } catch (err) {
+            console.error('Toggle failed:', err);
+            toast.error('Failed to toggle notifications');
         } finally {
             setIsLoading(false);
         }
@@ -135,6 +167,27 @@ const Profile = ({ user: initialUser }) => {
                                             />
                                         </div>
                                     </div>
+                                    
+                                    <div className="group pt-2">
+                                        <div className="flex items-center justify-between p-5 bg-slate-50/50 rounded-2xl border border-slate-100/50 hover:bg-white transition-all duration-300">
+                                            <div className="flex items-center gap-4">
+                                                <div className={`p-3 rounded-xl transition-colors ${formData.notificationsEnabled ? 'bg-blue-100 text-blue-600' : 'bg-slate-200 text-slate-500'}`}>
+                                                    {formData.notificationsEnabled ? <Bell size={18} /> : <BellOff size={18} />}
+                                                </div>
+                                                <div className="text-left">
+                                                    <p className="text-sm font-black text-slate-700 tracking-tight leading-none mb-1">System Notifications</p>
+                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Toggle email & push alerts</p>
+                                                </div>
+                                            </div>
+                                            <button 
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, notificationsEnabled: !formData.notificationsEnabled })}
+                                                className={`w-14 h-8 rounded-full transition-all relative shrink-0 ${formData.notificationsEnabled ? 'bg-blue-600 shadow-lg shadow-blue-200' : 'bg-slate-300'}`}
+                                            >
+                                                <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-sm transition-all duration-300 ${formData.notificationsEnabled ? 'left-7' : 'left-1'}`} />
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="flex gap-4">
                                     <button 
@@ -149,7 +202,11 @@ const Profile = ({ user: initialUser }) => {
                                         type="button"
                                         onClick={() => {
                                             setIsEditing(false);
-                                            setFormData({ name: user.name, contactNumber: user.contactNumber || '' });
+                                            setFormData({ 
+                                                name: user.name, 
+                                                contactNumber: user.contactNumber || '',
+                                                notificationsEnabled: user.notificationsEnabled ?? true
+                                            });
                                         }}
                                         className="px-6 py-4 bg-slate-100 text-slate-500 font-black uppercase text-[11px] tracking-widest rounded-2xl hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
                                     >
@@ -186,6 +243,37 @@ const Profile = ({ user: initialUser }) => {
                                             </div>
                                             <p className="font-extrabold text-slate-700 text-lg tracking-tight">{user?.role}</p>
                                         </div>
+                                    </div>
+
+                                    <div className="p-6 bg-slate-50/50 rounded-3xl border border-slate-100/50 group-hover:bg-white transition-colors duration-500 mt-4 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2 rounded-xl ${user?.notificationsEnabled ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-500'}`}>
+                                                {user?.notificationsEnabled ? <Bell size={18} /> : <BellOff size={18} />}
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="font-extrabold text-slate-700 text-sm tracking-tight leading-none mb-1.5">System Notifications</p>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md border ${
+                                                        user?.notificationsEnabled 
+                                                        ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                                                        : 'bg-rose-50 text-rose-600 border-rose-100'
+                                                    }`}>
+                                                        {user?.notificationsEnabled ? 'Enabled' : 'Disabled'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button 
+                                            onClick={handleQuickToggleNotifications}
+                                            disabled={isLoading}
+                                            className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-md active:scale-95 ${
+                                                user?.notificationsEnabled 
+                                                ? 'bg-rose-600 text-white hover:bg-rose-700 shadow-rose-100' 
+                                                : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-100'
+                                            } disabled:opacity-50`}
+                                        >
+                                            {isLoading ? <Loader2 size={12} className="animate-spin mx-auto" /> : (user?.notificationsEnabled ? 'Disable' : 'Enable')}
+                                        </button>
                                     </div>
                                 </div>
                             </>
