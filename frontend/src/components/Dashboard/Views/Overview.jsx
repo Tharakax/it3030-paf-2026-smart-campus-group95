@@ -26,6 +26,22 @@ const Overview = ({ user, stats }) => {
         boxShadow: '0 8px 24px rgba(0,0,0,.02)'
     };
 
+    const formatTimeAgo = (dateString) => {
+        if (!dateString) return 'Just now';
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
+        
+        if (diffInSeconds < 60) return 'Just now';
+        const minutes = Math.floor(diffInSeconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        if (days < 7) return `${days}d ago`;
+        return date.toLocaleDateString();
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Header Section */}
@@ -87,35 +103,45 @@ const Overview = ({ user, stats }) => {
                             </div>
                             Recent Activity
                         </h3>
-                        <button className="text-[11px] font-black text-blue-500 hover:text-blue-700 uppercase tracking-widest transition-colors flex items-center gap-1">
-                            Full History <ChevronRight size={14} />
-                        </button>
                     </div>
                     <div className="p-8 space-y-7">
-                        {[
-                            { title: 'Room Reservation Confirmed', time: '2 hours ago', type: 'booking', status: 'success' },
-                            { title: 'WiFi Connectivity Issue Reported', time: '5 hours ago', type: 'ticket', status: 'pending' },
-                            { title: 'Library Book Due Reminder', time: 'Yesterday', type: 'alert', status: 'info' }
-                        ].map((act, i) => (
-                            <div key={i} className="flex items-center group/item cursor-pointer">
-                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mr-5 transition-all duration-300 ${act.status === 'success' ? 'bg-emerald-50 group-hover/item:bg-emerald-500 group-hover:shadow-lg group-hover:shadow-emerald-200' : 'bg-amber-50 group-hover/item:bg-amber-500 group-hover:shadow-lg group-hover:shadow-amber-200'}`}>
-                                    {act.status === 'success' ? 
-                                        <CheckCircle2 className={`w-5 h-5 transition-colors duration-300 ${act.status === 'success' ? 'text-emerald-500 group-hover/item:text-white' : 'text-amber-500 group-hover/item:text-white'}`} /> : 
-                                        <AlertCircle className={`w-5 h-5 transition-colors duration-300 ${act.status === 'success' ? 'text-emerald-500 group-hover/item:text-white' : 'text-amber-500 group-hover/item:text-white'}`} />
-                                    }
-                                </div>
-                                <div className="flex-1 border-b border-slate-100/60 pb-5 group-last:border-0">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <p className="text-sm font-extrabold text-slate-700 group-hover/item:text-blue-600 transition-colors tracking-tight">{act.title}</p>
-                                        <div className="px-2 py-0.5 bg-slate-50 border border-slate-100 rounded-md text-[9px] font-black text-slate-400 uppercase tracking-tighter opacity-0 group-hover/item:opacity-100 transition-opacity">
-                                            {act.type}
-                                        </div>
+                        {stats?.recentActivities && stats.recentActivities.length > 0 ? (
+                            stats.recentActivities.map((act, i) => (
+                                <div key={i} className="flex items-center group/item cursor-pointer">
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mr-5 transition-all duration-300 
+                                        ${act.type === 'booking' ? 'bg-blue-50 group-hover/item:bg-blue-500' : 'bg-amber-50 group-hover/item:bg-amber-500'} 
+                                        group-hover:shadow-lg ${act.type === 'booking' ? 'group-hover:shadow-blue-200' : 'group-hover:shadow-amber-200'}`}>
+                                        {act.type === 'booking' ? 
+                                            <Calendar className="w-5 h-5 text-blue-500 group-hover/item:text-white transition-colors" /> : 
+                                            <AlertCircle className="w-5 h-5 text-amber-500 group-hover/item:text-white transition-colors" />
+                                        }
                                     </div>
-                                    <p className="text-xs text-slate-400 font-bold tracking-tight">{act.time}</p>
+                                    <div className="flex-1 border-b border-slate-100/60 pb-5 group-last:border-0">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <p className="text-sm font-extrabold text-slate-700 group-hover/item:text-blue-600 transition-colors tracking-tight">{act.title}</p>
+                                            <div className="flex gap-2 items-center opacity-0 group-hover/item:opacity-100 transition-opacity">
+                                                <div className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter border ${
+                                                    act.status === 'success' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'
+                                                }`}>
+                                                    {act.status === 'success' ? (act.type === 'booking' ? 'Approved' : 'Resolved') : 'Pending'}
+                                                </div>
+                                                <div className="px-2 py-0.5 bg-slate-50 border border-slate-100 rounded-md text-[9px] font-black text-slate-400 uppercase tracking-tighter">
+                                                    {act.type}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-slate-400 font-bold tracking-tight">{formatTimeAgo(act.timestamp)}</p>
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 text-slate-200 group-hover/item:translate-x-1 group-hover/item:text-blue-500 transition-all ml-3" />
                                 </div>
-                                <ChevronRight className="w-4 h-4 text-slate-200 group-hover/item:translate-x-1 group-hover/item:text-blue-500 transition-all ml-3" />
+                            ))
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-10 text-slate-400">
+                                <Activity className="w-12 h-12 mb-4 opacity-20" />
+                                <p className="font-bold">No recent activity found</p>
+                                <p className="text-xs">Your bookings and tickets will appear here</p>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </div>
 

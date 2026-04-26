@@ -23,4 +23,6 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
            "'$or': [ { 'startTime': { '$lt': ?3 }, 'endTime': { '$gt': ?2 } } ] }")
     List<Booking> findOverlappingActiveBookings(String resourceId, LocalDate date, LocalTime startTime, LocalTime endTime);
     long countByUserIdAndStatusIn(String userId, java.util.Collection<com.unisync.enums.BookingStatus> statuses);
+
+    java.util.List<com.unisync.entity.Booking> findTop5ByUserIdOrderByCreatedAtDesc(String userId);
 }

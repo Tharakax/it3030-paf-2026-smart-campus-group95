@@ -16,4 +16,6 @@ public interface IncidentTicketRepository extends MongoRepository<IncidentTicket
     boolean existsByResourceIdAndStatusIn(String resourceId, Collection<TicketStatus> statuses);
     boolean existsByCreatedByAndResourceIdAndStatusIn(String createdBy, String resourceId, Collection<TicketStatus> statuses);
     long countByCreatedByAndStatusIn(String createdBy, java.util.Collection<com.unisync.enums.TicketStatus> statuses);
+
+    java.util.List<com.unisync.entity.IncidentTicket> findTop5ByCreatedByOrderByCreatedAtDesc(String createdBy);
 }
