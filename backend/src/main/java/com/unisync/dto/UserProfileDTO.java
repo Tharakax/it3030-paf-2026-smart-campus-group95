@@ -18,4 +18,5 @@ public class UserProfileDTO {
     private String profilePictureUrl;
     private Role role;
     private TicketCategory specialization;
+    private String contactNumber;
 }

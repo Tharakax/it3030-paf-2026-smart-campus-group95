@@ -68,6 +68,18 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional
+    public UserProfileDTO updateProfile(String userId, UserProfileDTO update) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (update.getName() != null) user.setName(update.getName());
+        if (update.getContactNumber() != null) user.setContactNumber(update.getContactNumber());
+
+        User updatedUser = userRepository.save(user);
+        return convertToDTO(updatedUser);
+    }
+
     private UserProfileDTO convertToDTO(User user) {
         return UserProfileDTO.builder()
                 .id(user.getId())
@@ -76,6 +88,7 @@ public class AuthService {
                 .profilePictureUrl(user.getProfilePictureUrl())
                 .role(user.getRole())
                 .specialization(user.getSpecialization())
+                .contactNumber(user.getContactNumber())
                 .build();
     }
 }

@@ -16,7 +16,7 @@ const Dashboard = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
-    const [message, setMessage] = useState('');
+    const [dashboardData, setDashboardData] = useState({ message: '', activeBookings: 0, openTickets: 0 });
     const [activeTab, setActiveTab] = useState('overview');
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -31,7 +31,7 @@ const Dashboard = () => {
         const fetchDashboard = async () => {
             try {
                 const response = await api.get('/users/dashboard');
-                setMessage(response.data.message);
+                setDashboardData(response.data);
                 setTimeout(() => setIsLoading(false), 500); // Small delay for UX feel
             } catch (err) {
                 console.error("Failed to fetch dashboard", err);
@@ -98,7 +98,7 @@ const Dashboard = () => {
                         </div>
                     ) : (
                         <>
-                            {activeTab === 'overview' && <Overview user={user} message={message} />}
+                            {activeTab === 'overview' && <Overview user={user} stats={dashboardData} />}
                             {activeTab === 'bookings' && <Bookings />}
                             {activeTab === 'tickets' && <Tickets />}
                             {activeTab === 'profile' && <Profile user={user} />}
