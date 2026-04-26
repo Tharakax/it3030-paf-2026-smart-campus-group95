@@ -42,9 +42,11 @@ public class UserServiceImpl implements UserService {
         // Note: Name and Email might also be updated if specifically requested, 
         // but typically role and specialization are the main administrative changes.
         if (userDetails.getName() != null) user.setName(userDetails.getName());
-
-        User updatedUser = userRepository.save(user);
-        return convertToDTO(updatedUser);
+        if (userDetails.getContactNumber() != null) user.setContactNumber(userDetails.getContactNumber());
+        user.setNotificationsEnabled(userDetails.isNotificationsEnabled());
+ 
+         User updatedUser = userRepository.save(user);
+         return convertToDTO(updatedUser);
     }
 
     @Override
@@ -88,6 +90,8 @@ public class UserServiceImpl implements UserService {
                 .profilePictureUrl(user.getProfilePictureUrl())
                 .role(user.getRole())
                 .specialization(user.getSpecialization())
+                .contactNumber(user.getContactNumber())
+                .notificationsEnabled(user.isNotificationsEnabled())
                 .build();
     }
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     Edit3, 
     CheckCircle2, 
@@ -8,10 +8,87 @@ import {
     User as UserIcon,
     Award,
     Calendar,
-    Sparkles
+    Sparkles,
+    Phone,
+    X,
+    Save,
+    Loader2,
+    Bell,
+    BellOff
 } from 'lucide-react';
+import api from '../../../api/axiosConfig';
+import toast from 'react-hot-toast';
+import { AuthContext } from '../../../context/AuthContext';
+import { useContext } from 'react';
 
-const Profile = ({ user }) => {
+const Profile = ({ user: initialUser }) => {
+    const { setUser: setGlobalUser } = useContext(AuthContext);
+    const [user, setUser] = useState(initialUser);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        name: initialUser?.name || '',
+        contactNumber: initialUser?.contactNumber || '',
+        notificationsEnabled: initialUser?.notificationsEnabled ?? true
+    });
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const response = await api.get('/auth/me');
+                setUser(response.data);
+                setFormData({
+                    name: response.data.name,
+                    contactNumber: response.data.contactNumber || '',
+                    notificationsEnabled: response.data.notificationsEnabled ?? true
+                });
+                setGlobalUser(prev => ({ ...prev, ...response.data }));
+            } catch (err) {
+                console.error("Failed to fetch latest profile", err);
+            }
+        };
+        fetchProfile();
+    }, []);
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            const response = await api.put('/auth/me', formData);
+            setUser(response.data);
+            setGlobalUser(prev => ({ ...prev, ...response.data }));
+            setIsEditing(false);
+            toast.success('Profile updated successfully');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to update profile');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleQuickToggleNotifications = async () => {
+        setIsLoading(true);
+        console.log('Current notification state:', user?.notificationsEnabled);
+        try {
+            const updatedNotifications = !(user?.notificationsEnabled ?? true);
+            console.log('Toggling to:', updatedNotifications);
+            const response = await api.put('/auth/me', {
+                ...formData,
+                notificationsEnabled: updatedNotifications
+            });
+            console.log('Update response:', response.data);
+            setUser(response.data);
+            setGlobalUser(prev => ({ ...prev, ...response.data }));
+            setFormData(prev => ({ ...prev, notificationsEnabled: updatedNotifications }));
+            toast.success(`Notifications ${updatedNotifications ? 'enabled' : 'disabled'}`);
+        } catch (err) {
+            console.error('Toggle failed:', err);
+            toast.error('Failed to toggle notifications');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const glassStyle = {
         background: 'rgba(255,255,255,.85)',
         backdropFilter: 'blur(16px)',
@@ -24,10 +101,6 @@ const Profile = ({ user }) => {
     return (
         <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-4xl space-y-10">
             <div className="flex flex-col gap-2">
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: 'rgba(59,130,246,.08)', border: '1px solid rgba(59,130,246,.12)', width: 'fit-content' }}>
-                    <UserIcon size={12} className="text-blue-600" />
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#3b82f6', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Security & Identity</span>
-                </div>
                 <h2 className="text-4xl font-extrabold text-slate-800 tracking-tight">Personal Profile</h2>
                 <p className="text-slate-500 font-medium tracking-tight">Manage your digital campus identity and preferences</p>
             </div>
@@ -37,16 +110,21 @@ const Profile = ({ user }) => {
                 <div style={glassStyle} className="bg-white/80 p-8 md:p-12 flex flex-col md:flex-row gap-12 items-center md:items-start relative overflow-hidden group hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500">
                     <div style={{ position: 'absolute', top: 0, right: 0, width: 120, height: 120, background: 'linear-gradient(135deg,rgba(59,130,246,0.03),transparent)', borderRadius: '0 0 0 100%' }} />
                     
-                    <div className="absolute top-8 right-8 z-20">
-                        <button className="p-4 bg-slate-900 text-white hover:bg-blue-600 rounded-2xl transition-all shadow-xl shadow-slate-900/10 hover:-translate-y-1 active:scale-95 group/edit">
-                            <Edit3 className="w-5 h-5 group-hover/edit:rotate-12 transition-transform" />
-                        </button>
-                    </div>
+                    {!isEditing && (
+                        <div className="absolute top-8 right-8 z-20">
+                            <button 
+                                onClick={() => setIsEditing(true)}
+                                className="p-4 bg-slate-900 text-white hover:bg-blue-600 rounded-2xl transition-all shadow-xl shadow-slate-900/10 hover:-translate-y-1 active:scale-95 group/edit"
+                            >
+                                <Edit3 className="w-5 h-5 group-hover/edit:rotate-12 transition-transform" />
+                            </button>
+                        </div>
+                    )}
 
                     <div className="relative">
                         <div className="w-44 h-44 md:w-52 md:h-52 rounded-[40px] overflow-hidden shadow-2xl border-8 border-white group-hover:rotate-2 transition-transform duration-700 relative z-10">
                             <img 
-                                src={`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=3b82f6&color=fff&size=400&bold=true&font-size=0.33`} 
+                                src={user?.profilePictureUrl || `https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=3b82f6&color=fff&size=400&bold=true&font-size=0.33`} 
                                 className="w-full h-full object-cover"
                                 alt="Profile"
                             />
@@ -58,66 +136,149 @@ const Profile = ({ user }) => {
                         <div className="absolute -top-4 -left-4 w-52 h-52 bg-blue-100 rounded-full blur-3xl opacity-30 -z-10 group-hover:scale-125 transition-transform duration-700" />
                     </div>
 
-                    <div className="flex-1 space-y-8 text-center md:text-left relative z-10">
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
-                                <h3 className="text-4xl font-black text-slate-800 tracking-tighter">{user?.name}</h3>
-                                <span className="px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                                    <Shield size={10} /> Active
-                                </span>
-                            </div>
-                            <div className="flex items-center justify-center md:justify-start gap-2 text-slate-500 font-bold tracking-tight">
-                                <Mail size={16} className="text-slate-300" />
-                                <span>{user?.email}</span>
-                            </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 py-2">
-                            <div className="p-6 bg-slate-50/50 rounded-3xl border border-slate-100/50 group-hover:bg-white transition-colors duration-500">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 px-1">Institutional Role</p>
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-blue-100/50 rounded-xl text-blue-600">
-                                        <Award size={18} />
+                    <div className="flex-1 space-y-8 text-center md:text-left relative z-10 w-full">
+                        {isEditing ? (
+                            <form onSubmit={handleUpdate} className="space-y-6 animate-in slide-in-from-top-4 duration-500">
+                                <div className="space-y-4">
+                                    <div className="group">
+                                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-2 text-left">Full Identity Name</label>
+                                        <div className="relative">
+                                            <UserIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-600 transition-colors" />
+                                            <input 
+                                                type="text"
+                                                required
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-100 transition-all"
+                                                placeholder="Enter your full name"
+                                            />
+                                        </div>
                                     </div>
-                                    <p className="font-extrabold text-slate-700 text-lg tracking-tight">{user?.role}</p>
-                                </div>
-                            </div>
-                            <div className="p-6 bg-slate-50/50 rounded-3xl border border-slate-100/50 group-hover:bg-white transition-colors duration-500">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 px-1">Reference ID</p>
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-slate-200/50 rounded-xl text-slate-500">
-                                        <Calendar size={18} />
+                                    <div className="group">
+                                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-2 text-left">Contact Number</label>
+                                        <div className="relative">
+                                            <Phone className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-blue-600 transition-colors" />
+                                            <input 
+                                                type="tel"
+                                                value={formData.contactNumber}
+                                                onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
+                                                className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-blue-100 transition-all"
+                                                placeholder="e.g. +94 77 123 4567"
+                                            />
+                                        </div>
                                     </div>
-                                    <p className="font-black text-slate-700 text-lg font-mono uppercase tracking-tighter">IT-3030-2026</p>
+                                    
+                                    <div className="group pt-2">
+                                        <div className="flex items-center justify-between p-5 bg-slate-50/50 rounded-2xl border border-slate-100/50 hover:bg-white transition-all duration-300">
+                                            <div className="flex items-center gap-4">
+                                                <div className={`p-3 rounded-xl transition-colors ${formData.notificationsEnabled ? 'bg-blue-100 text-blue-600' : 'bg-slate-200 text-slate-500'}`}>
+                                                    {formData.notificationsEnabled ? <Bell size={18} /> : <BellOff size={18} />}
+                                                </div>
+                                                <div className="text-left">
+                                                    <p className="text-sm font-black text-slate-700 tracking-tight leading-none mb-1">System Notifications</p>
+                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Toggle email & push alerts</p>
+                                                </div>
+                                            </div>
+                                            <button 
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, notificationsEnabled: !formData.notificationsEnabled })}
+                                                className={`w-14 h-8 rounded-full transition-all relative shrink-0 ${formData.notificationsEnabled ? 'bg-blue-600 shadow-lg shadow-blue-200' : 'bg-slate-300'}`}
+                                            >
+                                                <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-sm transition-all duration-300 ${formData.notificationsEnabled ? 'left-7' : 'left-1'}`} />
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+                                <div className="flex gap-4">
+                                    <button 
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="flex-1 py-4 bg-blue-600 text-white font-black uppercase text-[11px] tracking-widest rounded-2xl hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                    >
+                                        {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                                        Secure Save
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            setIsEditing(false);
+                                            setFormData({ 
+                                                name: user.name, 
+                                                contactNumber: user.contactNumber || '',
+                                                notificationsEnabled: user.notificationsEnabled ?? true
+                                            });
+                                        }}
+                                        className="px-6 py-4 bg-slate-100 text-slate-500 font-black uppercase text-[11px] tracking-widest rounded-2xl hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                            </form>
+                        ) : (
+                            <>
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
+                                        <h3 className="text-4xl font-black text-slate-800 tracking-tighter">{user?.name}</h3>
+                                    </div>
+                                    <div className="flex flex-col md:flex-row md:items-center justify-center md:justify-start gap-3 md:gap-6">
+                                        <div className="flex items-center justify-center md:justify-start gap-2 text-slate-500 font-bold tracking-tight">
+                                            <Mail size={16} className="text-slate-300" />
+                                            <span>{user?.email}</span>
+                                        </div>
+                                        {user?.contactNumber && (
+                                            <div className="flex items-center justify-center md:justify-start gap-2 text-slate-500 font-bold tracking-tight">
+                                                <Phone size={16} className="text-slate-300" />
+                                                <span>{user.contactNumber}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                <div className="py-2">
+                                    <div className="p-6 bg-slate-50/50 rounded-3xl border border-slate-100/50 group-hover:bg-white transition-colors duration-500">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 px-1 text-left">Institutional Role</p>
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-blue-100/50 rounded-xl text-blue-600">
+                                                <Award size={18} />
+                                            </div>
+                                            <p className="font-extrabold text-slate-700 text-lg tracking-tight">{user?.role}</p>
+                                        </div>
+                                    </div>
 
-                        <div className="pt-2 flex flex-wrap justify-center md:justify-start gap-3">
-                            {[
-                                { text: 'Member since 2024', icon: Calendar },
-                                { text: 'Identity Verified', icon: Shield },
-                                { text: 'Full Resource Access', icon: Sparkles }
-                            ].map((badge, i) => (
-                                <span key={i} className="px-4 py-2 bg-white/50 text-slate-600 rounded-2xl text-[11px] font-bold border border-slate-100 shadow-sm hover:border-blue-200 transition-colors flex items-center gap-2">
-                                    <badge.icon size={12} className="text-blue-500" />
-                                    {badge.text}
-                                </span>
-                            ))}
-                        </div>
+                                    <div className="p-6 bg-slate-50/50 rounded-3xl border border-slate-100/50 group-hover:bg-white transition-colors duration-500 mt-4 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2 rounded-xl ${user?.notificationsEnabled ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-500'}`}>
+                                                {user?.notificationsEnabled ? <Bell size={18} /> : <BellOff size={18} />}
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="font-extrabold text-slate-700 text-sm tracking-tight leading-none mb-1.5">System Notifications</p>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md border ${
+                                                        user?.notificationsEnabled 
+                                                        ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                                                        : 'bg-rose-50 text-rose-600 border-rose-100'
+                                                    }`}>
+                                                        {user?.notificationsEnabled ? 'Enabled' : 'Disabled'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button 
+                                            onClick={handleQuickToggleNotifications}
+                                            disabled={isLoading}
+                                            className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-md active:scale-95 ${
+                                                user?.notificationsEnabled 
+                                                ? 'bg-rose-600 text-white hover:bg-rose-700 shadow-rose-100' 
+                                                : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-100'
+                                            } disabled:opacity-50`}
+                                        >
+                                            {isLoading ? <Loader2 size={12} className="animate-spin mx-auto" /> : (user?.notificationsEnabled ? 'Disable' : 'Enable')}
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
-                </div>
-
-                {/* Account Settings Placeholder */}
-                <div className="bg-white/50 border-2 border-dashed border-slate-200 rounded-[40px] p-16 text-center group hover:bg-slate-50 hover:border-blue-200 transition-all duration-500">
-                    <div className="w-20 h-20 bg-slate-100 rounded-[30px] flex items-center justify-center mx-auto mb-8 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-inner">
-                        <Settings className="w-10 h-10 text-slate-300 group-hover:text-blue-500 transition-colors" />
-                    </div>
-                    <h4 className="text-xl font-black text-slate-800 mb-2 tracking-tight">Custom Preferences</h4>
-                    <p className="text-slate-500 font-bold italic tracking-tight mb-8">Enhanced security and personalization controls coming soon.</p>
-                    <button className="px-8 py-3 bg-slate-100 text-slate-400 font-black text-xs uppercase tracking-[0.2em] rounded-2xl border border-slate-200 cursor-not-allowed">
-                        Coming Q3 2026
-                    </button>
                 </div>
             </div>
         </div>

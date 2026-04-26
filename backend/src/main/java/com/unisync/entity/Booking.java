@@ -2,6 +2,7 @@ package com.unisync.entity;
 
 import com.unisync.enums.BookingStatus;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -37,5 +38,6 @@ public class Booking {
 
     private String rejectionReason;
 
+    @CreatedDate
     private LocalDateTime createdAt;
 }

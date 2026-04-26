@@ -49,8 +49,28 @@ public class AuthController {
                 .profilePictureUrl(user.getProfilePictureUrl())
                 .role(user.getRole())
                 .specialization(user.getSpecialization())
+                .contactNumber(user.getContactNumber())
+                .notificationsEnabled(user.isNotificationsEnabled())
                 .build();
-
-        return ResponseEntity.ok(userProfileDTO);
-    }
-}
+ 
+         return ResponseEntity.ok(userProfileDTO);
+     }
+ 
+     @org.springframework.web.bind.annotation.PutMapping("/me")
+     public ResponseEntity<UserProfileDTO> updateCurrentUser(
+             @AuthenticationPrincipal UserPrincipal userPrincipal,
+             @Valid @RequestBody UserProfileDTO profileUpdate) {
+         if (userPrincipal == null) {
+             return ResponseEntity.status(401).build();
+         }
+         
+         // Only allow updating name and contact number for now
+         UserProfileDTO update = UserProfileDTO.builder()
+                 .name(profileUpdate.getName())
+                 .contactNumber(profileUpdate.getContactNumber())
+                 .notificationsEnabled(profileUpdate.isNotificationsEnabled())
+                 .build();
+                 
+         return ResponseEntity.ok(authService.updateProfile(userPrincipal.getId(), update));
+     }
+ }

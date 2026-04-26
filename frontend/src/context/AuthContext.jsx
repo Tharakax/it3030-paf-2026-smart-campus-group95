@@ -57,7 +57,7 @@ console.log(token);
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, setUser, token, login, logout, loading }}>
             {!loading ? children : <div>Loading session...</div>}
         </AuthContext.Provider>
     );
