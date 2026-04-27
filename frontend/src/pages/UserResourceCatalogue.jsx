@@ -70,7 +70,8 @@ const UserResourceCatalogue = () => {
     const [filters, setFilters] = useState({
         type: '',
         department: '',
-        bookable: ''
+        bookable: '',
+        minCapacity: ''
     });
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -82,9 +83,10 @@ const UserResourceCatalogue = () => {
             if (filters.type) params.append('type', filters.type);
             if (filters.department) params.append('department', filters.department);
             if (filters.bookable !== '') params.append('bookable', filters.bookable === 'true');
+            if (filters.minCapacity && filters.minCapacity !== '') params.append('minCapacity', parseInt(filters.minCapacity));
             params.append('status', 'ACTIVE'); // Users usually only see active resources
 
-            const response = await axiosInstance.get(`/resources?${params.toString()}`);
+            const response = await axiosInstance.get('/resources', { params: Object.fromEntries(params) });
             setResources(response.data);
             setError(null);
         } catch (err) {
@@ -105,7 +107,7 @@ const UserResourceCatalogue = () => {
     };
 
     const clearFilters = () => {
-        setFilters({ type: '', department: '', bookable: '' });
+        setFilters({ type: '', department: '', bookable: '', minCapacity: '' });
         setSearchTerm('');
     };
 
@@ -305,6 +307,21 @@ const UserResourceCatalogue = () => {
                             <option value="">Any Status</option>
                             <option value="true">✅ Bookable</option>
                             <option value="false">🔍 View Only</option>
+                        </select>
+
+                        <select 
+                            name="minCapacity" 
+                            value={filters.minCapacity} 
+                            onChange={handleFilterChange} 
+                            className="filter-select flex-1 min-w-37.5 px-4 py-2.5 text-sm font-semibold outline-none transition-all cursor-pointer shadow-sm"
+                        >
+                            <option value="">Any Capacity</option>
+                            <option value="10">👥 10+ People</option>
+                            <option value="30">👥 30+ People</option>
+                            <option value="50">👥 50+ People</option>
+                            <option value="100">👥 100+ People</option>
+                            <option value="200">👥 200+ People</option>
+                            <option value="500">👥 500+ People</option>
                         </select>
 
                         <button 

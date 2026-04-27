@@ -21,7 +21,8 @@ const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick, onRowClick
         type: '',
         department: '',
         status: '',
-        bookable: ''
+        bookable: '',
+        minCapacity: ''
     });
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -36,8 +37,11 @@ const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick, onRowClick
             if (filters.bookable !== '') {
                 params.append('bookable', filters.bookable === 'true');
             }
+            if (filters.minCapacity && filters.minCapacity !== '') {
+                params.append('minCapacity', parseInt(filters.minCapacity));
+            }
 
-            const response = await axiosInstance.get(`/resources?${params.toString()}`);
+            const response = await axiosInstance.get('/resources', { params: Object.fromEntries(params) });
             setResources(response.data);
             setError(null);
         } catch (err) {
@@ -80,7 +84,8 @@ const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick, onRowClick
             type: '',
             department: '',
             status: '',
-            bookable: ''
+            bookable: '',
+            minCapacity: ''
         });
         setSearchTerm('');
     };
@@ -248,10 +253,29 @@ const ResourceCatalogue = ({ onAddResourceClick, onEditResourceClick, onRowClick
                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
                     </div>
 
+                    {/* Capacity Filter */}
+                    <div className="relative flex-1 md:flex-none md:w-36">
+                        <select
+                            name="minCapacity"
+                            value={filters.minCapacity}
+                            onChange={handleFilterChange}
+                            className="appearance-none w-full px-4 py-2 bg-slate-50 border-none rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-600 cursor-pointer focus:ring-2 focus:ring-indigo-50 transition-all pr-10"
+                        >
+                            <option value="">Min Capacity</option>
+                            <option value="10">10+ People</option>
+                            <option value="30">30+ People</option>
+                            <option value="50">50+ People</option>
+                            <option value="100">100+ People</option>
+                            <option value="200">200+ People</option>
+                            <option value="500">500+ People</option>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
+                    </div>
+
                     {/* Reset Button */}
                     <button
                         onClick={clearFilters}
-                        disabled={!searchTerm && filters.type === '' && filters.department === '' && filters.status === '' && filters.bookable === ''}
+                        disabled={!searchTerm && filters.type === '' && filters.department === '' && filters.status === '' && filters.bookable === '' && filters.minCapacity === ''}
                         className="md:flex-none flex items-center justify-center px-6 py-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-colors disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed group border border-rose-100"
                         title="Clear all filters"
                     >

@@ -96,8 +96,8 @@ public class ResourceService {
         return resourceRepository.findAll();
     }
 
-    public List<Resource> getResources(ResourceType type, Department department, ResourceStatus status, Boolean bookable) {
-        if (type == null && department == null && status == null && bookable == null) {
+    public List<Resource> getResources(ResourceType type, Department department, ResourceStatus status, Boolean bookable, Integer minCapacity) {
+        if (type == null && department == null && status == null && bookable == null && minCapacity == null) {
             return getAllResources();
         }
 
@@ -115,6 +115,9 @@ public class ResourceService {
         }
         if (bookable != null) {
             criteria.add(Criteria.where("bookable").is(bookable));
+        }
+        if (minCapacity != null) {
+            criteria.add(Criteria.where("capacity").gte(minCapacity));
         }
 
         if (!criteria.isEmpty()) {
