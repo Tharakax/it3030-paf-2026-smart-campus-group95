@@ -1,10 +1,8 @@
 import React from 'react';
 import {
-    ShieldCheck,
     Users,
     BarChart3,
     Building2,
-    Settings,
     LogOut,
     ChevronLeft,
     ChevronRight,
@@ -25,8 +23,6 @@ const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed
         { id: 'bookings', label: 'Resource Bookings', icon: Calendar },
         { id: 'users', label: 'User Management', icon: Users },
         { id: 'campus', label: 'Campus Infrastructure', icon: Building2 },
-        { id: 'security', label: 'System Security', icon: ShieldCheck },
-        { id: 'settings', label: 'Global Settings', icon: Settings },
     ];
 
     const [unreadCount, setUnreadCount] = React.useState(0);
@@ -73,7 +69,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed
 
     return (
         <aside
-            className={`fixed left-0 top-16 bottom-0 z-40 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'
+            className={`fixed left-0 top-0 bottom-0 z-40 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'
                 } hidden md:block`}
         >
             <div className="flex flex-col h-full py-4">

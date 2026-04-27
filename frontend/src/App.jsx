@@ -19,6 +19,7 @@ import EditResource from './pages/EditResource';
 import ContactUs from './pages/ContactUs';
 import Bookings from './pages/Bookings';
 import Unauthorized from './pages/Unauthorized';
+import VerifyBooking from './pages/VerifyBooking';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
@@ -91,6 +92,8 @@ function AppContent() {
               <Bookings />
             </PrivateRoute>
           } />
+
+          <Route path="/verify-booking/:id" element={<VerifyBooking />} />
 
           <Route path="/unauthorized" element={<Unauthorized />} />
 

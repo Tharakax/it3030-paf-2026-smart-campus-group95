@@ -70,7 +70,7 @@ const TechnicianSidebar = ({ activeTab, setActiveTab, user, handleLogout, isColl
 
     return (
         <aside
-            className={`fixed left-0 top-16 bottom-0 z-40 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'
+            className={`fixed left-0 top-0 bottom-0 z-40 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'
                 } hidden md:block`}
         >
             <div className="flex flex-col h-full py-4">

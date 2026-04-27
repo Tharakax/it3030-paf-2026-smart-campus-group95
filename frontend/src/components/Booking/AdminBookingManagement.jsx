@@ -130,6 +130,29 @@ const AdminBookingManagement = () => {
                     toast.error('Failed to update booking');
                 }
             }
+        } else if (status === 'CANCELLED') {
+            const confirm = await Swal.fire({
+                title: 'Cancel Approved Booking?',
+                text: "This will revoke the user's access to the resource.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#475569',
+                confirmButtonText: 'Yes, Cancel it',
+                background: '#ffffff',
+                customClass: {
+                    popup: 'rounded-2xl'
+                }
+            });
+
+            if (confirm.isConfirmed) {
+                try {
+                    await bookingService.updateBookingStatus(id, 'CANCELLED');
+                    toast.success('Booking cancelled');
+                    fetchBookings();
+                } catch (error) {
+                    toast.error('Failed to cancel booking');
+                }
+            }
         } else {
             const confirm = await Swal.fire({
                 title: 'Approve Booking?',
@@ -410,6 +433,18 @@ const AdminBookingManagement = () => {
                                     >
                                         <XCircle className="w-4 h-4" />
                                         Reject
+                                    </button>
+                                </div>
+                            )}
+
+                            {booking.status === 'APPROVED' && (
+                                <div className="px-6 pb-6 pt-2">
+                                    <button
+                                        onClick={() => handleUpdateStatus(booking.id, 'CANCELLED')}
+                                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-400 hover:text-slate-600 text-xs font-bold rounded-xl transition-all"
+                                    >
+                                        <X className="w-4 h-4" />
+                                        Cancel Approved Booking
                                     </button>
                                 </div>
                             )}

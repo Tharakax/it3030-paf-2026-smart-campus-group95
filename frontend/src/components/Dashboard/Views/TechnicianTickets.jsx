@@ -69,12 +69,12 @@ const TechnicianTickets = () => {
 
             const matchesStatus = statusFilter === 'ALL' || ticket.status === statusFilter;
             const matchesPriority = priorityFilter === 'ALL' || ticket.priority === priorityFilter;
-            
+
             const ticketDate = new Date(ticket.createdAt).toISOString().split('T')[0];
             const matchesDateFrom = !dateFrom || ticketDate >= dateFrom;
             const matchesDateTo = !dateTo || ticketDate <= dateTo;
 
-            const matchesSearch = !searchQuery || 
+            const matchesSearch = !searchQuery ||
                 ticket.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 (ticket.ticketId && ticket.ticketId.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 ticket.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -114,9 +114,6 @@ const TechnicianTickets = () => {
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header */}
             <div className="mb-10">
-                <h1 className="text-3xl font-black text-slate-800 tracking-tight flex items-center">
-                    Maintenance Hub
-                </h1>
                 <p className="text-slate-500 mt-1 font-medium">Manage your assigned tasks and respond to campus incidents.</p>
             </div>
 
@@ -277,7 +274,7 @@ const TechnicianTickets = () => {
                                     </td>
                                     <td className="px-4 py-5 hidden xl:table-cell">
                                         <span className="text-sm font-bold text-slate-700 tracking-tighter">
-                                            {tkt.department 
+                                            {tkt.department
                                                 ? tkt.department.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
                                                 : 'General'}
                                         </span>

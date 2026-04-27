@@ -3,6 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import DashboardSidebar from '../components/Dashboard/DashboardSidebar';
+import DashboardHeader from '../components/Dashboard/DashboardHeader';
 import { useLocation } from 'react-router-dom';
 
 // Import View Components
@@ -15,7 +16,7 @@ const Dashboard = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
-    const [message, setMessage] = useState('');
+    const [dashboardData, setDashboardData] = useState({ message: '', activeBookings: 0, openTickets: 0 });
     const [activeTab, setActiveTab] = useState('overview');
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +31,7 @@ const Dashboard = () => {
         const fetchDashboard = async () => {
             try {
                 const response = await api.get('/users/dashboard');
-                setMessage(response.data.message);
+                setDashboardData(response.data);
                 setTimeout(() => setIsLoading(false), 500); // Small delay for UX feel
             } catch (err) {
                 console.error("Failed to fetch dashboard", err);
@@ -78,6 +79,9 @@ const Dashboard = () => {
             {/* Content Area */}
             <main className={`flex-1 transition-all duration-300 ${isCollapsed ? 'md:ml-20' : 'md:ml-64'} p-4 md:p-10 pb-20 relative z-10`}>
                 <div className="max-w-6xl mx-auto">
+                    {/* Dashboard Header (Notifications & Profile) */}
+                    <DashboardHeader />
+
                     {/* Render current tab/tag */}
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-6">
@@ -94,7 +98,7 @@ const Dashboard = () => {
                         </div>
                     ) : (
                         <>
-                            {activeTab === 'overview' && <Overview user={user} message={message} />}
+                            {activeTab === 'overview' && <Overview user={user} stats={dashboardData} />}
                             {activeTab === 'bookings' && <Bookings />}
                             {activeTab === 'tickets' && <Tickets />}
                             {activeTab === 'profile' && <Profile user={user} />}

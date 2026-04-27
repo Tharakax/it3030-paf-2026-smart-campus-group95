@@ -11,9 +11,12 @@ import {
     Filter,
     ArrowUpRight,
     MapPin,
-    Trash2
+    Trash2,
+    QrCode,
+    X
 } from 'lucide-react';
 import bookingService from '../../../api/bookingService';
+import BookingQRCode from '../../Booking/BookingQRCode';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 
@@ -22,6 +25,7 @@ const Bookings = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
+    const [selectedBooking, setSelectedBooking] = useState(null);
     const navigate = useNavigate();
 
     const glassStyle = {
@@ -251,6 +255,16 @@ const Bookings = () => {
 
                                 {/* Card Footer Actions */}
                                 <div className="p-6 pt-0 mt-auto">
+                                    {booking.status === 'APPROVED' && (
+                                        <button 
+                                            onClick={() => setSelectedBooking(booking)}
+                                            className="w-full py-3 mb-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all duration-300 shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 group/qr"
+                                        >
+                                            <QrCode size={14} className="group-hover/qr:rotate-12 transition-transform" />
+                                            View Digital Ticket
+                                        </button>
+                                    )}
+
                                     {(booking.status === 'PENDING' || booking.status === 'APPROVED') && (
                                         <button 
                                             onClick={() => handleCancel(booking.id)}
@@ -269,6 +283,21 @@ const Bookings = () => {
                             </div>
                         );
                     })}
+                </div>
+            )}
+
+            {/* QR Code Modal */}
+            {selectedBooking && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-sm">
+                        <button 
+                            onClick={() => setSelectedBooking(null)}
+                            className="absolute -top-12 right-0 p-2 text-white/70 hover:text-white transition-colors"
+                        >
+                            <X size={32} />
+                        </button>
+                        <BookingQRCode booking={selectedBooking} />
+                    </div>
                 </div>
             )}
         </div>

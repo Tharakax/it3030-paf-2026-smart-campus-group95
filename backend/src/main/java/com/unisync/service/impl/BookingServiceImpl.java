@@ -54,12 +54,12 @@ public class BookingServiceImpl implements BookingService {
             throw new RuntimeException("Booking end time must be after the start time.");
         }
 
-        // Check for conflicts (Overlapping Approved or Pending bookings)
-        List<Booking> conflicts = bookingRepository.findOverlappingActiveBookings(
+        // Check for conflicts (Only block if there is already an APPROVED booking)
+        List<Booking> approvedConflicts = bookingRepository.findOverlappingApprovedBookings(
                 request.getResourceId(), request.getDate(), request.getStartTime(), request.getEndTime());
         
-        if (!conflicts.isEmpty()) {
-            throw new BookingConflictException("The resource is already booked for the selected time range.");
+        if (!approvedConflicts.isEmpty()) {
+            throw new BookingConflictException("The resource is already reserved for the selected time range.");
         }
 
         // Validate operational hours
@@ -129,6 +129,42 @@ public class BookingServiceImpl implements BookingService {
             booking.setRejectionReason(rejectionReason);
         }
 
+        if (status == BookingStatus.APPROVED) {
+            // Check for existing APPROVED conflicts first
+            List<Booking> activeConflicts = bookingRepository.findOverlappingActiveBookings(
+                    booking.getResourceId(), booking.getDate(), booking.getStartTime(), booking.getEndTime());
+            
+            boolean hasApprovedConflict = activeConflicts.stream()
+                    .anyMatch(c -> c.getStatus() == BookingStatus.APPROVED && !c.getId().equals(bookingId));
+            
+            if (hasApprovedConflict) {
+                throw new BookingConflictException("Cannot approve this booking because another booking is already approved for this time slot.");
+            }
+
+            // Auto-reject other PENDING bookings that overlap
+            List<Booking> toAutoReject = activeConflicts.stream()
+                    .filter(c -> c.getStatus() == BookingStatus.PENDING && !c.getId().equals(bookingId))
+                    .collect(Collectors.toList());
+            
+            for (Booking pending : toAutoReject) {
+                pending.setStatus(BookingStatus.REJECTED);
+                pending.setRejectionReason("The resource has been booked by another user for this time slot.");
+                bookingRepository.save(pending);
+                
+                // Notify the auto-rejected user
+                Resource resource = resourceRepository.findById(pending.getResourceId()).orElse(null);
+                String resName = resource != null ? resource.getName() : "a resource";
+                notificationService.createNotification(
+                        pending.getUserId(),
+                        "Booking Automatically Declined",
+                        "Your booking request for \"" + resName + "\" was automatically declined because the time slot was approved for another user.",
+                        NotificationType.BOOKING_REJECTED,
+                        pending.getId(),
+                        null, null, null, "System"
+                );
+            }
+        }
+
         Booking updatedBooking = bookingRepository.save(booking);
 
         // Notify the booking owner of the status change
@@ -155,6 +191,15 @@ public class BookingServiceImpl implements BookingService {
                     NotificationType.BOOKING_REJECTED,
                     bookingId,
                     null, null, null, "Booking Owner"
+            );
+        } else if (status == BookingStatus.CANCELLED) {
+            notificationService.createNotification(
+                    booking.getUserId(),
+                    "Booking Cancelled",
+                    "Your booking for \"" + resourceName + "\" has been cancelled by an administrator.",
+                    NotificationType.BOOKING_REJECTED, // Using existing type for simplicity
+                    bookingId,
+                    null, null, null, "System"
             );
         }
 
