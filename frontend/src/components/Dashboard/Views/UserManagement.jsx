@@ -15,7 +15,8 @@ import {
     Check,
     ChevronDown,
     MapPin,
-    AlertCircle
+    AlertCircle,
+    Phone
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -253,9 +254,10 @@ const UserManagement = () => {
                         <thead>
                             <tr className="bg-slate-50/50 border-b border-slate-100">
                                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">User Identity</th>
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Access Role</th>
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Specialization</th>
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">System Actions</th>
+                                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Access Role</th>
+                                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Contact</th>
+                                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Specialization</th>
+                                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">System Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -286,8 +288,17 @@ const UserManagement = () => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-6">
+                                     <td className="px-8 py-6">
                                         {getRoleBadge(u.role)}
+                                    </td>
+                                    <td className="px-8 py-6">
+                                        {u.contactNumber ? (
+                                            <p className="text-xs font-bold text-slate-600 tracking-tight flex items-center gap-1.5">
+                                                <Phone size={12} className="text-slate-400" /> {u.contactNumber}
+                                            </p>
+                                        ) : (
+                                            <span className="text-[10px] font-black text-slate-300 uppercase italic">Not Provided</span>
+                                        )}
                                     </td>
                                     <td className="px-8 py-6">
                                         {u.role === 'TECHNICIAN' ? (

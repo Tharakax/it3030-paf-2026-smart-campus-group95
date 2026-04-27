@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Check, ExternalLink, Inbox, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { Bell, Check, ExternalLink, Inbox, Loader2, BellOff } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import notificationService from '../../api/notificationService';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
 const NotificationBell = ({ onViewAll }) => {
+    const { user } = useContext(AuthContext);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
@@ -98,13 +101,19 @@ const NotificationBell = ({ onViewAll }) => {
     return (
         <div className="relative" ref={dropdownRef}>
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => {
+                    if (user?.notificationsEnabled === false) {
+                        toast.error('Notifications are muted in your profile');
+                        return;
+                    }
+                    setIsOpen(!isOpen);
+                }}
                 className={`relative p-2 rounded-xl transition-all duration-200 ${
                     isOpen ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'
-                }`}
+                } ${user?.notificationsEnabled === false ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-                <Bell size={20} />
-                {unreadCount > 0 && (
+                {user?.notificationsEnabled === false ? <BellOff size={20} /> : <Bell size={20} />}
+                {unreadCount > 0 && user?.notificationsEnabled !== false && (
                     <span className="absolute top-1 right-1 flex h-4 w-4">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-white text-[10px] font-bold text-white items-center justify-center">
