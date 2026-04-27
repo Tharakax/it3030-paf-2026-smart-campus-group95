@@ -45,9 +45,10 @@ public class ResourceController {
             @RequestParam(required = false) ResourceType type,
             @RequestParam(required = false) Department department,
             @RequestParam(required = false) ResourceStatus status,
-            @RequestParam(required = false) Boolean bookable) {
+            @RequestParam(required = false) Boolean bookable,
+            @RequestParam(required = false) Integer minCapacity) {
         
-        List<ResourceResponseDTO> resources = resourceService.getResources(type, department, status, bookable).stream()
+        List<ResourceResponseDTO> resources = resourceService.getResources(type, department, status, bookable, minCapacity).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(resources);

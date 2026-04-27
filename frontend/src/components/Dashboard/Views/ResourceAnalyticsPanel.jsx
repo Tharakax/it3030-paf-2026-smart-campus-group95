@@ -97,10 +97,20 @@ const ResourceAnalyticsPanel = () => {
 
     if (loading) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                {[...Array(4)].map((_, i) => (
-                    <div key={i} className="h-24 bg-white/50 animate-pulse rounded-3xl border border-slate-100" />
-                ))}
+            <div className="flex flex-col items-center justify-center min-h-[400px] w-full bg-white/40 backdrop-blur-sm rounded-[3rem] border border-white/50 shadow-xl shadow-blue-50/50 mb-8 animate-in fade-in duration-500">
+                <div className="relative">
+                    <div className="w-20 h-20 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
+                    <Activity className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 text-blue-600 animate-pulse" />
+                </div>
+                <div className="mt-8 text-center">
+                    <h3 className="text-lg font-black text-slate-800 tracking-tighter uppercase mb-2">Synchronizing Grid</h3>
+                    <div className="flex items-center justify-center space-x-2">
+                        <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                        <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                        <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce" />
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-4">Calibrating Campus Intelligence</p>
+                </div>
             </div>
         );
     }
