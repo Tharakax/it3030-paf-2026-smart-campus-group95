@@ -8,7 +8,8 @@ import {
     ChevronRight,
     AlertCircle,
     Calendar,
-    Bell
+    Bell,
+    LogIn
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -22,6 +23,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed
         { id: 'tickets', label: 'Ticket Management', icon: AlertCircle },
         { id: 'bookings', label: 'Resource Bookings', icon: Calendar },
         { id: 'users', label: 'User Management', icon: Users },
+        { id: 'logins', label: 'Access Logs', icon: LogIn },
         { id: 'campus', label: 'Campus Infrastructure', icon: Building2 },
     ];
 

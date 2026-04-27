@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.security.core.Authentication;
+import com.unisync.service.LoginLogService;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
 import java.io.IOException;
@@ -16,10 +17,14 @@ import java.io.IOException;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtUtil jwtUtil;
+    private final LoginLogService loginLogService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
+        if (authentication.getPrincipal() instanceof UserPrincipal) {
+            loginLogService.logLogin(((UserPrincipal) authentication.getPrincipal()).getUser());
+        }
         handle(request, response, authentication);
         super.clearAuthenticationAttributes(request);
     }

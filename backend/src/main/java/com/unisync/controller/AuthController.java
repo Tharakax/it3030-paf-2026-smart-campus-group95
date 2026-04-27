@@ -13,6 +13,7 @@ import com.unisync.dto.AuthResponse;
 import com.unisync.dto.LoginRequest;
 import com.unisync.dto.SignupRequest;
 import com.unisync.service.AuthService;
+import com.unisync.service.LoginLogService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class AuthController {
 
     private final AuthService authService;
+    private final LoginLogService loginLogService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -73,4 +75,12 @@ public class AuthController {
                  
          return ResponseEntity.ok(authService.updateProfile(userPrincipal.getId(), update));
      }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal != null) {
+            loginLogService.logLogout(userPrincipal.getUser());
+        }
+        return ResponseEntity.ok().build();
+    }
  }
