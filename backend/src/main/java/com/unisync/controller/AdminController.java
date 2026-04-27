@@ -18,6 +18,7 @@ import java.util.Map;
 public class AdminController {
 
     private final UserService userService;
+    private final com.unisync.service.LoginLogService loginLogService;
 
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, String>> getAdminDashboard() {
@@ -47,5 +48,11 @@ public class AdminController {
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/logins")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<com.unisync.entity.LoginLog>> getLoginLogs() {
+        return ResponseEntity.ok(loginLogService.getAllLogs());
     }
 }

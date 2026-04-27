@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import API from '../api/axiosConfig';
 
 export const AuthContext = createContext();
 
@@ -50,7 +51,12 @@ console.log(token);
         }
     };
 
-    const logout = () => {
+    const logout = async () => {
+        try {
+            await API.post('/auth/logout');
+        } catch (error) {
+            console.error("Failed to log logout on server", error);
+        }
         setToken(null);
         setUser(null);
         localStorage.removeItem('token');

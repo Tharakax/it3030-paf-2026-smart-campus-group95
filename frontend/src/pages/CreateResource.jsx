@@ -1,96 +1,126 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
-import { ArrowLeft, Save, Loader2, AlertCircle, Info } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertCircle, Info, ImagePlus, X, Upload, CheckCircle2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import MediaUpload from '../utils/supabaseClient';
 
 const CreateResource = ({ onResourceCreated }) => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [error, setError] = useState(null);
+    const [fieldErrors, setFieldErrors] = useState({});
+    const fileInputRef = useRef(null);
 
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        type: '',
+        type: 'LECTURE_HALL',
         capacity: '',
         department: '',
         availabilityStartTime: '08:00:00',
         availabilityEndTime: '18:00:00',
-        status: '',
-        bookable: true
+        status: 'ACTIVE',
+        bookable: true,
+        imageUrls: []
     });
 
-    const [errors, setErrors] = useState({});
+    const [imageUrlInput, setImageUrlInput] = useState('');
 
-    const validateForm = () => {
-        const newErrors = {};
-        
-        if (!formData.type) {
-            newErrors.type = 'Resource type is required';
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        try {
+            const publicUrl = await MediaUpload(file);
+            setFormData(prev => ({
+                ...prev,
+                imageUrls: [...prev.imageUrls, publicUrl]
+            }));
+            toast.success('Image uploaded successfully!');
+        } catch (err) {
+            console.error('Upload failed:', err);
+            toast.error('Failed to upload image');
+        } finally {
+            setUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
         }
+    };
 
-        if (!formData.department) {
-            newErrors.department = 'Department is required';
-        }
+    const handleAddImage = () => {
+        if (!imageUrlInput.trim()) return;
+        setFormData(prev => ({
+            ...prev,
+            imageUrls: [...prev.imageUrls, imageUrlInput.trim()]
+        }));
+        setImageUrlInput('');
+    };
 
-        if (!formData.status) {
-            newErrors.status = 'Status is required';
-        }
-
-        if (!formData.capacity) {
-            newErrors.capacity = 'Capacity is required';
-        } else if (parseInt(formData.capacity) <= 0) {
-            newErrors.capacity = 'Capacity must be a positive number';
-        }
-
-        const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
-        let startTimeValid = true;
-        let endTimeValid = true;
-
-        if (!timeRegex.test(formData.availabilityStartTime)) {
-            newErrors.availabilityStartTime = 'Invalid format (HH:MM:SS)';
-            startTimeValid = false;
-        }
-        if (!timeRegex.test(formData.availabilityEndTime)) {
-            newErrors.availabilityEndTime = 'Invalid format (HH:MM:SS)';
-            endTimeValid = false;
-        }
-
-        // Chronological validation if both formats are correct
-        if (startTimeValid && endTimeValid) {
-            if (formData.availabilityStartTime >= formData.availabilityEndTime) {
-                newErrors.availabilityEndTime = 'End time must be after start time';
-            }
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+    const handleRemoveImage = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            imageUrls: prev.imageUrls.filter((_, i) => i !== index)
+        }));
     };
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
-        // Clear error when user starts typing
-        if (errors[name]) {
-            setErrors(prev => {
-                const updated = { ...prev };
-                delete updated[name];
-                return updated;
+        
+        // Clear field error when user starts typing
+        if (fieldErrors[name]) {
+            setFieldErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
             });
         }
+
+        setFormData(prev => {
+            const nextData = {
+                ...prev,
+                [name]: type === 'checkbox' ? checked : value
+            };
+            
+            // If type changes to EQUIPMENT, set capacity to 1
+            if (name === 'type' && value === 'EQUIPMENT') {
+                nextData.capacity = '1';
+            }
+            
+            return nextData;
+        });
+    };
+
+    const validateForm = () => {
+        const errors = {};
+        if (!formData.name.trim()) errors.name = 'Resource name is required';
+        if (!formData.type) errors.type = 'Resource type is required';
+        if (!formData.department) errors.department = 'Department selection is required';
+        if (!formData.capacity || parseInt(formData.capacity) <= 0) {
+            errors.capacity = 'Capacity must be a positive number';
+        }
+        if (!formData.availabilityStartTime) errors.availabilityStartTime = 'Start time is required';
+        if (!formData.availabilityEndTime) errors.availabilityEndTime = 'End time is required';
+        
+        // Time order validation
+        if (formData.availabilityStartTime && formData.availabilityEndTime) {
+            if (formData.availabilityStartTime >= formData.availabilityEndTime) {
+                errors.availabilityEndTime = 'End time must be after start time';
+            }
+        }
+
+        setFieldErrors(errors);
+        return Object.keys(errors).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         
         if (!validateForm()) {
-            toast.error('Please fix the validation errors');
+            toast.error('Please fix the errors in the form');
             return;
         }
 
@@ -172,8 +202,11 @@ const CreateResource = ({ onResourceCreated }) => {
                                 value={formData.name}
                                 onChange={handleChange}
                                 placeholder="e.g. Main Hall"
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    fieldErrors.name ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'
+                                }`}
                             />
+                            {fieldErrors.name && <p className="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tight">{fieldErrors.name}</p>}
                         </div>
 
                         {/* Type */}
@@ -183,7 +216,9 @@ const CreateResource = ({ onResourceCreated }) => {
                                 name="type"
                                 value={formData.type}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${errors.type ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    fieldErrors.type ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'
+                                }`}
                             >
                                 <option value="">Select Type</option>
                                 <option value="LECTURE_HALL">Lecture Hall</option>
@@ -194,21 +229,26 @@ const CreateResource = ({ onResourceCreated }) => {
                                 <option value="GROUND">Ground</option>
                                 <option value="EQUIPMENT">Equipment</option>
                             </select>
-                            {errors.type && <p className="text-red-500 text-xs mt-1">{errors.type}</p>}
+                            {fieldErrors.type && <p className="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tight">{fieldErrors.type}</p>}
                         </div>
 
                         {/* Capacity */}
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Capacity *</label>
                             <input
+                                required
                                 type="number"
                                 name="capacity"
                                 value={formData.capacity}
                                 onChange={handleChange}
+                                disabled={formData.type === 'EQUIPMENT'}
                                 placeholder="0"
-                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${errors.capacity ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    formData.type === 'EQUIPMENT' ? 'bg-slate-50 text-slate-400 cursor-not-allowed border-slate-200' : 
+                                    fieldErrors.capacity ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'
+                                }`}
                             />
-                            {errors.capacity && <p className="text-red-500 text-xs mt-1">{errors.capacity}</p>}
+                            {fieldErrors.capacity && <p className="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tight">{fieldErrors.capacity}</p>}
                         </div>
 
                         {/* Department */}
@@ -218,7 +258,9 @@ const CreateResource = ({ onResourceCreated }) => {
                                 name="department"
                                 value={formData.department}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${errors.department ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    fieldErrors.department ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'
+                                }`}
                             >
                                 <option value="">Select Department</option>
                                 <option value="FACULTY_OF_COMPUTING">Computing</option>
@@ -227,52 +269,57 @@ const CreateResource = ({ onResourceCreated }) => {
                                 <option value="FACULTY_OF_HUMANITIES">Humanities</option>
                                 <option value="FACULTY_OF_SCIENCE">Science</option>
                                 <option value="COMMON_AREA">Common Area</option>
+                                <option value="SHARED">Shared (Internal)</option>
                             </select>
-                            {errors.department && <p className="text-red-500 text-xs mt-1">{errors.department}</p>}
+                            {fieldErrors.department && <p className="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tight">{fieldErrors.department}</p>}
                         </div>
 
                         {/* Status */}
                         <div className="space-y-1">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Status *</label>
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Status</label>
                             <select
                                 name="status"
                                 value={formData.status}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${errors.status ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
+                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
                             >
-                                <option value="">Select Status</option>
                                 <option value="ACTIVE">Active</option>
                                 <option value="OUT_OF_SERVICE">Out of Service</option>
                             </select>
-                            {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status}</p>}
                         </div>
 
                         {/* Availability Start */}
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Available From</label>
                             <input
+                                required
                                 type="text"
                                 name="availabilityStartTime"
                                 value={formData.availabilityStartTime}
                                 onChange={handleChange}
                                 placeholder="08:00:00"
-                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${errors.availabilityStartTime ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    fieldErrors.availabilityStartTime ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'
+                                }`}
                             />
-                            {errors.availabilityStartTime && <p className="text-red-500 text-xs mt-1">{errors.availabilityStartTime}</p>}
+                            {fieldErrors.availabilityStartTime && <p className="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tight">{fieldErrors.availabilityStartTime}</p>}
                         </div>
 
                         {/* Availability End */}
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Available Until</label>
                             <input
+                                required
                                 type="text"
                                 name="availabilityEndTime"
                                 value={formData.availabilityEndTime}
                                 onChange={handleChange}
                                 placeholder="18:00:00"
-                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${errors.availabilityEndTime ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    fieldErrors.availabilityEndTime ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'
+                                }`}
                             />
-                            {errors.availabilityEndTime && <p className="text-red-500 text-xs mt-1">{errors.availabilityEndTime}</p>}
+                            {fieldErrors.availabilityEndTime && <p className="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tight">{fieldErrors.availabilityEndTime}</p>}
                         </div>
                     </div>
 
@@ -303,7 +350,105 @@ const CreateResource = ({ onResourceCreated }) => {
                             Available for Public Booking
                         </label>
                     </div>
+                    {/* Image Management */}
+                    <div className="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                        <div className="flex items-center justify-between">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Resource Images</label>
+                            <span className="text-[10px] text-slate-400 font-bold bg-white px-2 py-0.5 rounded-full border border-slate-100 uppercase tracking-tighter">
+                                {formData.imageUrls.length} Added
+                            </span>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Option 1: Upload File */}
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase">Upload From Computer</label>
+                                <div 
+                                    onClick={() => !uploading && fileInputRef.current?.click()}
+                                    className={`relative cursor-pointer group flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-xl transition-all duration-300 ${uploading ? 'bg-slate-100 border-slate-200 cursor-not-allowed' : 'bg-white border-slate-200 hover:border-blue-400 hover:bg-blue-50/30'}`}
+                                >
+                                    <input 
+                                        type="file" 
+                                        ref={fileInputRef}
+                                        onChange={handleFileUpload}
+                                        className="hidden" 
+                                        accept="image/*"
+                                    />
+                                    {uploading ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 text-blue-500 animate-spin mb-1" />
+                                            <span className="text-[11px] font-medium text-slate-500">Uploading to Cloud...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="p-2 rounded-full bg-slate-50 group-hover:bg-blue-100 transition-colors mb-1">
+                                                <Upload className="w-4 h-4 text-slate-500 group-hover:text-blue-600 transition-colors" />
+                                            </div>
+                                            <span className="text-[11px] font-bold text-slate-600 group-hover:text-blue-700">Click to Select Photo</span>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
 
+                            {/* Option 2: External URL */}
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase">Add External URL</label>
+                                <div className="flex flex-col gap-2">
+                                    <div className="relative group">
+                                        <input
+                                            type="url"
+                                            value={imageUrlInput}
+                                            onChange={(e) => setImageUrlInput(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddImage())}
+                                            placeholder="Paste image link here"
+                                            className="w-full pl-4 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition text-[13px] bg-white group-hover:border-slate-300"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={handleAddImage}
+                                            disabled={!imageUrlInput.trim()}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition-all disabled:opacity-0 disabled:scale-95 flex items-center shadow-lg shadow-black/10"
+                                        >
+                                            <ImagePlus className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                    <p className="text-[10px] px-1 text-slate-400 italic">Example: https://photos.glance.com/hall-405.jpg</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {formData.imageUrls.length > 0 && (
+                            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3 pt-2">
+                                {formData.imageUrls.map((url, index) => (
+                                    <div key={index} className="relative aspect-[4/3] rounded-xl overflow-hidden border border-slate-200 bg-white group shadow-sm hover:shadow-md transition-shadow">
+                                        <img src={url} alt={`Preview ${index}`} className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-300" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveImage(index)}
+                                            className="absolute top-1 right-1 p-1 bg-white/90 text-rose-500 hover:bg-rose-500 hover:text-white rounded-full shadow-lg transition-all scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                        <div className="absolute bottom-1 left-2 flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="w-4 h-4 rounded bg-blue-500 text-white text-[10px] flex items-center justify-center font-bold">
+                                                {index + 1}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        
+                        {!formData.imageUrls.length && !uploading && (
+                            <div className="py-4 border border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center bg-white/50">
+                                <p className="text-[11px] font-medium text-slate-400 text-center px-4 italic leading-relaxed">
+                                    No photos added. High-quality visuals increase booking rates.<br/>
+                                    <span className="text-[9px] uppercase tracking-wide opacity-70">Supports JPG, PNG & WEBP</span>
+                                </p>
+                            </div>
+                        )}
+                    </div>
                     {/* Submit Section */}
                     <div className="pt-4 flex justify-end">
                         <button

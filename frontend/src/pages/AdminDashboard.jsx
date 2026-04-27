@@ -11,6 +11,7 @@ import AdminBookingManagement from '../components/Booking/AdminBookingManagement
 import ResourceAnalyticsPanel from '../components/Dashboard/Views/ResourceAnalyticsPanel';
 import UserManagement from '../components/Dashboard/Views/UserManagement';
 import NotificationCenter from '../components/Dashboard/Views/NotificationCenter';
+import Logins from '../components/Dashboard/Views/Logins';
 import SendNotificationModal from '../components/Dashboard/SendNotificationModal';
 import { Bell, Globe, Send } from 'lucide-react';
 
@@ -123,6 +124,8 @@ const AdminDashboard = () => {
                                     />
                                 </div>
                             )}
+
+                            {activeTab === 'logins' && <Logins />}
 
                             {activeTab === 'campus-create' && (
                                 <div className="space-y-6">

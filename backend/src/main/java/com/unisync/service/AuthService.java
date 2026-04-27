@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final LoginLogService loginLogService;
 
     @Transactional
     public AuthResponse register(SignupRequest request) {
@@ -41,6 +43,8 @@ public class AuthService {
 
         user = userRepository.save(user);
 
+        loginLogService.logLogin(user);
+
         // Auto-login after registration
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -54,18 +58,29 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
 
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        User user = userPrincipal.getUser();
-        String token = jwtUtil.generateToken(authentication);
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            User user = userPrincipal.getUser();
+            String token = jwtUtil.generateToken(authentication);
 
-        return AuthResponse.builder()
-                .token(token)
-                .user(convertToDTO(user))
-                .build();
+            loginLogService.logLogin(user);
+
+            return AuthResponse.builder()
+                    .token(token)
+                    .user(convertToDTO(user))
+                    .build();
+        } catch (AuthenticationException e) {
+            userRepository.findByEmail(request.getEmail())
+                .ifPresentOrElse(
+                    loginLogService::logLoginFailure,
+                    () -> loginLogService.logLoginFailure(request.getEmail())
+                );
+            throw e;
+        }
     }
 
     @Transactional
