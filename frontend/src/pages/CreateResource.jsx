@@ -12,6 +12,7 @@ const CreateResource = ({ onResourceCreated }) => {
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState(null);
+    const [fieldErrors, setFieldErrors] = useState({});
     const fileInputRef = useRef(null);
 
     const [formData, setFormData] = useState({
@@ -69,6 +70,15 @@ const CreateResource = ({ onResourceCreated }) => {
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         
+        // Clear field error when user starts typing
+        if (fieldErrors[name]) {
+            setFieldErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
+
         setFormData(prev => {
             const nextData = {
                 ...prev,
@@ -84,8 +94,36 @@ const CreateResource = ({ onResourceCreated }) => {
         });
     };
 
+    const validateForm = () => {
+        const errors = {};
+        if (!formData.name.trim()) errors.name = 'Resource name is required';
+        if (!formData.type) errors.type = 'Resource type is required';
+        if (!formData.department) errors.department = 'Department selection is required';
+        if (!formData.capacity || parseInt(formData.capacity) <= 0) {
+            errors.capacity = 'Capacity must be a positive number';
+        }
+        if (!formData.availabilityStartTime) errors.availabilityStartTime = 'Start time is required';
+        if (!formData.availabilityEndTime) errors.availabilityEndTime = 'End time is required';
+        
+        // Time order validation
+        if (formData.availabilityStartTime && formData.availabilityEndTime) {
+            if (formData.availabilityStartTime >= formData.availabilityEndTime) {
+                errors.availabilityEndTime = 'End time must be after start time';
+            }
+        }
+
+        setFieldErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!validateForm()) {
+            toast.error('Please fix the errors in the form');
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -164,8 +202,11 @@ const CreateResource = ({ onResourceCreated }) => {
                                 value={formData.name}
                                 onChange={handleChange}
                                 placeholder="e.g. Main Hall"
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    fieldErrors.name ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'
+                                }`}
                             />
+                            {fieldErrors.name && <p className="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tight">{fieldErrors.name}</p>}
                         </div>
 
                         {/* Type */}
@@ -175,8 +216,11 @@ const CreateResource = ({ onResourceCreated }) => {
                                 name="type"
                                 value={formData.type}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    fieldErrors.type ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'
+                                }`}
                             >
+                                <option value="">Select Type</option>
                                 <option value="LECTURE_HALL">Lecture Hall</option>
                                 <option value="LAB">Lab</option>
                                 <option value="MEETING_ROOM">Meeting Room</option>
@@ -185,6 +229,7 @@ const CreateResource = ({ onResourceCreated }) => {
                                 <option value="GROUND">Ground</option>
                                 <option value="EQUIPMENT">Equipment</option>
                             </select>
+                            {fieldErrors.type && <p className="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tight">{fieldErrors.type}</p>}
                         </div>
 
                         {/* Capacity */}
@@ -198,29 +243,35 @@ const CreateResource = ({ onResourceCreated }) => {
                                 onChange={handleChange}
                                 disabled={formData.type === 'EQUIPMENT'}
                                 placeholder="0"
-                                className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
-                                    formData.type === 'EQUIPMENT' ? 'bg-slate-50 text-slate-400 cursor-not-allowed' : ''
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    formData.type === 'EQUIPMENT' ? 'bg-slate-50 text-slate-400 cursor-not-allowed border-slate-200' : 
+                                    fieldErrors.capacity ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'
                                 }`}
                             />
+                            {fieldErrors.capacity && <p className="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tight">{fieldErrors.capacity}</p>}
                         </div>
 
                         {/* Department */}
                         <div className="space-y-1">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Department</label>
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Department *</label>
                             <select
                                 name="department"
                                 value={formData.department}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    fieldErrors.department ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'
+                                }`}
                             >
-                                <option value="">Shared (No Department)</option>
+                                <option value="">Select Department</option>
                                 <option value="FACULTY_OF_COMPUTING">Computing</option>
                                 <option value="FACULTY_OF_ENGINEERING">Engineering</option>
                                 <option value="FACULTY_OF_BUSINESS">Business</option>
                                 <option value="FACULTY_OF_HUMANITIES">Humanities</option>
                                 <option value="FACULTY_OF_SCIENCE">Science</option>
                                 <option value="COMMON_AREA">Common Area</option>
+                                <option value="SHARED">Shared (Internal)</option>
                             </select>
+                            {fieldErrors.department && <p className="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tight">{fieldErrors.department}</p>}
                         </div>
 
                         {/* Status */}
@@ -247,8 +298,11 @@ const CreateResource = ({ onResourceCreated }) => {
                                 value={formData.availabilityStartTime}
                                 onChange={handleChange}
                                 placeholder="08:00:00"
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    fieldErrors.availabilityStartTime ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'
+                                }`}
                             />
+                            {fieldErrors.availabilityStartTime && <p className="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tight">{fieldErrors.availabilityStartTime}</p>}
                         </div>
 
                         {/* Availability End */}
@@ -261,8 +315,11 @@ const CreateResource = ({ onResourceCreated }) => {
                                 value={formData.availabilityEndTime}
                                 onChange={handleChange}
                                 placeholder="18:00:00"
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition ${
+                                    fieldErrors.availabilityEndTime ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200'
+                                }`}
                             />
+                            {fieldErrors.availabilityEndTime && <p className="text-red-500 text-[10px] font-bold mt-1 uppercase tracking-tight">{fieldErrors.availabilityEndTime}</p>}
                         </div>
                     </div>
 
