@@ -31,7 +31,8 @@ import {
     Briefcase,
     ExternalLink,
     CheckCheck,
-    FileText
+    FileText,
+    Timer
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../../api/axiosConfig';
@@ -56,6 +57,7 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
     const [selectedPreviewImage, setSelectedPreviewImage] = useState(null);
     const [activeMenuId, setActiveMenuId] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
+    const [currentTime, setCurrentTime] = useState(new Date());
     const scrollContainerRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -63,6 +65,11 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
             scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
         }
     };
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
 
     useEffect(() => {
         if (comments.length > 0) {
@@ -187,6 +194,23 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
             date.toLocaleDateString([], { month: 'short', day: 'numeric' });
     };
 
+    const formatDuration = (start, end) => {
+        if (!start) return '---';
+        const startTime = new Date(start).getTime();
+        const endTime = end ? new Date(end).getTime() : currentTime.getTime();
+        const diff = Math.max(0, endTime - startTime);
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+        if (hours > 0) return `${hours}h ${minutes}m`;
+        if (minutes > 0) return `${minutes}m ${seconds}s`;
+        return `${seconds}s`;
+    };
+
     const getStatusConfig = (status) => {
         const configs = {
             'OPEN': { label: 'Open', color: 'bg-blue-50 text-blue-700 border-blue-200', icon: AlertCircle },
@@ -307,6 +331,45 @@ const AdminTicketDetails = ({ ticketId, onClose, onUpdate }) => {
                                         </div>
                                     </div>
                                 )}
+
+                                {/* SLA Performance Timers */}
+                                <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                                            <Timer className="w-12 h-12 text-slate-900" />
+                                        </div>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Time to First Response</p>
+                                        <div className="flex items-end gap-2">
+                                            <p className={`text-xl font-bold font-mono ${ticket.firstResponseAt ? 'text-emerald-600' : 'text-indigo-600 animate-pulse'}`}>
+                                                {formatDuration(ticket.createdAt, ticket.firstResponseAt)}
+                                            </p>
+                                            {ticket.firstResponseAt && (
+                                                <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold mb-1">RECORDED</span>
+                                            )}
+                                        </div>
+                                        <p className="text-[10px] text-slate-400 mt-1">
+                                            {ticket.firstResponseAt ? 'Technician responded/assigned' : 'Awaiting initial response'}
+                                        </p>
+                                    </div>
+
+                                    <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                                            <CheckCircle2 className="w-12 h-12 text-slate-900" />
+                                        </div>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Time to Resolution</p>
+                                        <div className="flex items-end gap-2">
+                                            <p className={`text-xl font-bold font-mono ${ticket.resolvedAt ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                                {formatDuration(ticket.createdAt, ticket.resolvedAt)}
+                                            </p>
+                                            {ticket.resolvedAt && (
+                                                <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded font-bold mb-1">RESOLVED</span>
+                                            )}
+                                        </div>
+                                        <p className="text-[10px] text-slate-400 mt-1">
+                                            {ticket.resolvedAt ? 'Issue fully resolved' : 'In progress towards resolution'}
+                                        </p>
+                                    </div>
+                                </div>
 
                                 {/* Details Grid */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

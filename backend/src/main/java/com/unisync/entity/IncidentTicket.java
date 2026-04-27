@@ -46,6 +46,8 @@ public class IncidentTicket {
 
     private List<String> imageUrls;
 
+    private LocalDateTime firstResponseAt;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
