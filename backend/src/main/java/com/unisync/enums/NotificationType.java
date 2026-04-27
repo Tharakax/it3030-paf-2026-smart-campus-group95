@@ -8,5 +8,6 @@ public enum NotificationType {
     INCIDENT_ASSIGNED,
     INCIDENT_STATUS_UPDATE,
     NEW_INCIDENT_REPORT,
+    TICKET_COMMENT,
     CUSTOM
 }

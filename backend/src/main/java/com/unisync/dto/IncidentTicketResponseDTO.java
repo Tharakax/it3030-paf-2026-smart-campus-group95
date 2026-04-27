@@ -38,6 +38,8 @@ public class IncidentTicketResponseDTO {
     private String rejectionReason;
     private ResolutionRecord resolutionNotes;
     private List<String> imageUrls;
+    private LocalDateTime firstResponseAt;
+    private LocalDateTime resolvedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

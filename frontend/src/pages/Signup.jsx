@@ -73,14 +73,14 @@ const Signup = () => {
             <div className="max-w-5xl w-full z-10 bg-white/80 backdrop-blur-xl rounded-[3rem] shadow-2xl border border-white/50 overflow-hidden grid grid-cols-1 lg:grid-cols-5">
                 
                 {/* Visual Side (2/5) */}
-                <div className="hidden lg:flex lg:col-span-2 bg-gradient-to-br from-indigo-600 via-blue-700 to-blue-900 p-12 flex-col justify-between relative">
+                <div className="hidden lg:flex lg:col-span-2 bg-gradient-to-br from-blue-600 to-indigo-800 p-12 flex-col justify-between relative text-white">
                     <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
                     
                     <div className="relative z-10">
-                        <Link to="/" className="flex items-center space-x-3 mb-12 group">
+                        <div className="flex items-center space-x-4 mb-16">
                             <img src={logo} alt="UniSync Logo" className="w-12 h-12 object-contain filter drop-shadow-xl" />
-                            <span className="text-3xl font-black text-white tracking-tighter uppercase">UniSync</span>
-                        </Link>
+                            <span className="text-3xl font-extrabold tracking-tight">UniSync</span>
+                        </div>
 
                         <div className="space-y-8">
                             <h2 className="text-4xl font-black text-white leading-tight tracking-tight">
@@ -119,9 +119,16 @@ const Signup = () => {
                 {/* Form Side (3/5) */}
                 <div className="lg:col-span-3 p-8 lg:p-16 bg-white">
                     <div className="max-w-md mx-auto">
+                        <div className="lg:hidden flex justify-center mb-8">
+                            <div className="flex items-center space-x-3">
+                                <img src={logo} alt="UniSync Logo" className="w-10 h-10 object-contain" />
+                                <span className="text-2xl font-extrabold text-slate-800 tracking-tight">UniSync</span>
+                            </div>
+                        </div>
+
                         <div className="mb-10 text-center lg:text-left">
                             <h1 className="text-4xl font-black text-slate-800 tracking-tighter mb-2">
-                                Create <span className="text-blue-600">Account</span>
+                                Create <span className="text-blue-600 underline decoration-indigo-200 decoration-4">Account</span>
                             </h1>
                             <p className="text-slate-500 font-medium">Join our smart campus ecosystem today.</p>
                         </div>
