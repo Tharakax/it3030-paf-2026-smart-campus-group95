@@ -190,12 +190,21 @@ const TicketForm = ({ onSubmit, onClose, submitting }) => {
         // Contact Validation
         const contact = formData.contactDetails.trim();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const phoneRegex = /^\+?[\d\s-]{10,}$/;
+        const phoneRegex = /^[\d\s-]{10,}$/; // Removed optional + to enforce start with 0
 
         if (!contact) {
             newErrors.contactDetails = 'Preferred contact is required';
-        } else if (!emailRegex.test(contact) && !phoneRegex.test(contact)) {
-            newErrors.contactDetails = 'Enter a valid email or phone number';
+        } else {
+            const isEmail = emailRegex.test(contact);
+            const isPhone = phoneRegex.test(contact);
+
+            if (!isEmail && !isPhone) {
+                newErrors.contactDetails = 'Enter a valid email or phone number';
+            } else if (isEmail && /[A-Z]/.test(contact)) {
+                newErrors.contactDetails = 'Email cannot contain capital letters';
+            } else if (isPhone && !contact.startsWith('0')) {
+                newErrors.contactDetails = 'Phone number must start with 0';
+            }
         }
 
         setErrors(newErrors);
