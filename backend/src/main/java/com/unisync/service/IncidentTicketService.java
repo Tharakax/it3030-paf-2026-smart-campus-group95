@@ -158,6 +158,11 @@ public class IncidentTicketService {
                 ticket.setResolutionRecord(resolution);
             }
         }
+        
+        // SLA: Capture first response if transitioning from OPEN
+        if (oldStatus == TicketStatus.OPEN && newStatus != TicketStatus.OPEN && ticket.getFirstResponseAt() == null) {
+            ticket.setFirstResponseAt(LocalDateTime.now());
+        }
 
         ticket.setUpdatedAt(LocalDateTime.now());
         IncidentTicket savedTicket = ticketRepository.save(ticket);
@@ -221,6 +226,12 @@ public class IncidentTicketService {
         }
 
         ticket.setAssignedTo(technicianId);
+        
+        // SLA: Capture first response when technician is assigned
+        if (ticket.getFirstResponseAt() == null) {
+            ticket.setFirstResponseAt(LocalDateTime.now());
+        }
+
         ticket.setUpdatedAt(LocalDateTime.now());
         IncidentTicket savedTicket = ticketRepository.save(ticket);
 
@@ -279,6 +290,8 @@ public class IncidentTicketService {
                 .assignedToName(assignedToName)
                 .rejectionReason(ticket.getRejectionReason())
                 .resolutionNotes(ticket.getResolutionRecord())
+                .firstResponseAt(ticket.getFirstResponseAt())
+                .resolvedAt(ticket.getResolutionRecord() != null ? ticket.getResolutionRecord().getResolvedAt() : null)
                 .imageUrls(ticket.getImageUrls())
                 .createdAt(ticket.getCreatedAt())
                 .updatedAt(ticket.getUpdatedAt())
