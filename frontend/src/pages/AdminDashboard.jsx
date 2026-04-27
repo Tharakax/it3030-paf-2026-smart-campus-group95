@@ -157,11 +157,6 @@ const AdminDashboard = () => {
                                 </div>
                             )}
 
-                            {['security', 'settings'].includes(activeTab) && (
-                                <div className="p-20 text-center text-slate-400 font-bold italic border-2 border-slate-100 rounded-[3rem] bg-white uppercase tracking-widest text-xs">
-                                    Terminal: Accessing {activeTab} Control Node...
-                                </div>
-                            )}
                         </div>
                     )}
                 </div>

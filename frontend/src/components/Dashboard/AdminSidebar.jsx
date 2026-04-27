@@ -1,10 +1,8 @@
 import React from 'react';
 import {
-    ShieldCheck,
     Users,
     BarChart3,
     Building2,
-    Settings,
     LogOut,
     ChevronLeft,
     ChevronRight,
@@ -25,8 +23,6 @@ const AdminSidebar = ({ activeTab, setActiveTab, user, handleLogout, isCollapsed
         { id: 'bookings', label: 'Resource Bookings', icon: Calendar },
         { id: 'users', label: 'User Management', icon: Users },
         { id: 'campus', label: 'Campus Infrastructure', icon: Building2 },
-        { id: 'security', label: 'System Security', icon: ShieldCheck },
-        { id: 'settings', label: 'Global Settings', icon: Settings },
     ];
 
     const [unreadCount, setUnreadCount] = React.useState(0);
