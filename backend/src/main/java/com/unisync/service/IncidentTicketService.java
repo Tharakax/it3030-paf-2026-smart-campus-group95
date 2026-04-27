@@ -211,6 +211,10 @@ public class IncidentTicketService {
             throw new UnauthorizedException("Only admins can assign technicians");
         }
 
+        if (technicianId == null || technicianId.isBlank()) {
+            throw new IllegalArgumentException("Technician ID is required");
+        }
+
         IncidentTicket ticket = ticketRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + id));
 

@@ -25,6 +25,10 @@ public class CommentService {
     private final NotificationService notificationService;
 
     public CommentDTO addComment(String ticketId, String content, User currentUser) {
+        // Validate ticket existence
+        IncidentTicket ticket = incidentTicketRepository.findById(ticketId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with id: " + ticketId));
+
         Comment comment = Comment.builder()
                 .ticketId(ticketId)
                 .userId(currentUser.getId())
@@ -38,24 +42,22 @@ public class CommentService {
         Comment savedComment = commentRepository.save(comment);
 
         // Notify the relevant party
-        incidentTicketRepository.findById(ticketId).ifPresent(ticket -> {
-            // Determine recipient: logic is to notify the "other" person in the conversation
-            if (currentUser.getId().equals(ticket.getCreatedBy())) {
-                // Reporter commented -> notify technician (if assigned)
-                if (ticket.getAssignedTo() != null) {
-                    sendCommentNotification(ticket.getAssignedTo(), ticket, currentUser, content);
-                }
-            } else if (currentUser.getId().equals(ticket.getAssignedTo())) {
-                // Technician commented -> notify reporter
-                sendCommentNotification(ticket.getCreatedBy(), ticket, currentUser, content);
-            } else {
-                // Third party (Admin) commented -> notify both original reporter and assignee
-                sendCommentNotification(ticket.getCreatedBy(), ticket, currentUser, content);
-                if (ticket.getAssignedTo() != null && !ticket.getAssignedTo().equals(currentUser.getId())) {
-                    sendCommentNotification(ticket.getAssignedTo(), ticket, currentUser, content);
-                }
+        // Determine recipient: logic is to notify the "other" person in the conversation
+        if (currentUser.getId().equals(ticket.getCreatedBy())) {
+            // Reporter commented -> notify technician (if assigned)
+            if (ticket.getAssignedTo() != null) {
+                sendCommentNotification(ticket.getAssignedTo(), ticket, currentUser, content);
             }
-        });
+        } else if (currentUser.getId().equals(ticket.getAssignedTo())) {
+            // Technician commented -> notify reporter
+            sendCommentNotification(ticket.getCreatedBy(), ticket, currentUser, content);
+        } else {
+            // Third party (Admin) commented -> notify both original reporter and assignee
+            sendCommentNotification(ticket.getCreatedBy(), ticket, currentUser, content);
+            if (ticket.getAssignedTo() != null && !ticket.getAssignedTo().equals(currentUser.getId())) {
+                sendCommentNotification(ticket.getAssignedTo(), ticket, currentUser, content);
+            }
+        }
 
         return convertToDTO(savedComment);
     }
@@ -78,6 +80,9 @@ public class CommentService {
     }
 
     public List<CommentDTO> getCommentsByTicket(String ticketId) {
+        if (!incidentTicketRepository.existsById(ticketId)) {
+            throw new ResourceNotFoundException("Ticket not found with id: " + ticketId);
+        }
         return commentRepository.findByTicketId(ticketId)
                 .stream()
                 .map(this::convertToDTO)
