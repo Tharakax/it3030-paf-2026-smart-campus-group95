@@ -395,12 +395,31 @@ const Bookings = () => {
                                                         Fetching occupancy data...
                                                     </div>
                                                 ) : busySlots.length > 0 ? (
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {busySlots.map((slot, i) => (
-                                                            <span key={i} className="px-3 py-1 bg-white text-rose-500 border border-rose-100 rounded-lg text-[10px] font-bold shadow-sm">
-                                                                {slot.startTime} - {slot.endTime}
-                                                            </span>
-                                                        ))}
+                                                    <div className="space-y-4">
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {busySlots.map((slot, i) => (
+                                                                <span 
+                                                                    key={i} 
+                                                                    className={`px-3 py-1 bg-white border rounded-lg text-[10px] font-bold shadow-sm ${
+                                                                        slot.status === 'APPROVED' 
+                                                                        ? 'text-rose-500 border-rose-100' 
+                                                                        : 'text-amber-500 border-amber-100'
+                                                                    }`}
+                                                                >
+                                                                    {slot.startTime} - {slot.endTime}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                        <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest">
+                                                            <div className="flex items-center gap-1.5 text-rose-500">
+                                                                <div className="w-2 h-2 rounded-full bg-rose-500" />
+                                                                Taken (Approved)
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 text-amber-500">
+                                                                <div className="w-2 h-2 rounded-full bg-amber-500" />
+                                                                Requested (Pending)
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 ) : (
                                                     <div className="text-[11px] text-emerald-600 font-bold italic flex items-center gap-1.5">

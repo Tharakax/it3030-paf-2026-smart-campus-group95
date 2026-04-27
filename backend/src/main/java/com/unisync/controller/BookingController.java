@@ -63,13 +63,21 @@ public class BookingController {
         BookingStatus status = BookingStatus.valueOf(statusStr);
         String reason = statusUpdate.get("rejectionReason");
 
-        // If it's a cancellation, check ownership
+        // Check if user is Admin
+        boolean isAdmin = principal.getUser().getRole() == com.unisync.entity.Role.ADMIN;
+
+        // If it's a cancellation request
         if (status == BookingStatus.CANCELLED) {
-            return ResponseEntity.ok(bookingService.cancelBooking(id, principal.getUser().getId()));
+            if (isAdmin) {
+                // Admin can cancel any booking
+                return ResponseEntity.ok(bookingService.updateBookingStatus(id, status, reason));
+            } else {
+                // Non-admins use the ownership-protected cancel service
+                return ResponseEntity.ok(bookingService.cancelBooking(id, principal.getUser().getId()));
+            }
         }
 
-        // Only Admin can Approve/Reject
-        // We'll rely on PreAuthorize for Admin checks on non-cancel statuses or handle in service
+        // Only Admin can Approve/Reject (handled by @PreAuthorize or service logic)
         return ResponseEntity.ok(bookingService.updateBookingStatus(id, status, reason));
     }
 
